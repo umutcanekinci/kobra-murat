@@ -6,8 +6,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-interface GameListener {
-    void onGameOver();
+interface PlayerListener {
+    void onStep();
+    void onHit();
 }
 
 public class Player {
@@ -15,12 +16,14 @@ public class Player {
     //region ---------------------------------------- ATTRIBUTES -----------------------------------------
 
     // Default
+
+    public static final Point HIDDEN_PART_POSITION = new Point(-1, -1);
     public static final Point SPAWN_POSITION = new Point(0, 0);
     public static final int DEFAULT_LENGTH = 3;
     public static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
 
     // Events
-    private final List<GameListener> listeners = new ArrayList<>();
+    private final List<PlayerListener> listeners = new ArrayList<>();
 
     // Image
     private static final File SNAKE_IMAGE = new File("images/snake.png");
@@ -35,6 +38,26 @@ public class Player {
     private Direction direction;
     private int tailIndex = 0;
     private boolean canRotate = true;
+
+    //endregion
+
+    //region ---------------------------------------- EVENT METHODS ---------------------------------------
+
+    public void addListener(PlayerListener listener) {
+        listeners.add(listener);
+    }
+
+    private void onHit() {
+        for(PlayerListener listener : listeners) {
+            listener.onHit();
+        }
+    }
+
+    private void onStep() {
+        for(PlayerListener listener : listeners) {
+            listener.onStep();
+        }
+    }
 
     //endregion
 
@@ -54,10 +77,6 @@ public class Player {
 
     //region ---------------------------------------- INIT METHODS ---------------------------------------
 
-    public void addListener(GameListener listener) {
-        listeners.add(listener);
-    }
-
     public Player() {
         loadImage();
         reset();
@@ -68,23 +87,70 @@ public class Player {
     }
 
     public void reset() {
-        pos.setLocation(SPAWN_POSITION);
-        direction = DEFAULT_DIRECTION;
-        tailIndex = 0;
-        clearSnakeParts();
-        grow(DEFAULT_LENGTH);
+        setDirection(DEFAULT_DIRECTION);
+        setLength(DEFAULT_LENGTH);
+        goSpawnPosition();
     }
 
-    private void clearSnakeParts() {
-        snakeParts.clear();
-        length = 0;
+    public void setDirection(Direction direction) {
+        if(direction == null)
+            return;
+        this.direction = direction;
+        canRotate = true;
+    }
+
+    public void setLength(int length) {
+        if(length > Board.COLUMNS * Board.ROWS)
+            return;
+
+        if(length < 1)
+            return;
+
+        if(length == this.length)
+            return;
+
+        if(length > this.length) {
+            grow(length - this.length);
+            return;
+        }
+
+        shrink(this.length - length);
     }
 
     public void grow(int amount) {
         for(int i=0; i<amount; i++) {
-            snakeParts.add(tailIndex, new Point(pos)); // locating the new part to the head position, also it is tailIndex so it will become new head after move.
+            snakeParts.add(tailIndex, new Point(-1, -1)); // locating the new part to the head position, also it is tailIndex so it will become new head after move.
         }
         length += amount;
+    }
+
+    public void shrink(int amount) {
+        for(int i=0; i<amount; i++) {
+            snakeParts.removeLast();
+        }
+        length -= amount;
+    }
+
+    private void goSpawnPosition() {
+        setPosition(SPAWN_POSITION);
+    }
+
+    private void setPosition(Point position) {
+        pos.setLocation(position);
+        tailIndex = 0;
+        resetSnakeParts();
+        setHeadPosition(position);
+    }
+
+    private void resetSnakeParts() {
+        for(Point snakePart : snakeParts) {
+            snakePart.setLocation(HIDDEN_PART_POSITION);
+        }
+    }
+
+    private void setHeadPosition(Point position) {
+        snakeParts.get(tailIndex).setLocation(position);
+        tailIndex++;
     }
 
     //endregion
@@ -133,28 +199,29 @@ public class Player {
         if(doesHit()) {
             onHit();
         }
+
         updateSnakeParts();
         displacement = 0;
+
     }
 
     private boolean doesHit() {
         for(Point snakePart : snakeParts) {
             if(snakePart.equals(pos)) {
+                for (Point snakePart2 : snakeParts) {
+                    System.out.println(snakePart2);
+                }
+                System.out.println(pos);
                 return true;
             }
         }
         return false;
     }
 
-    private void onHit() {
-        for(GameListener listener : listeners) {
-            listener.onGameOver();
-        }
-    }
-
     private void step() {
         pos.move(pos.x + direction.getX(), pos.y + direction.getY());
         canRotate = true;
+        onStep();
     }
 
     private void clampPosition() {

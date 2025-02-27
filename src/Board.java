@@ -1,14 +1,10 @@
-import jdk.jshell.execution.Util;
-
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
 
-
-
-public class Board extends JPanel implements ActionListener, KeyListener, GameListener{
+public class Board extends JPanel implements ActionListener, KeyListener, PlayerListener {
 
     //region ---------------------------------------- ATTRIBUTES ------------------------------------------
 
@@ -38,9 +34,9 @@ public class Board extends JPanel implements ActionListener, KeyListener, GameLi
     private static final Rectangle SCORE_RECT = new Rectangle(0, TILE_SIZE * (ROWS - 1), TILE_SIZE * COLUMNS, TILE_SIZE);
 
     // Apples
-    private ArrayList<Apple> apples;
+    private final ArrayList<Apple> apples = new ArrayList<>();
     public static final int APPLE_COUNT = 5;
-
+    private final Random rand = new Random();
     //endregion
 
     //region ---------------------------------------- INIT METHODS ----------------------------------------
@@ -51,7 +47,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, GameLi
 
         player = new Player();
         player.addListener(this);
-        apples = populateApples();
+        spawnApples(APPLE_COUNT);
 
         // this timer will call the actionPerformed() method every DELTATIME ms
         // keep a reference to the timer object that triggers actionPerformed() in
@@ -60,20 +56,25 @@ public class Board extends JPanel implements ActionListener, KeyListener, GameLi
         timer.start();
     }
 
-    private ArrayList<Apple> populateApples() {
-        ArrayList<Apple> appleList = new ArrayList<>();
-        Random rand = new Random();
+    private void spawnApples(int amount) {
+        System.out.println("Spawning " + amount + " apples...");
+        for (int i = 0; i < amount; i++) {
+            spawnApple();
+        }
+    }
 
-        // create the given number of apples in random positions on the board.
-        // note that there is not check here to prevent two apples from occupying the same
-        // spot, nor to prevent apples from spawning in the same spot as the player
-        for (int i = 0; i < APPLE_COUNT; i++) {
-            int appleX = rand.nextInt(COLUMNS);
-            int appleY = rand.nextInt(ROWS);
-            appleList.add(new Apple(appleX, appleY));
+    private void spawnApple() {
+        int appleX = rand.nextInt(COLUMNS);
+        int appleY = rand.nextInt(ROWS);
+        if(player.getSnakeParts().contains(new Point(appleX, appleY))) {
+            spawnApple();
+            return;
         }
 
-        return appleList;
+        if(apples.contains(new Apple(appleX, appleY)))
+            return;
+
+        apples.add(new Apple(appleX, appleY));
     }
 
     //endregion
@@ -113,29 +114,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, GameLi
         // so this is the mainloop of the game
 
         player.update();
-        collectApples();
         repaint();
-    }
-
-    private void collectApples() {
-        apples.removeAll(GetCollectedApples());
-    }
-
-    private ArrayList<Apple> GetCollectedApples() {
-        ArrayList<Apple> collectedApples = new ArrayList<>();
-
-        for (Apple apple : apples) {
-            if (apple.isCollide(player.getPos())) {
-                player.grow(1);
-                collectedApples.add(apple);
-            }
-        }
-        return collectedApples;
-    }
-
-    private void restart() {
-        player.reset();
-        apples = populateApples();
     }
 
     //endregion
@@ -222,9 +201,41 @@ public class Board extends JPanel implements ActionListener, KeyListener, GameLi
 
     //endregion
 
+    //region ---------------------------------------- PLAYER EVENTS ----------------------------------------
 
     @Override
-    public void onGameOver() {
+    public void onHit() {
         restart();
     }
+
+    private void restart() {
+        player.reset();
+        apples.clear();
+        spawnApples(APPLE_COUNT);
+    }
+
+    public void onStep() {
+        collectApples();
+    }
+
+    private void collectApples() {
+        ArrayList<Apple> collectedApples = GetCollectedApples();
+
+        if(collectedApples.isEmpty())
+            return;
+
+        apples.removeAll(collectedApples);
+        spawnApples(collectedApples.size());
+    }
+
+    private ArrayList<Apple> GetCollectedApples() {
+        ArrayList<Apple> collectedApples = new ArrayList<>();
+        for (Apple apple : apples) {
+            if (apple.isCollide(player.getPos())) {
+                player.grow(1);
+            }
+        }
+        return collectedApples;
+    }
+
 }
