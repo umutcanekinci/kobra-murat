@@ -1,6 +1,5 @@
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
@@ -26,7 +25,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
     public static int DELTATIME_MS = (int) (DELTATIME * 1000);
 
     // Map
-    private Tilemap map;
+    private final Tilemap map;
     public static final int TILE_SIZE = 64;
     public static final int ROWS = 12;
     public static final int COLUMNS = 18;
@@ -154,25 +153,6 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
         Toolkit.getDefaultToolkit().sync();
     }
 
-    private void drawTiles(Graphics g) {
-
-        g.setColor(TILE_COLOR);
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLUMNS; col++) {
-                // only color every other tile
-                if ((row + col) % 2 == 1) {
-                    // draw a square tile at the current row/column position
-                    g.fillRect(
-                            col * TILE_SIZE,
-                            row * TILE_SIZE,
-                            TILE_SIZE,
-                            TILE_SIZE
-                    );
-                }
-            }
-        }
-    }
-
     private void drawApples(Graphics g) {
         for (Apple apple : apples) {
             apple.draw(g, this);
@@ -196,7 +176,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
         };
 
         for (String s : text) {
-            DEBUG_RECT.y = drawDebugText(g, s, Color.BLACK);
+            DEBUG_RECT.y = drawDebugText(g, s, Color.GRAY);
         }
 
         drawDebugText(g, "Snake Length: " + player.getLength(), Color.GREEN);

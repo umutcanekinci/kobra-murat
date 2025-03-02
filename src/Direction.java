@@ -21,6 +21,10 @@ public enum Direction {
         return y;
     }
 
+    public boolean isParallel(Direction other) {
+        return this == other || isOppositeOf(other);
+    }
+
     public boolean isOppositeOf(Direction other) {
         return other.x == -x && other.y == -y;
     }

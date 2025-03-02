@@ -193,7 +193,7 @@ public class Player {
         if(newDirection == null)
             return;
 
-        if(newDirection.isOppositeOf(direction))
+        if(newDirection.isParallel(direction))
             return;
 
         direction = newDirection;
