@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Random;
 import javax.swing.*;
@@ -24,7 +25,8 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
     public static double DELTATIME = 1.0 / FPS;
     public static int DELTATIME_MS = (int) (DELTATIME * 1000);
 
-    // Size
+    // Map
+    private Tilemap map;
     public static final int TILE_SIZE = 64;
     public static final int ROWS = 12;
     public static final int COLUMNS = 18;
@@ -45,9 +47,11 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
         setPreferredSize(SIZE);
         setBackground(BACKGROUND_COLOR);
 
+        map = new Tilemap(Level.get(0));
         player = new Player();
+        player.setMap(map);
         player.addListener(this);
-        spawnApples(APPLE_COUNT);
+        onStart();
 
         // this timer will call the actionPerformed() method every DELTATIME ms
         // keep a reference to the timer object that triggers actionPerformed() in
@@ -57,24 +61,24 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
     }
 
     private void spawnApples(int amount) {
-        System.out.println("Spawning " + amount + " apples...");
         for (int i = 0; i < amount; i++) {
             spawnApple();
         }
     }
 
     private void spawnApple() {
-        int appleX = rand.nextInt(COLUMNS);
-        int appleY = rand.nextInt(ROWS);
-        if(player.getSnakeParts().contains(new Point(appleX, appleY))) {
+        Point position = new Point(rand.nextInt(COLUMNS), rand.nextInt(ROWS));
+        Apple apple = new Apple(position);
+
+        if(player.isCollide(position) || map.isCollide(position)) {
             spawnApple();
             return;
         }
 
-        if(apples.contains(new Apple(appleX, appleY)))
+        if(apples.contains(apple))
             return;
 
-        apples.add(new Apple(appleX, appleY));
+        apples.add(apple);
     }
 
     //endregion
@@ -130,7 +134,14 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
         // extends from Component. So "this" Board instance, as a Component, can
         // react to imageUpdate() events triggered by g.drawImage()
 
-        drawTiles(g);
+        // we need to cast the Graphics to Graphics2D to draw nicer text
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+
+
+        map.render(g2d);
         drawApples(g);
         drawPlayer(g);
         drawScore(g);
@@ -174,7 +185,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
 
     private void drawScore(Graphics g) {
         String text = "Score: " + player.getScore();
-        Utils.DrawText(g, text, Color.GREEN, SCORE_RECT, true);
+        Utils.drawText(g, text, Color.GREEN, SCORE_RECT, true);
     }
 
     private void drawDebug(Graphics g) {
@@ -187,21 +198,30 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
         for (String s : text) {
             DEBUG_RECT.y = drawDebugText(g, s, Color.BLACK);
         }
-        DEBUG_RECT.y = drawDebugText(g, "Snake Length: " + player.getLength(), Color.GREEN);
+
+        drawDebugText(g, "Snake Length: " + player.getLength(), Color.GREEN);
+
+        /* Snake Parts
         for (Point snakePart : player.getSnakeParts()) {
             DEBUG_RECT.y = drawDebugText(g, "Snake Part: (" + snakePart.x + ", " + snakePart.y + ")", Color.MAGENTA);
         }
+        */
 
         DEBUG_RECT.y = 0;
     }
 
     private int drawDebugText(Graphics g, String text, Color color) {
-        return Utils.DrawText(g, text, color, DEBUG_RECT, false);
+        return Utils.drawText(g, text, color, DEBUG_RECT, false);
     }
 
     //endregion
 
     //region ---------------------------------------- PLAYER EVENTS ----------------------------------------
+
+
+    private void onStart() {
+        restart();
+    }
 
     @Override
     public void onHit() {
@@ -233,9 +253,11 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
         for (Apple apple : apples) {
             if (apple.isCollide(player.getPos())) {
                 player.grow(1);
+                collectedApples.add(apple);
             }
         }
         return collectedApples;
     }
 
+    //endregion
 }

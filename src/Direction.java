@@ -24,4 +24,8 @@ public enum Direction {
     public boolean isOppositeOf(Direction other) {
         return other.x == -x && other.y == -y;
     }
+
+    public int getAngle() {
+        return (int) Math.toDegrees(Math.atan2(y, x));
+    }
 }

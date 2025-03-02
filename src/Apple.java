@@ -13,13 +13,13 @@ public class Apple {
     // Position
     private final Point pos;
 
-    public Apple(int x, int y) {
+    public Apple(Point pos) {
         loadImage();
-        pos = new Point(x, y);
+        this.pos = pos;
     }
 
     private void loadImage() {
-        image = Utils.LoadImage(APPLE_IMAGE);
+        image = Utils.loadImage(APPLE_IMAGE);
     }
 
     public void draw(Graphics g, ImageObserver observer) {

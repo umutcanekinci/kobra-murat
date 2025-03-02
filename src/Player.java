@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
@@ -15,10 +16,11 @@ public class Player {
 
     //region ---------------------------------------- ATTRIBUTES -----------------------------------------
 
-    // Default
+    public Point spawnPoint = new Point(0, 0);
+    private Color bodyColor = new Color(0, 0, 0);
 
+    // Default
     public static final Point HIDDEN_PART_POSITION = new Point(-1, -1);
-    public static final Point SPAWN_POSITION = new Point(0, 0);
     public static final int DEFAULT_LENGTH = 3;
     public static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
 
@@ -26,11 +28,14 @@ public class Player {
     private final List<PlayerListener> listeners = new ArrayList<>();
 
     // Image
-    private static final File SNAKE_IMAGE = new File("images/snake.png");
-    private BufferedImage image;
+    private static final File HEAD_IMAGE = new File("images/head.png");
+    private static final File BODY_IMAGE = new File("images/body.png");
+    private BufferedImage headImage;
+    private BufferedImage bodyImage;
+    private AffineTransformOp headTransform;
 
     // Movement
-    private final ArrayList<Point> snakeParts = new ArrayList<>();;
+    private final ArrayList<Point> snakeParts = new ArrayList<>();
     private double displacement;
     private final int speed = 5; // move speed per second in tiles
     private final Point pos = new Point(0, 0);
@@ -39,7 +44,13 @@ public class Player {
     private int tailIndex = 0;
     private boolean canRotate = true;
 
+    private Tilemap map;
+
     //endregion
+
+    public boolean isCollide(Point position) {
+        return snakeParts.contains(position);
+    }
 
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
 
@@ -78,12 +89,18 @@ public class Player {
     //region ---------------------------------------- INIT METHODS ---------------------------------------
 
     public Player() {
-        loadImage();
-        reset();
+        loadImages();
     }
 
-    private void loadImage() {
-        image = Utils.LoadImage(SNAKE_IMAGE);
+    public void setMap(Tilemap map) {
+        this.map = map;
+        spawnPoint.setLocation(map.getSpawnPoint());
+    }
+
+    private void loadImages() {
+        headImage = Utils.loadImage(HEAD_IMAGE);
+        rotateHeadTransform();
+        bodyImage = Utils.loadImage(BODY_IMAGE);
     }
 
     public void reset() {
@@ -97,6 +114,7 @@ public class Player {
             return;
         this.direction = direction;
         canRotate = true;
+        rotateHeadTransform();
     }
 
     public void setLength(int length) {
@@ -122,6 +140,7 @@ public class Player {
             snakeParts.add(tailIndex, new Point(-1, -1)); // locating the new part to the head position, also it is tailIndex so it will become new head after move.
         }
         length += amount;
+        bodyColor = new Color(0, (255 - length*2)%255, 0);
     }
 
     public void shrink(int amount) {
@@ -132,7 +151,10 @@ public class Player {
     }
 
     private void goSpawnPosition() {
-        setPosition(SPAWN_POSITION);
+        if(spawnPoint == null)
+            return;
+
+        setPosition(spawnPoint);
     }
 
     private void setPosition(Point position) {
@@ -166,7 +188,7 @@ public class Player {
         if(!canRotate)
             return;
 
-        Direction newDirection = Utils.KeyToDirection(key);
+        Direction newDirection = Utils.keyToDirection(key);
 
         if(newDirection == null)
             return;
@@ -196,26 +218,27 @@ public class Player {
         step();
         clampPosition();
 
-        if(doesHit()) {
+        if(doesHit(pos) || map.isCollide(pos)) {
             onHit();
         }
 
         updateSnakeParts();
         displacement = 0;
+        rotateHeadTransform();
 
     }
 
-    private boolean doesHit() {
+    private boolean doesHit(Point point) {
         for(Point snakePart : snakeParts) {
-            if(snakePart.equals(pos)) {
-                for (Point snakePart2 : snakeParts) {
-                    System.out.println(snakePart2);
-                }
-                System.out.println(pos);
+            if(snakePart.equals(point) && !isPointOnTail(snakePart)) {
                 return true;
             }
         }
         return false;
+    }
+
+    private boolean isPointOnTail(Point point) {
+        return point.equals(snakeParts.get(tailIndex));
     }
 
     private void step() {
@@ -258,12 +281,48 @@ public class Player {
     //region ---------------------------------------- DRAW METHODS ---------------------------------------
 
     public void draw(Graphics g, ImageObserver observer) {
-        // with the Point class, note that pos.getX() returns a double, but
-        // pos.x reliably returns an int. https://stackoverflow.com/a/30220114/4655368
 
         for(Point snakePart : snakeParts) {
-            g.drawImage(image, snakePart.x * Board.TILE_SIZE, snakePart.y * Board.TILE_SIZE, observer);
+
+            if(snakePart.equals(HIDDEN_PART_POSITION)) {
+                continue;
+            }
+
+            if(snakePart.equals(pos)) {
+                drawHead(g, observer);
+                continue;
+            }
+
+            drawBody(g, snakePart, bodyColor,observer);
         }
+    }
+
+    private void drawHead(Graphics g, ImageObserver observer) {
+        drawSnakePart(g, headTransform.filter(headImage, null), pos, observer);
+    }
+
+    private void drawBody(Graphics g, Point snakePart, Color color, ImageObserver observer) {
+        //drawSnakePart(g, bodyImage, snakePart, observer);
+        drawBodyRect(g, snakePart, color);
+    }
+
+    private void drawBodyRect(Graphics g, Point snakePart, Color color) {
+        g.setColor(color);
+        g.fillRect(
+                snakePart.x * Board.TILE_SIZE, snakePart.y * Board.TILE_SIZE,
+                Board.TILE_SIZE, Board.TILE_SIZE
+        );
+    }
+
+    private void drawSnakePart(Graphics g, BufferedImage image, Point snakePart, ImageObserver observer) {
+        g.drawImage(image, snakePart.x * Board.TILE_SIZE, snakePart.y * Board.TILE_SIZE, observer);
+    }
+
+    private void rotateHeadTransform() {
+        if (direction == null)
+            return;
+
+        headTransform = Utils.getRotatedTransform(headImage, direction.getAngle());
     }
 
     //endregion
