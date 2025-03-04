@@ -1,3 +1,5 @@
+package game;
+
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -21,22 +23,6 @@ public class Tile {
         x = column * WIDTH;
         y = row * HEIGHT;
         isCollidable = COLLIDABLE_IDS.contains(id);
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getWidth() {
-        return WIDTH;
-    }
-
-    public int getHeight() {
-        return HEIGHT;
     }
 
     public void setPosition(int x, int y) {

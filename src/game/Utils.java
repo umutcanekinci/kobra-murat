@@ -1,3 +1,5 @@
+package game;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -7,8 +9,6 @@ import java.io.IOException;
 import java.io.File;
 
 public final class Utils {
-
-    private static final Font FONT = new Font("Lato", Font.BOLD, 25);
 
     public static BufferedImage loadImage(File imageFile) {
         try {
@@ -23,7 +23,7 @@ public final class Utils {
         int i = 0;
         for(MoveKey moveKey : MoveKey.values()) {
             if(moveKey.isEqual(key)) {
-                return Direction.values()[i%Direction.values().length];
+                return Direction.values()[i% Direction.values().length];
             }
             i++;
         }
@@ -43,20 +43,13 @@ public final class Utils {
         return new int[]{x, y};
     }
 
-    public static int drawText(Graphics g, String text, Color color, Rectangle bounds, boolean center) {
-
-        // we need to cast the Graphics to Graphics2D to draw nicer text
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+    public static int drawText(Graphics2D g, String text, Color color, Rectangle bounds, boolean center) {
 
         // set the text color and font
-        g2d.setColor(color);
-        g2d.setFont(FONT);
+        g.setColor(color);
 
-        int[] pos = getTextPosition(g2d, text, bounds, center);
-        g2d.drawString(text, pos[0], pos[1]);
+        int[] pos = getTextPosition(g, text, bounds, center);
+        g.drawString(text, pos[0], pos[1]);
 
         return pos[1]; // the y position (I think it is the bottom position)
     }

@@ -1,3 +1,5 @@
+package game;
+
 public class Level {
     public static int[][][] levels = {
         {

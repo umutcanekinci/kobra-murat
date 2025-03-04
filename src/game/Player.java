@@ -1,3 +1,5 @@
+package game;
+
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.AffineTransformOp;
@@ -7,12 +9,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-interface PlayerListener {
-    void onStep();
-    void onHit();
-}
+interface PlayerListener {}
 
-public class Player {
+public class Player implements GameListener {
 
     //region ---------------------------------------- ATTRIBUTES -----------------------------------------
 
@@ -29,15 +28,13 @@ public class Player {
 
     // Image
     private static final File HEAD_IMAGE = new File("images/head.png");
-    private static final File BODY_IMAGE = new File("images/body.png");
     private BufferedImage headImage;
-    private BufferedImage bodyImage;
     private AffineTransformOp headTransform;
 
     // Movement
     private final ArrayList<Point> snakeParts = new ArrayList<>();
     private double displacement;
-    private final int speed = 5; // move speed per second in tiles
+    private final int speed = 5; // tiles/second
     private final Point pos = new Point(0, 0);
     private int length;
     private Direction direction;
@@ -52,22 +49,37 @@ public class Player {
         return snakeParts.contains(position);
     }
 
+    public String[] getDebugInfo() {
+        return new String[] {
+                "PLAYER DEBUG INFO",
+                "Length: " + length,
+                "Direction: " + direction.name(),
+                "Position: " + pos.x + ", " + pos.y,
+                String.format("Displacement: %.2f", displacement),
+                "Can Rotate: " + canRotate
+        };
+    }
+
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
+
 
     public void addListener(PlayerListener listener) {
         listeners.add(listener);
     }
 
-    private void onHit() {
+    private void invokeEvents(String eventName) {
         for(PlayerListener listener : listeners) {
-            listener.onHit();
+            try {
+                listener.getClass().getMethod(eventName).invoke(listener);
+            } catch (Exception e) {
+                e.printStackTrace();
+                System.exit(1);
+            }
         }
     }
 
-    private void onStep() {
-        for(PlayerListener listener : listeners) {
-            listener.onStep();
-        }
+    public void onGameStart() {
+        reset();
     }
 
     //endregion
@@ -79,10 +91,6 @@ public class Player {
     }
 
     public Point getPos() { return pos; }
-
-    public ArrayList<Point> getSnakeParts() { return snakeParts; }
-
-    public int getLength() { return length; }
 
     //endregion
 
@@ -100,12 +108,12 @@ public class Player {
     private void loadImages() {
         headImage = Utils.loadImage(HEAD_IMAGE);
         rotateHeadTransform();
-        bodyImage = Utils.loadImage(BODY_IMAGE);
     }
 
     public void reset() {
         setDirection(DEFAULT_DIRECTION);
         setLength(DEFAULT_LENGTH);
+        updateColor();
         goSpawnPosition();
     }
 
@@ -140,6 +148,10 @@ public class Player {
             snakeParts.add(tailIndex, new Point(-1, -1)); // locating the new part to the head position, also it is tailIndex so it will become new head after move.
         }
         length += amount;
+        updateColor();
+    }
+
+    private void updateColor() {
         bodyColor = new Color(0, (255 - length*2)%255, 0);
     }
 
@@ -219,7 +231,7 @@ public class Player {
         clampPosition();
 
         if(doesHit(pos) || map.isCollide(pos)) {
-            onHit();
+            invokeEvents("onHit");
         }
 
         updateSnakeParts();
@@ -244,7 +256,7 @@ public class Player {
     private void step() {
         pos.move(pos.x + direction.getX(), pos.y + direction.getY());
         canRotate = true;
-        onStep();
+        invokeEvents("onStep");
     }
 
     private void clampPosition() {
@@ -280,7 +292,7 @@ public class Player {
 
     //region ---------------------------------------- DRAW METHODS ---------------------------------------
 
-    public void draw(Graphics g, ImageObserver observer) {
+    public void draw(Graphics2D g, ImageObserver observer) {
 
         for(Point snakePart : snakeParts) {
 
@@ -293,20 +305,19 @@ public class Player {
                 continue;
             }
 
-            drawBody(g, snakePart, bodyColor,observer);
+            drawBody(g, snakePart, bodyColor);
         }
     }
 
-    private void drawHead(Graphics g, ImageObserver observer) {
+    private void drawHead(Graphics2D g, ImageObserver observer) {
         drawSnakePart(g, headTransform.filter(headImage, null), pos, observer);
     }
 
-    private void drawBody(Graphics g, Point snakePart, Color color, ImageObserver observer) {
-        //drawSnakePart(g, bodyImage, snakePart, observer);
+    private void drawBody(Graphics2D g, Point snakePart, Color color) {
         drawBodyRect(g, snakePart, color);
     }
 
-    private void drawBodyRect(Graphics g, Point snakePart, Color color) {
+    private void drawBodyRect(Graphics2D g, Point snakePart, Color color) {
         g.setColor(color);
         g.fillRect(
                 snakePart.x * Board.TILE_SIZE, snakePart.y * Board.TILE_SIZE,
@@ -314,7 +325,7 @@ public class Player {
         );
     }
 
-    private void drawSnakePart(Graphics g, BufferedImage image, Point snakePart, ImageObserver observer) {
+    private void drawSnakePart(Graphics2D g, BufferedImage image, Point snakePart, ImageObserver observer) {
         g.drawImage(image, snakePart.x * Board.TILE_SIZE, snakePart.y * Board.TILE_SIZE, observer);
     }
 
