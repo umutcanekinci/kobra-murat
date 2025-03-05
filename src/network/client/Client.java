@@ -1,13 +1,15 @@
 package network.client;
 import network.Connection;
 
-import packet.AddPlayerPacket;
+import network.PlayerHandler;
+import network.server.NetPlayer;
 import packet.RemovePlayerPacket;
-import network.server.EventListener;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class Client {
 
@@ -17,7 +19,6 @@ public class Client {
     private Socket socket;
     private ObjectOutputStream output;
     private ObjectInputStream input;
-    private EventListener eventListener;
     private Connection connection;
 
     public Client(String host, int port) {
@@ -25,22 +26,47 @@ public class Client {
         this.port = port;
     }
 
-    public void connectToServer() throws IOException {
-        socket = new Socket(host, port);
+    public ArrayList<String> getDebugInfo() {
+        ArrayList<String> info = new ArrayList<>();
+        for (NetPlayer player: PlayerHandler.players.values()) {
+            info.add(player.name + " (" + player.id + ")");
+        }
 
-        System.out.println("Connected to the server with ip " + host + " on port " + port + ".");
+        if(!info.isEmpty())
+            info.set(0, "-> " + info.getFirst());
 
-        connection = new Connection(socket);
-        connection.start();
+        return info;
     }
 
-    public void enterGame(AddPlayerPacket packet) throws IOException {
-        connection.sendData(packet);
+    public boolean connectToServer() {
+        try {
+            socket = new Socket(host, port);
+            System.out.println("Connected to the server with ip " + host + " on port " + port + ".");
+            //connection = new Connection(socket);
+            //connection.start();
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
     }
 
-    public void disconnect() throws IOException {
-        RemovePlayerPacket packet = new RemovePlayerPacket();
-        connection.sendData(packet);
-        connection.close();
+    public void sendData(Object data) {
+        if(connection == null)
+            return;
+
+        connection.sendData(data);
     }
+
+    public void disconnect() {
+        try {
+            if(connection == null)
+                return;
+
+            connection.sendData(new RemovePlayerPacket(connection.id));
+            connection.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -2,34 +2,44 @@
 
 package network.server;
 import network.Connection;
+import network.PlayerHandler;
 import packet.AddPlayerPacket;
+import packet.ServerClosedPacket;
+import packet.SetIdPacket;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 //endregion
 
 public class Server implements Runnable {
 
     private final int port;
-    private boolean isRunning = false;
+    public boolean isRunning = false;
     private ServerSocket serverSocket;
-    private HashMap<Integer, Connection> connections;
 
     //private ByteBuffer buffer;
     //private Selector selector;
 
+    public ArrayList<String> getDebugInfo() {
+        ArrayList<String> info = new ArrayList<>();
+        for (NetPlayer player: PlayerHandler.players.values()) {
+
+            info.add(player.name + " (" + player.id + ")");
+        }
+        info.set(0, "-> " + info.getFirst());
+        return info;
+    }
+
     public Server(int port) {
         this.port = port;
-        connections = new HashMap<>();
         //buffer = ByteBuffer.allocate(bufferSize);
     }
 
-    public void open() throws IOException {
-        serverSocket = new ServerSocket(port);
+    public void open() {
 
         /*
 
@@ -45,9 +55,13 @@ public class Server implements Runnable {
 
          */
 
-        ClientHandler.players.put(0, new NetPlayer(0, "Anne Kobra"));
-
-        System.out.println("Server is created successfully on host " + InetAddress.getLocalHost().getHostName() + " with IP address " + InetAddress.getLocalHost().getHostAddress() + " on port " + port + ".");
+        try {
+            serverSocket = new ServerSocket(port);
+            System.out.println("Server is created successfully on host " + InetAddress.getLocalHost().getHostName() + " with IP address " + InetAddress.getLocalHost().getHostAddress() + " on port " + port + ".");
+            PlayerHandler.addPlayer(null, 0, "Anne Kobra");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void start() {
@@ -59,17 +73,17 @@ public class Server implements Runnable {
         isRunning = true;
         //System.out.println("Server started running.");
 
-        while (isRunning) {
-            try {
+        try {
+            while (isRunning) {
                 listen();
-            } catch (IOException e) {
-                Connection.logError(e);
             }
+        } catch (IOException e) {
+            Connection.logError(e);
         }
     }
 
     private void listen() throws IOException {
-        //System.out.println("Server is listening port for clients to connect..");
+        //System.out.println("Server is listening port for clients to connect.");
 
         /*
         Set<SelectionKey> keys = selector.selectedKeys();
@@ -95,34 +109,36 @@ public class Server implements Runnable {
     }
 
     private void startConnection(Socket socket) throws IOException {
-        System.out.println(socket.getInetAddress().getHostName() + " with address " + socket.getInetAddress().getHostAddress() + " is connected with port " + socket.getPort() + ".");
+        //System.out.println(socket.getInetAddress().getHostName() + " with address " + socket.getInetAddress().getHostAddress() + " is connected with port " + socket.getPort() + ".");
 
-        int id = ClientHandler.players.size();
+        int id = PlayerHandler.players.size();
         String name = "Kobra Murat " + id;
         AddPlayerPacket newPacket = new AddPlayerPacket(id, name);
 
         Connection newConnection = new Connection(socket);
-
-        // add newConnection to the list
-        connections.put(id, newConnection);
-
         newConnection.start();
+        newConnection.sendData(new SetIdPacket(id));
+
+        // add new player to the player list
+        PlayerHandler.addPlayer(newConnection, id, name);
 
         // send the new player to all players
-        for(Connection connection : connections.values()) {
-            connection.sendData(newPacket);
-        }
+        sendData(newPacket);
 
         // send old players including server side to new player
-        for(NetPlayer oldPlayer : ClientHandler.players.values()) {
+        for(NetPlayer oldPlayer : PlayerHandler.players.values()) {
             AddPlayerPacket oldPacket = new AddPlayerPacket(oldPlayer.id, oldPlayer.name);
             newConnection.sendData(oldPacket);
         }
 
-        // add new player to the player list
-        NetPlayer netPlayer = new NetPlayer(id, name);
-        ClientHandler.players.put(id, netPlayer);
+    }
 
+    public void sendData(Object data) {
+        for(NetPlayer player : PlayerHandler.players.values()) {
+            if(player.connection == null)
+                continue;
+            player.connection.sendData(data);
+        }
     }
 
     /*
@@ -154,16 +170,21 @@ public class Server implements Runnable {
 
     */
 
+    public void close() {
+        try {
+            if(serverSocket == null || serverSocket.isClosed()) {
+                return;
+            }
 
-    public void close() throws IOException {
-        if(!isRunning) {
-            System.out.println("Server can't be closed when it is not working.");
-            return;
+            sendData(new ServerClosedPacket());
+
+            isRunning = false;
+            serverSocket.close();
+
+            System.out.println("Server is closed successfully:");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        isRunning = false;
-        serverSocket.close();
-        System.out.println("Server is closed successfully:");
     }
 
 }
