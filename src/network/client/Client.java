@@ -1,51 +1,52 @@
 package network.client;
 import network.Connection;
 
-import network.PlayerHandler;
+import network.PlayerList;
 import network.server.NetPlayer;
 import packet.RemovePlayerPacket;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 
-public class Client {
+public class Client implements Runnable {
 
     private String host;
     private int port;
+    private State state;
+
+    private enum State {
+        CLOSED,
+        CONNECTED
+    }
 
     private Socket socket;
-    private ObjectOutputStream output;
-    private ObjectInputStream input;
     private Connection connection;
 
     public Client(String host, int port) {
         this.host = host;
         this.port = port;
+        state = State.CLOSED;
     }
 
-    public ArrayList<String> getDebugInfo() {
-        ArrayList<String> info = new ArrayList<>();
-        for (NetPlayer player: PlayerHandler.players.values()) {
-            info.add(player.name + " (" + player.id + ")");
-        }
-
-        if(!info.isEmpty())
-            info.set(0, "-> " + info.getFirst());
-
-        return info;
+    public void start() {
+        new Thread(this).start();
     }
 
-    public boolean connectToServer() {
+    @Override
+    public void run() {
+        connect();
+    }
+
+    private boolean connect() {
         try {
             socket = new Socket(host, port);
-            System.out.println("Connected to the server with ip " + host + " on port " + port + ".");
-            //connection = new Connection(socket);
-            //connection.start();
+            connection = new Connection(socket);
+            connection.start();
+            state = State.CONNECTED;
             return true;
         } catch (IOException e) {
+            state = State.CLOSED;
             return false;
         }
     }
@@ -58,15 +59,37 @@ public class Client {
     }
 
     public void disconnect() {
-        try {
-            if(connection == null)
+        if(connection == null || socket.isClosed() || state == State.CLOSED)
                 return;
 
+        try {
             connection.sendData(new RemovePlayerPacket(connection.id));
             connection.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            return;
         }
     }
+
+    public boolean isConnected() {
+        return state == State.CONNECTED;
+    }
+    
+    public ArrayList<String> getDebugInfo() {
+        ArrayList<String> info = new ArrayList<>();
+        info.add("CLIENT [" + state + "]");
+        info.add("Host: " + host);
+        info.add("Port: " + port);
+        info.add("");
+        info.add("Player List:");
+        for (NetPlayer player: PlayerList.players.values()) {
+            if(player.id == connection.id)
+                info.add("Player " + player.id + " (You)");
+            else
+                info.add("Player " + player.id);
+        }
+
+        return info;
+    }
+
 
 }

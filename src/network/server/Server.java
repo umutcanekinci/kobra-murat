@@ -2,7 +2,7 @@
 
 package network.server;
 import network.Connection;
-import network.PlayerHandler;
+import network.PlayerList;
 import packet.AddPlayerPacket;
 import packet.ServerClosedPacket;
 import packet.SetIdPacket;
@@ -11,31 +11,51 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 //endregion
 
+enum State {
+    CLOSED,
+    CONNECTED,
+    LISTENING,
+}
+
 public class Server implements Runnable {
 
+    private String ip;
     private final int port;
-    public boolean isRunning = false;
     private ServerSocket serverSocket;
+    private State state = State.CLOSED;
 
     //private ByteBuffer buffer;
     //private Selector selector;
 
     public ArrayList<String> getDebugInfo() {
         ArrayList<String> info = new ArrayList<>();
-        for (NetPlayer player: PlayerHandler.players.values()) {
-
-            info.add(player.name + " (" + player.id + ")");
+        info.add("SERVER [" + state + "]");
+        info.add("IP: " + ip);
+        info.add("Port: " + port);
+        info.add("");
+        info.add("Player List:");
+        for (NetPlayer player: PlayerList.players.values()) {
+            if(player.id == 0)
+                info.add("Player " + player.id + " (Host) (You)");
+            else
+                info.add("Player " + player.id);
         }
-        info.set(0, "-> " + info.getFirst());
         return info;
     }
 
     public Server(int port) {
         this.port = port;
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            state = State.CLOSED;
+        }
+            
         //buffer = ByteBuffer.allocate(bufferSize);
     }
 
@@ -57,10 +77,9 @@ public class Server implements Runnable {
 
         try {
             serverSocket = new ServerSocket(port);
-            System.out.println("Server is created successfully on host " + InetAddress.getLocalHost().getHostName() + " with IP address " + InetAddress.getLocalHost().getHostAddress() + " on port " + port + ".");
-            PlayerHandler.addPlayer(null, 0, "Anne Kobra");
+            state = State.CONNECTED;
         } catch (IOException e) {
-            e.printStackTrace();
+            state = State.CLOSED;
         }
     }
 
@@ -70,11 +89,10 @@ public class Server implements Runnable {
 
     @Override
     public void run() {
-        isRunning = true;
-        //System.out.println("Server started running.");
-
+        addHostPlayer();
+        state = State.LISTENING;
         try {
-            while (isRunning) {
+            while (isRunning()) {
                 listen();
             }
         } catch (IOException e) {
@@ -82,8 +100,16 @@ public class Server implements Runnable {
         }
     }
 
-    private void listen() throws IOException {
-        //System.out.println("Server is listening port for clients to connect.");
+    public boolean isRunning() {
+        return state != State.CLOSED;
+    }
+
+    private void addHostPlayer() {
+        PlayerList.addPlayer(null, 0);
+    }
+
+    private void listen() throws IOException, NullPointerException {
+        state = State.LISTENING;
 
         /*
         Set<SelectionKey> keys = selector.selectedKeys();
@@ -100,41 +126,46 @@ public class Server implements Runnable {
 
             keys.clear();
         }
-        //System.out.println("Server stopped listening port for clients to connect.");
+
 
         */
+
+        if(serverSocket == null || serverSocket.isClosed()) {
+            state = State.CLOSED;
+            return;
+        }
 
         Socket socket = serverSocket.accept();
         startConnection(socket);
     }
 
     private void startConnection(Socket socket) throws IOException {
-        //System.out.println(socket.getInetAddress().getHostName() + " with address " + socket.getInetAddress().getHostAddress() + " is connected with port " + socket.getPort() + ".");
-
-        int id = PlayerHandler.players.size();
-        String name = "Kobra Murat " + id;
-        AddPlayerPacket newPacket = new AddPlayerPacket(id, name);
-
-        Connection newConnection = new Connection(socket);
+    
+        int id = PlayerList.players.size();
+        Connection newConnection = new Connection(socket, this);
         newConnection.start();
+        
         newConnection.sendData(new SetIdPacket(id));
 
         // add new player to the player list
-        PlayerHandler.addPlayer(newConnection, id, name);
+        PlayerList.addPlayer(newConnection, id);
 
         // send the new player to all players
+        AddPlayerPacket newPacket = new AddPlayerPacket(id);
         sendData(newPacket);
 
-        // send old players including server side to new player
-        for(NetPlayer oldPlayer : PlayerHandler.players.values()) {
-            AddPlayerPacket oldPacket = new AddPlayerPacket(oldPlayer.id, oldPlayer.name);
-            newConnection.sendData(oldPacket);
-        }
+        setPlayerList(newConnection);
+    }
 
+    private void setPlayerList(Connection connection) {
+        for(NetPlayer oldPlayer : PlayerList.players.values()) {
+            AddPlayerPacket oldPacket = new AddPlayerPacket(oldPlayer.id);
+            connection.sendData(oldPacket);
+        }
     }
 
     public void sendData(Object data) {
-        for(NetPlayer player : PlayerHandler.players.values()) {
+        for(NetPlayer player : PlayerList.players.values()) {
             if(player.connection == null)
                 continue;
             player.connection.sendData(data);
@@ -145,7 +176,7 @@ public class Server implements Runnable {
 
     private void acceptClient() throws IOException {
         Socket socket = serverSocket.accept();
-        System.out.println(socket + " is connected.");
+        
         SocketChannel socketChannel = socket.getChannel();
         socketChannel.configureBlocking(false);
         socketChannel.register(selector, SelectionKey.OP_READ);
@@ -171,19 +202,16 @@ public class Server implements Runnable {
     */
 
     public void close() {
+        if(serverSocket == null || serverSocket.isClosed() || state == State.CLOSED) {
+            return;
+        }
+
         try {
-            if(serverSocket == null || serverSocket.isClosed()) {
-                return;
-            }
-
             sendData(new ServerClosedPacket());
-
-            isRunning = false;
             serverSocket.close();
-
-            System.out.println("Server is closed successfully:");
+            state = State.CLOSED;
         } catch (IOException e) {
-            e.printStackTrace();
+            return;
         }
     }
 

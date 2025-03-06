@@ -11,13 +11,11 @@ public class Tile {
         add(1);
     }};
 
-    private final int id;
     private int row, column;
     private int x, y;
     private boolean isCollidable = false;
 
     Tile(int id, int row, int column) {
-        this.id = id;
         this.row = row;
         this.column = column;
         x = column * WIDTH;

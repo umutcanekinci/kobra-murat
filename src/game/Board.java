@@ -16,7 +16,8 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
     //region ---------------------------------------- ATTRIBUTES ------------------------------------------
 
     private static final int PORT = 7777;
-    private static final String HOST_IP = "192.168.1.7";
+    private static String HOST_IP = "10.253.68.73";
+    private static final boolean isHostInLocal = true;
 
     private final Client client = new Client(HOST_IP, PORT);
     private final Server server = new Server(PORT);
@@ -37,8 +38,8 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
             new Color(0, 255, 0)
     };
 
-    // Player
-    Player player = new Player();
+    // Players
+    Player player;
 
     // Colors
     private static final Color MENU_BACKGROUND_COLOR = Color.GREEN;
@@ -66,9 +67,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
     // UI
     private final String TITLE = "Kobra Murat";
     private static final Rectangle SCORE_RECT = new Rectangle(0, TILE_SIZE * (ROWS - 1), TILE_SIZE * COLUMNS, TILE_SIZE);
-    private final JButton[] buttons = new JButton[2];
-
-    private boolean isHost = true;
+    private final ArrayList<JButton> buttons = new ArrayList<>();
 
     //endregion
 
@@ -87,18 +86,12 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
     }
 
     private void initConnection() {
-        if(!client.connectToServer()) {
-            openServer();
-        }
-    }
-
-    private void openServer() {
-        server.open();
-        server.start();
+        if(isHostInLocal) 
+            HOST_IP = "localhost";
     }
 
     private void initPlayer() {
-        player = new Player();
+        player = new Player(new Snake());
     }
 
     private void initMap() {
@@ -128,13 +121,17 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
     private void initWidgets() {
 
         JButton startButton = newButton("Başla");
+        startButton.setEnabled(false);
         startButton.addActionListener(e -> startGame());
+
+        JButton connectButton = newButton("Bağlan");
+        connectButton.addActionListener(e -> connect());
+
+        JButton hostButton = newButton("Sunucu");
+        hostButton.addActionListener(e -> host());
 
         JButton exitButton = newButton("Çıkış");
         exitButton.addActionListener(e -> exit());
-
-        buttons[0] = startButton;
-        buttons[1] = exitButton;
     }
 
     private JButton newButton(String text) {
@@ -142,10 +139,20 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
         button.setRequestFocusEnabled(false);
         button.setBackground(Color.WHITE);
         button.setFont(new Font("Arial", Font.BOLD, 20));
-        button.setPreferredSize(new Dimension(500, 100));
+        button.setPreferredSize(new Dimension(200, 100));
 
         add(button, layout);
+        buttons.add(button);
         return button;
+    }
+    
+    private void connect() {
+        client.start();
+    }
+
+    private void host() {
+        server.open();
+        server.start();
     }
 
     private void hideWidgets() {
@@ -313,6 +320,10 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
     public void actionPerformed(ActionEvent e) {
         // this method is called by the timer every DELTATIME ms.
         // so this is the mainloop of the game
+        if(!isGameStarted)
+            if(client.isConnected() || server.isRunning())
+                buttons.get(0).setEnabled(true);
+
         if(isGameStarted) {
             player.update();
             sendPlayerData();
@@ -322,8 +333,11 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
     }
 
     private void sendPlayerData() {
-        if(client != null) {
+        if(client != null && client.isConnected()) {
             client.sendData(new UpdatePlayerPack(player.snake));
+        }
+        if(server != null && server.isRunning()) {
+            server.sendData(new UpdatePlayerPack(player.snake));
         }
     }
 
@@ -413,14 +427,12 @@ public class Board extends JPanel implements ActionListener, KeyListener, Player
             DEBUG_RECT.y = drawDebugText(g, s, DEBUG_COLORS[0]);
         }
 
-        if(server.isRunning) {
-            DEBUG_RECT.y = drawDebugText(g, "[SERVER]", DEBUG_COLORS[1]);
+        if(server.isRunning()) {
             for(String s : server.getDebugInfo()) {
                 DEBUG_RECT.y = drawDebugText(g, s, DEBUG_COLORS[1]);
             }
         }
-        else {
-            DEBUG_RECT.y = drawDebugText(g, "[CLIENT]", DEBUG_COLORS[1]);
+        else if(client.isConnected()) {
             for(String s : client.getDebugInfo()) {
                 DEBUG_RECT.y = drawDebugText(g, s, DEBUG_COLORS[1]);
             }

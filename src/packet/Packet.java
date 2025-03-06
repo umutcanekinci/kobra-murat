@@ -4,8 +4,11 @@ import java.io.Serializable;
 
 public class Packet implements Serializable {
     public int id;
-    private static final long serializableVersionUID = 1L;
-
+    
     Packet() {}
+    
+    Packet(int id) {
+        this.id = id;
+    }
 
 }

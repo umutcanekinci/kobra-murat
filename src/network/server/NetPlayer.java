@@ -1,19 +1,17 @@
 package network.server;
-
+import game.Player;
 import game.Snake;
 import network.Connection;
 import packet.UpdatePlayerPack;
 
-public class NetPlayer {
+public class NetPlayer extends Player{
 
-    public int id;
     public Connection connection;
-    public String name;
-    public Snake snake;
+    public int id;
 
-    public NetPlayer(int id, String name) {
+    public NetPlayer(int id) {
+        super(new Snake());
         this.id = id;
-        this.name = name;
     }
 
     public void update(UpdatePlayerPack pack) {

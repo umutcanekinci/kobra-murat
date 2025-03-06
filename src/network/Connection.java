@@ -8,11 +8,12 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class Connection implements Runnable {
 
+public class Connection implements Runnable {
+    
     public int id;
-    private Server server;
     private final Socket socket;
+    private Server server;
     private final ObjectOutputStream output;
     private final ObjectInputStream input;
 
@@ -20,6 +21,11 @@ public class Connection implements Runnable {
         this.socket = socket;
         output = new ObjectOutputStream(socket.getOutputStream());
         input = new ObjectInputStream(socket.getInputStream());
+    }
+
+    public Connection(Socket socket, Server server) throws IOException {
+        this(socket);
+        this.server = server;
     }
 
     public void start() {
@@ -38,24 +44,33 @@ public class Connection implements Runnable {
     }
 
     private void readData() throws IOException, ClassNotFoundException {
-        //System.out.println("Connection is waiting data to be sent..");
         Object p = input.readObject();
 
-        if(p instanceof SetIdPacket) {
-            id = ((SetIdPacket) p).id;
+        if(server == null)
+        { // Client side packets
+            if(p instanceof SetIdPacket) {
+                id = ((SetIdPacket) p).id;
+            }
+            else if(p instanceof AddPlayerPacket) {
+                if(PlayerList.players.containsKey(((AddPlayerPacket) p).id))
+                    return;
+                PlayerList.addPlayer(this, (AddPlayerPacket) p);
+            } 
+            else if(p instanceof ServerClosedPacket) {
+                App.exit();
+            }
         }
-        else if(p instanceof AddPlayerPacket) {
-            if(PlayerHandler.players.containsKey(((AddPlayerPacket) p).id))
-                return;
-            PlayerHandler.addPlayer(this, (AddPlayerPacket) p);
-        } else if(p instanceof RemovePlayerPacket) {
-            if(server != null)
+        // Both client and server packets
+        if(p instanceof RemovePlayerPacket) {
+            PlayerList.removePlayer((RemovePlayerPacket) p);
+            if(server != null) {
                 server.sendData(p);
-            PlayerHandler.removePlayer((RemovePlayerPacket) p);
+            }
         } else if(p instanceof UpdatePlayerPack) {
-            PlayerHandler.updatePlayerTransform((UpdatePlayerPack) p);
-        } else if(p instanceof ServerClosedPacket) {
-            App.exit();
+            PlayerList.updatePlayerTransform((UpdatePlayerPack) p);
+            if(server != null) {
+                server.sendData(p);
+            }
         }
     }
 
@@ -64,7 +79,8 @@ public class Connection implements Runnable {
             output.writeObject(data);
             output.flush();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Failed to send data to client.");
+            System.out.println(e.toString());
         }
     }
 

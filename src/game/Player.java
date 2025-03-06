@@ -15,7 +15,7 @@ public class Player implements GameListener {
 
     //region ---------------------------------------- ATTRIBUTES -----------------------------------------
 
-    public final Snake snake = new Snake();
+    public Snake snake;
     private Tilemap map;
     public Point spawnPoint = new Point(0, 0);
     private Color bodyColor = new Color(0, 0, 0);
@@ -91,7 +91,8 @@ public class Player implements GameListener {
 
     //region ---------------------------------------- INIT METHODS ---------------------------------------
 
-    public Player() {
+    public Player(Snake snake) {
+        this.snake = snake;
         loadImages();
     }
 
