@@ -1,20 +1,28 @@
 package game;
 
 import javax.imageio.ImageIO;
+
+import game.player.Direction;
+import game.player.MoveKey;
+
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class Utils {
+
+    private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
 
     public static BufferedImage loadImage(File imageFile) {
         try {
             return ImageIO.read(imageFile);
         } catch (IOException exc) {
-            System.out.println("Error opening image file: " + exc.getMessage());
+            LOGGER.log(Level.SEVERE, "Error opening image file: " + exc.getMessage(), exc);
             return null;
         }
     }

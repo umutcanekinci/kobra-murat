@@ -1,4 +1,4 @@
-package packet;
+package network.packet;
 
 public class SetIdPacket extends Packet {
     public SetIdPacket(int id) {this.id = id;}

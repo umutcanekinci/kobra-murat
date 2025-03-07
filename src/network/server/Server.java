@@ -3,16 +3,18 @@
 package network.server;
 import network.Connection;
 import network.PlayerList;
-import packet.AddPlayerPacket;
-import packet.ServerClosedPacket;
-import packet.SetIdPacket;
+import network.packet.AddPlayerPacket;
+import network.packet.PacketHandler;
+import network.packet.ServerClosedPacket;
+import network.packet.SetIdPacket;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
+import game.Board;
+import game.player.NetPlayer;
 
 //endregion
 
@@ -24,42 +26,58 @@ enum State {
 
 public class Server implements Runnable {
 
-    private String ip;
-    private final int port;
-    private ServerSocket serverSocket;
     private State state = State.CLOSED;
-
+    public String ip;
+    private int port;
+    private ServerSocket serverSocket;
+    public Board board;
     //private ByteBuffer buffer;
     //private Selector selector;
 
-    public ArrayList<String> getDebugInfo() {
-        ArrayList<String> info = new ArrayList<>();
-        info.add("SERVER [" + state + "]");
-        info.add("IP: " + ip);
-        info.add("Port: " + port);
-        info.add("");
-        info.add("Player List:");
-        for (NetPlayer player: PlayerList.players.values()) {
-            if(player.id == 0)
-                info.add("Player " + player.id + " (Host) (You)");
-            else
-                info.add("Player " + player.id);
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
+    private void setState(State state) {
+        this.state = state;
+        notifyBoard();
+    }
+
+    private void notifyBoard() {
+        if(board == null)
+            return;
+        
+        switch (state) {
+            case CLOSED -> board.onServerClosed();
+            case CONNECTED -> board.onServerOpened();
+            case LISTENING -> {}
         }
-        return info;
     }
 
     public Server(int port) {
-        this.port = port;
-        try {
-            ip = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            state = State.CLOSED;
-        }
-            
+        setPort(port);
+        setIp();
         //buffer = ByteBuffer.allocate(bufferSize);
     }
 
-    public void open() {
+    private void setPort(int port) {
+        this.port = port;
+    }
+
+    private void setIp() {
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            ip = "Unknown";
+        }
+    }
+
+    public void start() {
+        open();
+        new Thread(this).start();
+    }
+
+    private void open() {
 
         /*
 
@@ -75,28 +93,22 @@ public class Server implements Runnable {
 
          */
 
+         PacketHandler.setServer(true);
+
         try {
             serverSocket = new ServerSocket(port);
-            state = State.CONNECTED;
+            setState(State.CONNECTED);
         } catch (IOException e) {
-            state = State.CLOSED;
+            setState(State.CLOSED);
         }
-    }
-
-    public void start() {
-        new Thread(this).start();
     }
 
     @Override
     public void run() {
         addHostPlayer();
-        state = State.LISTENING;
-        try {
-            while (isRunning()) {
-                listen();
-            }
-        } catch (IOException e) {
-            Connection.logError(e);
+        setState(State.LISTENING);
+        while (isRunning()) {
+            listen();
         }
     }
 
@@ -105,12 +117,10 @@ public class Server implements Runnable {
     }
 
     private void addHostPlayer() {
-        PlayerList.addPlayer(null, 0);
+        PacketHandler.handle(new SetIdPacket(0), null);
     }
 
-    private void listen() throws IOException, NullPointerException {
-        state = State.LISTENING;
-
+    private void listen() {
         /*
         Set<SelectionKey> keys = selector.selectedKeys();
 
@@ -131,45 +141,52 @@ public class Server implements Runnable {
         */
 
         if(serverSocket == null || serverSocket.isClosed()) {
-            state = State.CLOSED;
+            setState(State.CLOSED);
             return;
         }
 
-        Socket socket = serverSocket.accept();
-        startConnection(socket);
+        try {
+            Socket socket = serverSocket.accept();
+            startConnection(socket);
+        } catch (IOException e) {
+            if(!isRunning())
+                return;
+            System.out.println("Failed to accept client.");
+        }
     }
 
-    private void startConnection(Socket socket) throws IOException {
-    
+    private void startConnection(Socket socket) {
+        if(!isRunning())
+            return;
+
         int id = PlayerList.players.size();
-        Connection newConnection = new Connection(socket, this);
+        Connection newConnection = new Connection(socket);
         newConnection.start();
         
         newConnection.sendData(new SetIdPacket(id));
 
         // add new player to the player list
-        PlayerList.addPlayer(newConnection, id);
+        PacketHandler.handle(new AddPlayerPacket(id), newConnection);
 
         // send the new player to all players
         AddPlayerPacket newPacket = new AddPlayerPacket(id);
-        sendData(newPacket);
+        PlayerList.sendToAll(newPacket);
 
-        setPlayerList(newConnection);
+        sendPlayerList(newConnection);
     }
 
-    private void setPlayerList(Connection connection) {
-        for(NetPlayer oldPlayer : PlayerList.players.values()) {
-            AddPlayerPacket oldPacket = new AddPlayerPacket(oldPlayer.id);
-            connection.sendData(oldPacket);
-        }
-    }
-
-    public void sendData(Object data) {
+    private void sendPlayerList(Connection connection) {
         for(NetPlayer player : PlayerList.players.values()) {
-            if(player.connection == null)
-                continue;
-            player.connection.sendData(data);
+            sendPlayer(player, connection);
         }
+    }
+
+    private void sendPlayer(NetPlayer player, Connection receiver) {
+        if(player == null || receiver == null)
+            return;
+        
+        AddPlayerPacket packet = new AddPlayerPacket(player.id);
+        receiver.sendData(packet);
     }
 
     /*
@@ -207,11 +224,13 @@ public class Server implements Runnable {
         }
 
         try {
-            sendData(new ServerClosedPacket());
+            PlayerList.sendToAll(new ServerClosedPacket());
+            PlayerList.clear();
             serverSocket.close();
-            state = State.CLOSED;
+            
+            setState(State.CLOSED);
         } catch (IOException e) {
-            return;
+            System.out.println("Failed to close the server.");
         }
     }
 

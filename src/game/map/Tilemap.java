@@ -1,4 +1,4 @@
-package game;
+package game.map;
 
 import java.awt.*;
 
@@ -9,7 +9,7 @@ public class Tilemap {
     private int cols, rows;
     private final Point spawnPoint = new Point(0, 0);
 
-    Tilemap(int[][] mapData) {
+    public Tilemap(int[][] mapData) {
         loadMap(mapData);
     }
 

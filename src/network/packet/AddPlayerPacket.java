@@ -1,4 +1,4 @@
-package packet;
+package network.packet;
 
 public class AddPlayerPacket extends Packet {
 

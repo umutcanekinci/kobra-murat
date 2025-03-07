@@ -1,17 +1,16 @@
-package game;
-
+package game.player;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
-interface PlayerListener {}
+import game.Board;
+import game.Utils;
+import game.map.Tilemap;
 
-public class Player implements GameListener {
+public class Player {
 
     //region ---------------------------------------- ATTRIBUTES -----------------------------------------
 
@@ -24,9 +23,6 @@ public class Player implements GameListener {
     public static final int DEFAULT_LENGTH = 3;
     public static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
 
-    // Events
-    private final List<PlayerListener> listeners = new ArrayList<>();
-
     // Image
     private static final File HEAD_IMAGE = new File("images/head.png");
     private BufferedImage headImage;
@@ -38,40 +34,15 @@ public class Player implements GameListener {
     private final Point pos = new Point(0, 0);
     private boolean canRotate = true;
 
+    private Board board;
+
     //endregion
 
     public boolean doesCollide(Point position) {
         return snake.doesCollide(position);
     }
 
-    public String[] getDebugInfo() {
-        return new String[] {
-                "PLAYER DEBUG INFO",
-                "Length: " + snake.length,
-                "Direction: " + snake.direction.name(),
-                "Position: " + pos.x + ", " + pos.y,
-                String.format("Displacement: %.2f", displacement),
-                "Can Rotate: " + canRotate
-        };
-    }
-
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
-
-
-    public void addListener(PlayerListener listener) {
-        listeners.add(listener);
-    }
-
-    private void invokeEvents(String eventName) {
-        for(PlayerListener listener : listeners) {
-            try {
-                listener.getClass().getMethod(eventName).invoke(listener);
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.exit(1);
-            }
-        }
-    }
 
     public void onGameStart() {
         reset();
@@ -91,7 +62,8 @@ public class Player implements GameListener {
 
     //region ---------------------------------------- INIT METHODS ---------------------------------------
 
-    public Player(Snake snake) {
+    public Player(Board board, Snake snake) {
+        this.board = board;
         this.snake = snake;
         loadImages();
     }
@@ -192,7 +164,7 @@ public class Player implements GameListener {
         clampPosition();
 
         if(snake.doesCollide(pos) || map.isCollide(pos)) {
-            invokeEvents("onHit");
+            board.onHit();
         }
 
         snake.setPosition(pos);
@@ -204,7 +176,7 @@ public class Player implements GameListener {
     private void step() {
         pos.move(pos.x + snake.direction.getX(), pos.y + snake.direction.getY());
         canRotate = true;
-        invokeEvents("onStep");
+        board.onStep();
     }
 
     private void clampPosition() {

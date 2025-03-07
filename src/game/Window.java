@@ -1,11 +1,11 @@
 package game;
 import javax.swing.*;
 
-public class App extends JFrame {
+public class Window extends JFrame {
 
     public static String TITLE = "Kobra Murat";
 
-    public App() {
+    public Window() {
 
         super(TITLE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -37,8 +37,8 @@ public class App extends JFrame {
         System.exit(0);
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(App::new);
+    public static void start() {
+        SwingUtilities.invokeLater(Window::new);
     }
 
 }

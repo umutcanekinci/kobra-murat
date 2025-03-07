@@ -1,5 +1,5 @@
-package packet;
-import game.Snake;
+package network.packet;
+import game.player.Snake;
 
 public class UpdatePlayerPack extends Packet {
 

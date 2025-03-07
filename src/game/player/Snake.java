@@ -1,7 +1,9 @@
-package game;
+package game.player;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+
+import game.Board;
 
 public class Snake implements Serializable {
 
@@ -10,6 +12,10 @@ public class Snake implements Serializable {
     public int tailIndex = 0;
     public ArrayList<Point> parts = new ArrayList<>();
     public int length;
+
+    Snake() {
+        this.direction = Direction.RIGHT;
+    }
 
     public void setPosition(Point position) {
 

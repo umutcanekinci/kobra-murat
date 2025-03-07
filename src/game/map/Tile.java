@@ -1,4 +1,4 @@
-package game;
+package game.map;
 
 import java.awt.*;
 import java.util.ArrayList;

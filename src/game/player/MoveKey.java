@@ -1,4 +1,4 @@
-package game;
+package game.player;
 
 import java.awt.event.KeyEvent;
 

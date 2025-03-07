@@ -1,19 +1,30 @@
 package network.client;
 import network.Connection;
-
 import network.PlayerList;
-import network.server.NetPlayer;
-import packet.RemovePlayerPacket;
-
+import network.packet.PacketHandler;
+import network.packet.RemovePlayerPacket;
+import game.Board;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
-
 public class Client implements Runnable {
 
+    public Board board;
     private String host;
     private int port;
     private State state;
+
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
+    private void setState(State state) {
+        this.state = state;
+        if(board != null)
+            switch (state) {
+                case CLOSED -> board.onClientDisconnected();
+                case CONNECTED -> board.onClientConnected();
+            }
+    }
 
     private enum State {
         CLOSED,
@@ -39,14 +50,17 @@ public class Client implements Runnable {
     }
 
     private boolean connect() {
-        try {
+        
+        PacketHandler.setServer(false);
+        
+        try {    
             socket = new Socket(host, port);
             connection = new Connection(socket);
             connection.start();
-            state = State.CONNECTED;
+            setState(State.CONNECTED);
             return true;
         } catch (IOException e) {
-            state = State.CLOSED;
+            setState(State.CLOSED);
             return false;
         }
     }
@@ -60,36 +74,14 @@ public class Client implements Runnable {
 
     public void disconnect() {
         if(connection == null || socket.isClosed() || state == State.CLOSED)
-                return;
-
-        try {
-            connection.sendData(new RemovePlayerPacket(connection.id));
-            connection.close();
-        } catch (IOException e) {
             return;
-        }
+        System.out.println("Disconnecting from the server.");
+        connection.sendData(new RemovePlayerPacket(PlayerList.id));
+        connection.close();
+        setState(State.CLOSED);
     }
 
     public boolean isConnected() {
         return state == State.CONNECTED;
     }
-    
-    public ArrayList<String> getDebugInfo() {
-        ArrayList<String> info = new ArrayList<>();
-        info.add("CLIENT [" + state + "]");
-        info.add("Host: " + host);
-        info.add("Port: " + port);
-        info.add("");
-        info.add("Player List:");
-        for (NetPlayer player: PlayerList.players.values()) {
-            if(player.id == connection.id)
-                info.add("Player " + player.id + " (You)");
-            else
-                info.add("Player " + player.id);
-        }
-
-        return info;
-    }
-
-
 }
