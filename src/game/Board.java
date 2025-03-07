@@ -377,12 +377,12 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private void sendPlayerData() {
+        System.out.println("Sending player data. Direction: " + player.snake.direction);
         if(client.isConnected()) {
-            System.out.println("Sending player data to server. Player direction: " + player.snake.direction);
-            client.sendData(new UpdatePlayerPack(player.snake));
+            client.sendData(new UpdatePlayerPack(player));
         }
         if(server.isRunning()) {
-            PlayerList.sendToAll(new UpdatePlayerPack(player.snake));
+            PlayerList.sendToAll(new UpdatePlayerPack(player));
         }
     }
 

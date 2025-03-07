@@ -47,6 +47,8 @@ public class Connection implements Runnable {
             Object packet = input.readObject();
             PacketHandler.handle(packet, this);
         } catch (Exception e) {
+            if(socket.isClosed())
+                return;
             LOGGER.log(Level.SEVERE, "Failed to read data from client.", e);
         }
     }

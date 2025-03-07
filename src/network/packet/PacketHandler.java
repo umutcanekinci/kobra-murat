@@ -40,6 +40,7 @@ public class PacketHandler {
             PlayerList.removePlayer((RemovePlayerPacket) packet);
             sentToAllIfServer(packet);
         } else if(packet instanceof UpdatePlayerPack) {
+            System.out.println("Direction of Player " + id + " is updated to " + ((UpdatePlayerPack) packet).snake.direction + ".");
             PlayerList.updatePlayerTransform((UpdatePlayerPack) packet);
             sentToAllIfServer(packet);
         }

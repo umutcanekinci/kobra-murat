@@ -15,6 +15,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import game.Board;
 import game.player.NetPlayer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //endregion
 
@@ -31,6 +33,7 @@ public class Server implements Runnable {
     private int port;
     private ServerSocket serverSocket;
     public Board board;
+    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
     //private ByteBuffer buffer;
     //private Selector selector;
 
@@ -151,7 +154,7 @@ public class Server implements Runnable {
         } catch (IOException e) {
             if(!isRunning())
                 return;
-            System.out.println("Failed to accept client.");
+            LOGGER.log(Level.SEVERE, "Failed to accept client.", e);   
         }
     }
 
@@ -230,7 +233,7 @@ public class Server implements Runnable {
             
             setState(State.CLOSED);
         } catch (IOException e) {
-            System.out.println("Failed to close the server.");
+            LOGGER.log(Level.SEVERE, "Failed to close server.", e);
         }
     }
 

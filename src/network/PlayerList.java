@@ -60,7 +60,6 @@ public class PlayerList {
 
     public static void removePlayer(RemovePlayerPacket packet) {
         NetPlayer player = players.get(packet.id);
-        System.out.println("Player " + packet.id + " is removed.");
         if(player == null)
             return;
             
@@ -76,8 +75,6 @@ public class PlayerList {
 
     public static void updatePlayerTransform(UpdatePlayerPack pack) {
         players.get(pack.id).update(pack);
-        System.out.println("Position of Player " + pack.id + " is updated to " + pack.snake.getPosition() + ".");
-        System.out.println("Direction of Player " + pack.id + " is updated to " + pack.snake.direction + ".");
     }
     
     public static void sendToAll(Object data) {
