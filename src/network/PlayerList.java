@@ -3,10 +3,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import game.Board;
 import game.player.NetPlayer;
-import network.packet.AddPlayerPacket;
-import network.packet.RemovePlayerPacket;
-import network.packet.UpdatePlayerPack;
-
+import network.packet.*;
 
 public class PlayerList {
 
@@ -25,8 +22,12 @@ public class PlayerList {
         return players.get(id);
     }
 
+    public static boolean isCurrentPlayer(int id) {
+        return id == PlayerList.id;
+    }
+
     public static boolean isCurrentPlayer(NetPlayer player) {
-        return player.id == id;
+        return isCurrentPlayer(player.id);
     }
 
     public static String[] getDebugInfo() {
@@ -54,7 +55,9 @@ public class PlayerList {
     }
 
     public static void addPlayer(Board board, Connection connection, int id) {
-        players.put(id, new NetPlayer(board, id));
+        NetPlayer player = new NetPlayer(board, id);
+        player.setMap(board.map);
+        players.put(id, player);
         players.get(id).connection = connection;
     }
 
@@ -73,10 +76,14 @@ public class PlayerList {
         players.remove(packet.id);
     }
 
-    public static void updatePlayerTransform(UpdatePlayerPack pack) {
-        players.get(pack.id).update(pack);
+    public static void movePlayer(PlayerTransformPacket packet) {
+        NetPlayer player = players.get(packet.id);
+        if(player == null)
+            return;
+        player.snake.direction = packet.direction;
+        player.snake.parts = packet.parts;
     }
-    
+
     public static void sendToAll(Object data) {
         for(NetPlayer player : players.values()) {
             if(player.connection == null)

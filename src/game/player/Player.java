@@ -162,7 +162,8 @@ public class Player {
 
         step();
         clampPosition();
-
+        board.onStep();
+        
         if(snake.doesCollide(pos) || map.isCollide(pos)) {
             board.onHit();
         }
@@ -170,13 +171,11 @@ public class Player {
         snake.setPosition(pos);
         displacement = 0;
         rotateHeadTransform();
-
     }
 
-    private void step() {
+    public void step() {
         pos.move(pos.x + snake.direction.getX(), pos.y + snake.direction.getY());
         canRotate = true;
-        board.onStep();
     }
 
     private void clampPosition() {

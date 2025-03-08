@@ -1,7 +1,7 @@
 package game;
 import network.client.Client;
+import network.packet.PlayerTransformPacket;
 import network.packet.PacketHandler;
-import network.packet.UpdatePlayerPack;
 import network.server.Server;
 import network.PlayerList;
 import java.awt.*;
@@ -43,7 +43,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public static int DELTATIME_MS = (int) (DELTATIME * 1000);
 
     // Map
-    private Tilemap map;
+    public Tilemap map;
     public static final int TILE_SIZE = 64;
     public static final int ROWS = 12;
     public static final int COLUMNS = 18;
@@ -101,8 +101,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     private void startGame() {
         isGameStarted = true;
-        player.onGameStart();
-        spawnApples();
+        for(NetPlayer p : PlayerList.players.values()) {
+            p.onGameStart();
+        }
+        //spawnApples();
         hideWidgets();
     }
 
@@ -252,9 +254,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         Point position = new Point(rand.nextInt(COLUMNS), rand.nextInt(ROWS));
         Apple apple = new Apple(position);
 
-        if(player.doesCollide(position) || map.isCollide(position)) {
-            spawnApple();
-            return;
+        for(NetPlayer p : PlayerList.players.values()) {
+            if(p.doesCollide(position)) {
+                spawnApple();
+                return;
+            }
         }
 
         if(apples.contains(apple))
@@ -268,17 +272,27 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
 
     public void onHit() {
-        restart();
+        //restart();
     }
 
     private void restart() {
         player.reset();
         apples.clear();
-        spawnApples();
+        //spawnApples();
     }
 
     public void onStep() {
         collectApples();
+        sendTransform();
+    }
+
+    private void sendTransform() {
+        if(client.isConnected()) {
+            client.sendData(new PlayerTransformPacket(player));
+        }
+        if(server.isRunning()) {
+            PlayerList.sendToAll(new PlayerTransformPacket(player));
+        }
     }
 
     private void collectApples() {
@@ -288,15 +302,18 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             return;
 
         apples.removeAll(collectedApples);
-        spawnApples();
+        //spawnApples();
     }
 
     private ArrayList<Apple> GetCollectedApples() {
         ArrayList<Apple> collectedApples = new ArrayList<>();
         for (Apple apple : apples) {
-            if (apple.isCollide(player.getPos())) {
-                player.grow(1);
-                collectedApples.add(apple);
+            for(NetPlayer player : PlayerList.players.values()) {
+                if (apple.isCollide(player.getPos())) {
+                    player.grow(1);
+                    collectedApples.add(apple);
+                    break;
+                }
             }
         }
         return collectedApples;
@@ -369,22 +386,15 @@ public class Board extends JPanel implements ActionListener, KeyListener {
                 buttons.get(0).setEnabled(true);
 
         if(isGameStarted) {
-            player.update();
-            sendPlayerData();
+            for(NetPlayer p : PlayerList.players.values()) {
+                p.update();
+            }
         }
 
         repaint();
     }
 
-    private void sendPlayerData() {
-        System.out.println("Sending player data. Direction: " + player.snake.direction);
-        if(client.isConnected()) {
-            client.sendData(new UpdatePlayerPack(player));
-        }
-        if(server.isRunning()) {
-            PlayerList.sendToAll(new UpdatePlayerPack(player));
-        }
-    }
+
 
     //endregion
 

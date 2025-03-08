@@ -121,6 +121,7 @@ public class Server implements Runnable {
 
     private void addHostPlayer() {
         PacketHandler.handle(new SetIdPacket(0), null);
+        //PacketHandler.handle(new SetIdPacket(1), null);
     }
 
     private void listen() {

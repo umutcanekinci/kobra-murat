@@ -1,7 +1,9 @@
 package game.player;
+import java.awt.Point;
+import java.util.ArrayList;
+
 import game.Board;
 import network.Connection;
-import network.packet.UpdatePlayerPack;
 import network.PlayerList;
 public class NetPlayer extends Player{
 
@@ -22,17 +24,16 @@ public class NetPlayer extends Player{
         return id == 0;
     }
 
-    public void update(UpdatePlayerPack pack) {
-        snake = pack.snake;
-    }
-
     public String[] getDebugInfo() {
-        return new String[] {
-                "Player " + id + (isHost() ? " (Host)" : "") + (PlayerList.isCurrentPlayer(this) ? " (You)" : ""),
-                "Length: " + snake.length,
-                "Direction: " + snake.direction.name(),
-                "Position: " + getPos().x + ", " + getPos().y,
-        };
+        ArrayList<String> info = new ArrayList<>();
+        info.add("Player " + id + (isHost() ? " (Host)" : "") + (PlayerList.isCurrentPlayer(this) ? " (You)" : ""));
+        info.add("Length: " + snake.length);
+        info.add("Direction: " + snake.direction.name());
+        for(int i = 0; i < snake.parts.size(); i++) {
+            Point part = snake.parts.get(i);
+            info.add("Part " + i + ": (" + part.x + ", " + part.y + ")");
+        }
+        return info.toArray(new String[0]);
     }
 
 }

@@ -39,11 +39,14 @@ public class PacketHandler {
         else if(packet instanceof RemovePlayerPacket) {
             PlayerList.removePlayer((RemovePlayerPacket) packet);
             sentToAllIfServer(packet);
-        } else if(packet instanceof UpdatePlayerPack) {
-            System.out.println("Direction of Player " + id + " is updated to " + ((UpdatePlayerPack) packet).snake.direction + ".");
-            PlayerList.updatePlayerTransform((UpdatePlayerPack) packet);
+        }
+        else if(packet instanceof PlayerTransformPacket) {
+            if(PlayerList.isCurrentPlayer(id))
+                return;
+            PlayerList.movePlayer((PlayerTransformPacket) packet);
             sentToAllIfServer(packet);
         }
+
         else if(packet instanceof ServerClosedPacket) {
             // This packet is sent by the server to the client when the server is closed
             // This packet is used by the client to close the connection
