@@ -4,6 +4,8 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import network.PlayerList;
+import network.server.Server;
+import network.client.Client;
 import java.awt.Font;
 
 public class DebugLog {
@@ -18,10 +20,15 @@ public class DebugLog {
             new Color(50, 120, 255),
     };
     public static ArrayList<String> debugText = new ArrayList<String>();
-    public static String connectionState = "Disconnected";
     public static ArrayList<String> playerList = new ArrayList<String>();
-
+    private static Server server;
+    private static Client client;
     
+    public static void init(Server server, Client client) {
+        DebugLog.server = server;
+        DebugLog.client = client;
+    }
+
     public static void toggle() {
         isEnabled = !isEnabled;
     }
@@ -41,9 +48,10 @@ public class DebugLog {
     private static void drawDebug(Graphics2D g) {
         g.setFont(FONT);
         DEBUG_RECT.y = 20;
-        drawDebugText(g, connectionState);
+        drawDebugText(g, "Player List");
         drawPlayerList(g);
-        DEBUG_RECT.y = drawText(g, connectionState, DEBUG_COLORS[1]);
+        DEBUG_RECT.y = drawText(g, "SERVER: " + server.state, DEBUG_COLORS[1]);
+        DEBUG_RECT.y = drawText(g, "CLIENT: " + client.state, DEBUG_COLORS[1]);
     }
 
     private static int drawText(Graphics2D g, String text, Color color) {

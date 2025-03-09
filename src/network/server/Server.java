@@ -1,22 +1,19 @@
 //region Imports
 
 package network.server;
-import network.Connection;
-import network.PlayerList;
-import network.packet.AddPlayerPacket;
-import network.packet.PacketHandler;
-import network.packet.ServerClosedPacket;
-import network.packet.SetIdPacket;
-
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+import network.Connection;
+import network.packet.client.*;
 import game.Board;
-import game.player.NetPlayer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 //endregion
 
@@ -28,12 +25,13 @@ enum State {
 
 public class Server implements Runnable {
 
-    private State state = State.CLOSED;
+    public State state = State.CLOSED;
     public String ip;
     private int port;
     private ServerSocket serverSocket;
     public Board board;
     private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
+    HashMap<Integer, Connection> connections = new HashMap<>();
     //private ByteBuffer buffer;
     //private Selector selector;
 
@@ -58,6 +56,7 @@ public class Server implements Runnable {
     }
 
     public Server(int port) {
+        PacketHandler.init(this);
         setPort(port);
         setIp();
         //buffer = ByteBuffer.allocate(bufferSize);
@@ -96,19 +95,17 @@ public class Server implements Runnable {
 
          */
 
-         PacketHandler.setServer(true);
-
         try {
             serverSocket = new ServerSocket(port);
             setState(State.CONNECTED);
         } catch (IOException e) {
-            setState(State.CLOSED);
+            LOGGER.log(Level.SEVERE, "Failed to open server socket.", e);
+            close();
         }
     }
 
     @Override
     public void run() {
-        addHostPlayer();
         setState(State.LISTENING);
         while (isRunning()) {
             listen();
@@ -117,11 +114,6 @@ public class Server implements Runnable {
 
     public boolean isRunning() {
         return state != State.CLOSED;
-    }
-
-    private void addHostPlayer() {
-        PacketHandler.handle(new SetIdPacket(0), null);
-        //PacketHandler.handle(new SetIdPacket(1), null);
     }
 
     private void listen() {
@@ -145,7 +137,7 @@ public class Server implements Runnable {
         */
 
         if(serverSocket == null || serverSocket.isClosed()) {
-            setState(State.CLOSED);
+            close();
             return;
         }
 
@@ -162,37 +154,24 @@ public class Server implements Runnable {
     private void startConnection(Socket socket) {
         if(!isRunning())
             return;
-
-        int id = PlayerList.players.size();
-        Connection newConnection = new Connection(socket);
-        newConnection.start();
         
-        newConnection.sendData(new SetIdPacket(id));
-
-        // add new player to the player list
-        PacketHandler.handle(new AddPlayerPacket(id), newConnection);
-
-        // send the new player to all players
-        AddPlayerPacket newPacket = new AddPlayerPacket(id);
-        PlayerList.sendToAll(newPacket);
-
-        sendPlayerList(newConnection);
-    }
-
-    private void sendPlayerList(Connection connection) {
-        for(NetPlayer player : PlayerList.players.values()) {
-            sendPlayer(player, connection);
-        }
-    }
-
-    private void sendPlayer(NetPlayer player, Connection receiver) {
-        if(player == null || receiver == null)
-            return;
+        int id = connections.size();
         
-        AddPlayerPacket packet = new AddPlayerPacket(player.id);
-        receiver.sendData(packet);
+        Connection newConnection = new Connection(socket, true); // Create new connection and add to list
+        sendToAll(new AddPacket(id)); // Send new player to all clients
+        connections.put(id, newConnection);
+        sendAllPlayersTo(newConnection); // Send all players to new client not including itself
+        newConnection.sendData(new IdPacket(id)); // Send id to new player so it can get its own player object from list
     }
 
+    public void sendToAll(Object packet) {
+        connections.values().forEach((connection) -> connection.sendData(packet));
+    }
+
+    public void sendAllPlayersTo(Connection connection) {
+        connections.entrySet().forEach((set) -> connection.sendData(new AddPacket(set.getKey())));
+    }
+    
     /*
 
     private void acceptClient() throws IOException {
@@ -223,19 +202,39 @@ public class Server implements Runnable {
     */
 
     public void close() {
-        if(serverSocket == null || serverSocket.isClosed() || state == State.CLOSED) {
+        if(state == State.CLOSED) {
             return;
         }
 
+        closeConnections();
+        setState(State.CLOSED);
+    }
+
+    private void closeConnections() {
+
+        sendToAll(new ServerClosedPacket());
+        connections.values().forEach((connection) -> closeConnection(connection));
+        connections.clear();
+
+        if(serverSocket == null || serverSocket.isClosed())
+            return;
+
         try {
-            PlayerList.sendToAll(new ServerClosedPacket());
-            PlayerList.clear();
             serverSocket.close();
-            
-            setState(State.CLOSED);
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to close server.", e);
+            LOGGER.log(Level.SEVERE, "Failed to close server socket.", e);
         }
+    }
+
+    public void closeConnection(Connection connection) {
+        if(connection == null)
+            return;
+        
+        connection.close();
+    }
+
+    public void removeConnection(int id) {
+        connections.remove(id);
     }
 
 }

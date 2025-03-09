@@ -4,6 +4,8 @@ import java.util.HashMap;
 import game.Board;
 import game.player.NetPlayer;
 import network.packet.*;
+import network.packet.client.AddPacket;
+import network.packet.client.RemovePacket;
 
 public class PlayerList {
 
@@ -50,7 +52,7 @@ public class PlayerList {
         return debugInfo.toArray(new String[0]);
     }
 
-    public static void addPlayer(Board board, Connection connection, AddPlayerPacket player) {
+    public static void addPlayer(Board board, Connection connection, AddPacket player) {
         addPlayer(board, connection, player.id);
     }
 
@@ -61,35 +63,22 @@ public class PlayerList {
         players.get(id).connection = connection;
     }
 
-    public static void removePlayer(RemovePlayerPacket packet) {
+    public static void removePlayer(RemovePacket packet) {
+        System.out.println("Removing player " + packet.id);
         NetPlayer player = players.get(packet.id);
         if(player == null)
             return;
-            
-        if(player.connection != null) {
-            try {
-                player.connection.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
         players.remove(packet.id);
     }
 
-    public static void movePlayer(PlayerTransformPacket packet) {
+    public static void updatePlayerTransform(PlayerTransformPacket packet) {
         NetPlayer player = players.get(packet.id);
         if(player == null)
             return;
         player.snake.direction = packet.direction;
         player.snake.parts = packet.parts;
-    }
-
-    public static void sendToAll(Object data) {
-        for(NetPlayer player : players.values()) {
-            if(player.connection == null)
-                continue;
-            player.connection.sendData(data);
-        }
+        player.pos.setLocation(packet.position);
+        player.update();
     }
 
     public static void clear() {

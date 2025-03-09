@@ -5,9 +5,9 @@ import java.io.Serializable;
 public class Packet implements Serializable {
     public int id;
     
-    Packet() {}
+    public Packet() {}
     
-    Packet(int id) {
+    protected Packet(int id) {
         this.id = id;
     }
 

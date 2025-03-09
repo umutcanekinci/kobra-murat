@@ -5,7 +5,7 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import network.packet.PacketHandler;
+import network.packet.client.PacketHandler;
 
 public class Connection implements Runnable {
     
@@ -13,13 +13,16 @@ public class Connection implements Runnable {
     private final Socket socket;
     private ObjectOutputStream output;
     private ObjectInputStream input;
+    private boolean isServer;
 
-    public Connection(Socket socket) {
+    public Connection(Socket socket, boolean isServer) {
+        this.isServer = isServer;
         this.socket = socket;
         
         try {
             output = new ObjectOutputStream(socket.getOutputStream());
             input = new ObjectInputStream(socket.getInputStream());
+            start();
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to create connection.", e);
         }
@@ -32,35 +35,38 @@ public class Connection implements Runnable {
     @Override
     public void run() {
         while(socket.isConnected()) {
-            try {
-                readData();
-            } catch (Exception e) {
-                if(socket.isClosed())
-                    break;
-                LOGGER.log(Level.SEVERE, "Failed to read data from client.", e);
-            }
+            readData();
         }
     }
     
     private void readData() {
+        Object packet;
         try {
-            Object packet = input.readObject();
-            PacketHandler.handle(packet, this);
+            packet = input.readObject();
+
+            if(isServer)
+                network.server.PacketHandler.handle(packet, this);
+            else
+                PacketHandler.handle(packet, this);
         } catch (Exception e) {
             if(socket.isClosed())
                 return;
-            LOGGER.log(Level.SEVERE, "Failed to read data from client.", e);
+
+            LOGGER.log(Level.SEVERE, "Failed to read data from " + (isServer ? "server." : "client."), e);
         }
     }
 
     public void sendData(Object data){
+        if(!socket.isConnected())
+            return;
+
         try {
             synchronized (output) {
                 output.writeObject(data);
                 output.flush();
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to send data to client.", e);
+            LOGGER.log(Level.SEVERE, "Failed to send data to " + (isServer ? "server." : "client."), e);
         }
     }
 
@@ -68,6 +74,10 @@ public class Connection implements Runnable {
         try {
             input.close();
             output.close();
+
+            if(socket.isClosed())
+                return;
+
             socket.close();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Failed to close connection.", e); 

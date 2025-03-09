@@ -17,7 +17,11 @@ public class Snake implements Serializable {
         this.direction = Direction.RIGHT;
     }
 
-    public void setPosition(Point position) {
+    public boolean isHead(Point point) {
+        return point.equals(parts.get(tailIndex));
+    }
+
+    public void stepTo(Point position) {
 
         /*
 

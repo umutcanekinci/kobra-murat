@@ -1,19 +1,21 @@
 package network.client;
+
 import network.Connection;
 import network.PlayerList;
-import network.packet.PacketHandler;
-import network.packet.RemovePlayerPacket;
+import network.packet.client.PacketHandler;
+import network.server.DisconnectPacket;
 import game.Board;
 import java.io.IOException;
 import java.net.Socket;
-public class Client implements Runnable {
 
+public class Client implements Runnable {
     public Board board;
     private String host;
     private int port;
-    private State state;
+    public State state;
 
     public void setBoard(Board board) {
+        PacketHandler.init(board, this);
         this.board = board;
     }
 
@@ -26,7 +28,7 @@ public class Client implements Runnable {
             }
     }
 
-    private enum State {
+    public enum State {
         CLOSED,
         CONNECTED
     }
@@ -49,39 +51,37 @@ public class Client implements Runnable {
         connect();
     }
 
-    private boolean connect() {
-        
-        PacketHandler.setServer(false);
-        
+    private void connect() {
         try {    
             socket = new Socket(host, port);
-            connection = new Connection(socket);
-            connection.start();
+            connection = new Connection(socket, false);
             setState(State.CONNECTED);
-            return true;
         } catch (IOException e) {
             setState(State.CLOSED);
-            return false;
         }
     }
 
     public void sendData(Object data) {
-        if(connection == null)
+        if(!isConnected())
             return;
 
         connection.sendData(data);
     }
 
-    public void disconnect() {
-        if(connection == null || socket.isClosed() || state == State.CLOSED)
-            return;
-        System.out.println("Disconnecting from the server.");
-        connection.sendData(new RemovePlayerPacket(PlayerList.id));
-        connection.close();
-        setState(State.CLOSED);
+    public boolean isConnected() {
+        return !(connection == null || socket == null || socket.isClosed() || state == State.CLOSED);
     }
 
-    public boolean isConnected() {
-        return state == State.CONNECTED;
+    public void disconnect() {
+        if(!isConnected())
+            return;
+
+        connection.sendData(new DisconnectPacket(PlayerList.id));
+        close();
+    }
+
+    public void close() {
+        connection.close();
+        setState(State.CLOSED);
     }
 }

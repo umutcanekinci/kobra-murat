@@ -2,7 +2,7 @@
   <artifact type="jar" name="SnakeGame:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/SnakeGame_jar</output-path>
     <root id="archive" name="SnakeGame.jar">
-      <element id="module-output" name="SnakeGame" />
+      <element id="module-output" name="KobraMurat" />
     </root>
   </artifact>
 </component>

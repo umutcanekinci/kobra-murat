@@ -31,7 +31,7 @@ public class Player {
     // Movement
     private double displacement;
     private final int speed = 3; // tiles/second
-    private final Point pos = new Point(0, 0);
+    public Point pos = new Point(0, 0);
     private boolean canRotate = true;
 
     private Board board;
@@ -150,11 +150,7 @@ public class Player {
 
     //region ---------------------------------------- UPDATE METHODS -------------------------------------
 
-    public void update() {
-        move();
-    }
-
-    private void move() {
+    public void move() {
         displacement += speed * Board.DELTATIME;
 
         if(displacement < 1)
@@ -162,14 +158,18 @@ public class Player {
 
         step();
         clampPosition();
-        board.onStep();
         
         if(snake.doesCollide(pos) || map.isCollide(pos)) {
             board.onHit();
         }
 
-        snake.setPosition(pos);
         displacement = 0;
+        snake.stepTo(pos);
+        board.onStep();
+        rotateHeadTransform();
+    }
+
+    public void update() {
         rotateHeadTransform();
     }
 
@@ -193,9 +193,8 @@ public class Player {
 
         for(Point part : snake.parts) {
 
-            if(snake.isHidden(part)) {
+            if(snake.isHidden(part))
                 continue;
-            }
 
             if(part.equals(pos)) {
                 drawHead(g, observer);
