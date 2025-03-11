@@ -2,16 +2,15 @@ package network.client;
 
 import network.Connection;
 import network.PlayerList;
-import network.packet.client.PacketHandler;
-import network.server.DisconnectPacket;
+import network.packet.player.DisconnectPacket;
 import game.Board;
 import java.io.IOException;
 import java.net.Socket;
 
 public class Client implements Runnable {
     public Board board;
-    private String host;
-    private int port;
+    private final String host;
+    private final int port;
     public State state;
 
     public void setBoard(Board board) {

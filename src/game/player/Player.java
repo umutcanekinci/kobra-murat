@@ -14,9 +14,9 @@ public class Player {
 
     //region ---------------------------------------- ATTRIBUTES -----------------------------------------
 
-    public Snake snake;
+    public final Snake snake;
     private Tilemap map;
-    public Point spawnPoint = new Point(0, 0);
+    public final Point spawnPoint = new Point(0, 0);
     private Color bodyColor = new Color(0, 0, 0);
 
     // Default
@@ -29,12 +29,12 @@ public class Player {
     private AffineTransformOp headTransform;
 
     // Movement
-    private double displacement;
+    public double displacement;
     private final int speed = 3; // tiles/second
-    public Point pos = new Point(0, 0);
+    public final Point pos = new Point(0, 0);
     private boolean canRotate = true;
 
-    private Board board;
+    private final Board board;
 
     //endregion
 
@@ -153,10 +153,19 @@ public class Player {
     public void move() {
         displacement += speed * Board.DELTATIME;
 
+        step();
+    }
+
+    public void update() {
+        rotateHeadTransform();
+    }
+
+    public void step() {
         if(displacement < 1)
             return;
 
-        step();
+        pos.move(pos.x + snake.direction.getX(), pos.y + snake.direction.getY());
+        canRotate = true;
         clampPosition();
         
         if(snake.doesCollide(pos) || map.isCollide(pos)) {
@@ -167,15 +176,6 @@ public class Player {
         snake.stepTo(pos);
         board.onStep();
         rotateHeadTransform();
-    }
-
-    public void update() {
-        rotateHeadTransform();
-    }
-
-    public void step() {
-        pos.move(pos.x + snake.direction.getX(), pos.y + snake.direction.getY());
-        canRotate = true;
     }
 
     private void clampPosition() {

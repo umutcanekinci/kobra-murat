@@ -13,7 +13,7 @@ public class Apple {
     private BufferedImage image;
 
     // Position
-    private final Point pos;
+    public final Point pos;
 
     public Apple(Point pos) {
         loadImage();

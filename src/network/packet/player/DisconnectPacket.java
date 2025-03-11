@@ -1,4 +1,4 @@
-package network.server;
+package network.packet.player;
 import network.packet.Packet;
 
 public class DisconnectPacket extends Packet {

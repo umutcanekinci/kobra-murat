@@ -1,17 +1,18 @@
-package network.packet;
+package network.packet.player;
 import java.awt.Point;
 import java.util.ArrayList;
 
 import game.player.Direction;
 import game.player.NetPlayer;
+import network.packet.Packet;
 
-public class PlayerTransformPacket extends Packet {
+public class UpdateTransformPacket extends Packet {
 
-    public Point position;
-    public ArrayList<Point> parts = new ArrayList<>();
-    public Direction direction;
+    public final Point position;
+    public final ArrayList<Point> parts = new ArrayList<>();
+    public final Direction direction;
  
-    public PlayerTransformPacket(int id, ArrayList<Point> parts, Direction direction, Point position) {
+    public UpdateTransformPacket(int id, ArrayList<Point> parts, Direction direction, Point position) {
         super(id);
         for(Point part : parts) {
             this.parts.add(new Point(part));
@@ -20,7 +21,7 @@ public class PlayerTransformPacket extends Packet {
         this.position = new Point(position);
     }
 
-    public PlayerTransformPacket(NetPlayer player) {
+    public UpdateTransformPacket(NetPlayer player) {
         this(player.id, player.snake.parts, player.snake.direction, player.getPos());
     }
 

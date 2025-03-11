@@ -3,22 +3,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import game.Board;
 import game.player.NetPlayer;
-import network.packet.*;
-import network.packet.client.AddPacket;
-import network.packet.client.RemovePacket;
+import network.packet.player.AddPacket;
+import network.packet.player.UpdateTransformPacket;
+import network.packet.player.RemovePacket;
+import network.packet.player.StepPacket;
 
 public class PlayerList {
 
     /*
      * This class is used to store the players in the game.
      * It is used by both the server and the client.
-     * It has following methods:
+     * It has the following methods:
      * 1. addPlayer(Connection connection, AddPlayerPacket player)
      * 
      */
     public static int id;
 
-    public static HashMap<Integer, NetPlayer> players = new HashMap<>();
+    public static final HashMap<Integer, NetPlayer> players = new HashMap<>();
 
     public static NetPlayer getCurrentPlayer() {
         return players.get(id);
@@ -44,9 +45,7 @@ public class PlayerList {
         debugInfo.add("PLAYER LIST:");
         for (NetPlayer player: players.values()) {
             player.getDebugInfo();
-            for (String s : player.getDebugInfo()) {
-                debugInfo.add(s);
-            }
+            debugInfo.addAll(player.getDebugInfo());
             debugInfo.add("");
         }
         return debugInfo.toArray(new String[0]);
@@ -71,7 +70,7 @@ public class PlayerList {
         players.remove(packet.id);
     }
 
-    public static void updatePlayerTransform(PlayerTransformPacket packet) {
+    public static void updatePlayerTransform(UpdateTransformPacket packet) {
         NetPlayer player = players.get(packet.id);
         if(player == null)
             return;
@@ -81,15 +80,19 @@ public class PlayerList {
         player.update();
     }
 
+    public static void playerStep(StepPacket packet) {
+        NetPlayer player = players.get(packet.id);
+        if(player == null)
+            return;
+        player.move();
+    }
+
     public static void clear() {
         for(NetPlayer player : players.values()) {
             if(player.connection == null)
                 continue;
-            try {
-                player.connection.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
+            player.connection.close();
         }
         players.clear();
     }

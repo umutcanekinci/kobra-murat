@@ -1,6 +1,7 @@
 package game;
 import network.client.Client;
-import network.packet.PlayerTransformPacket;
+import network.packet.apple.EatApplePacket;
+import network.packet.player.StepPacket;
 import network.server.Server;
 import network.PlayerList;
 import java.awt.*;
@@ -18,11 +19,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     //region ---------------------------------------- ATTRIBUTES ------------------------------------------
 
     private static final int PORT = 7777;
-    private static String HOST_IP = "192.168.1.7";
+    private static final String HOST_IP = "192.168.1.7";
     private static final boolean isHostInLocal = true;
 
     private Client client;
-    private final Server server = new Server(PORT);;
+    private final Server server = new Server(PORT);
 
     private static final Font DEFAULT_FONT = new Font("Lato", Font.BOLD, 25);
     private final Font TITLE_FONT = new Font("Arial", Font.BOLD, 100);
@@ -37,21 +38,19 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private static final Color BACKGROUND_COLOR = new Color(232, 232, 232);
 
     // Timer
-    public static int FPS = 60;
-    public static double DELTATIME = 1.0 / FPS;
-    public static int DELTATIME_MS = (int) (DELTATIME * 1000);
+    public static final int FPS = 60;
+    public static final double DELTATIME = 1.0 / FPS;
+    public static final int DELTATIME_MS = (int) (DELTATIME * 1000);
 
     // Map
     public Tilemap map;
     public static final int TILE_SIZE = 64;
     public static final int ROWS = 12;
     public static final int COLUMNS = 18;
-    public static Dimension SIZE = new Dimension(TILE_SIZE * COLUMNS, TILE_SIZE * ROWS);
+    public static final Dimension SIZE = new Dimension(TILE_SIZE * COLUMNS, TILE_SIZE * ROWS);
 
     // Apples
-    //private final ArrayList<Apple> apples = new ArrayList<>();
-    //public static final int APPLE_COUNT = 5;
-    //private final Random rand = new Random();
+    private final ArrayList<Apple> apples = new ArrayList<>();
 
     private boolean isGameStarted = false;
 
@@ -66,9 +65,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     public Board() {
         super(new GridBagLayout());
+        setPreferredSize(SIZE);
         initConnection();
         initDebugLog();
-        initMap();
         initLayout();
         initWidgets();
         initTimer();
@@ -92,17 +91,13 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         server.setBoard(this);
     }
 
-    private void initMap() {
-        setPreferredSize(SIZE);
-        map = new Tilemap(Level.get(0));
+    public void setMap(int id) {
+        map = new Tilemap(Level.get(id));
     }
 
     private void startGame() {
         isGameStarted = true;
-        for(NetPlayer p : PlayerList.players.values()) {
-            p.onGameStart();
-        }
-        //spawnApples();
+        PlayerList.players.values().forEach(p -> p.onGameStart());
         hideWidgets();
     }
 
@@ -146,7 +141,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
         buttons.get(1).setEnabled(false); // Don't allow to spam clicks
 
-        if(!server.isRunning()){ // Dont let open server if connected to another server
+        if(!server.isRunning()){ // Don't let open server if connected to another server
             buttons.get(2).setEnabled(false);
         }
             
@@ -245,50 +240,20 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         timer.start();
     }
 
-    /*
-    private void spawnApples() {
-        int amount = APPLE_COUNT - apples.size();
-        for (int i = 0; i < amount; i++) { 
-            spawnApple();
-        }
-    }
-         
-
-    private void spawnApple() {
-        Point position = new Point(rand.nextInt(COLUMNS), rand.nextInt(ROWS));
-        Apple apple = new Apple(position);
-
-        for(NetPlayer p : PlayerList.players.values()) {
-            if(p.doesCollide(position)) {
-                spawnApple();
-                return;
-            }
-        }
-
-        if(apples.contains(apple))
-            return;
-
-        apples.add(apple);
-    }
-    */
-
     //endregion
 
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
+
+    public void spawnApple(Point position) {
+        apples.add(new Apple(position));
+    }
 
     public void onHit() {
         player.reset();
     }
 
-    /*
-    private void restart() {
-        apples.clear();
-        spawnApples();
-    }
-    */
-
     public void onStep() {
-        //collectApples();
+        collectApples();
         sendTransform();
     }
 
@@ -296,10 +261,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         if(!client.isConnected())
             return;
         
-        client.sendData(new PlayerTransformPacket(player));   
+        //client.sendData(new PlayerTransformPacket(player));   
+        client.sendData(new StepPacket(player));
     }
 
-    /*
+    
     private void collectApples() {
         ArrayList<Apple> collectedApples = GetCollectedApples();
 
@@ -307,6 +273,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             return;
 
         apples.removeAll(collectedApples);
+        collectedApples.forEach(a -> client.sendData(new EatApplePacket(a.pos)));
         //spawnApples();
     }
 
@@ -323,7 +290,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         }
         return collectedApples;
     }
-    */
     
     //endregion
 
@@ -438,23 +404,18 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
         setBackground(BACKGROUND_COLOR);
         map.render(g);
-        //drawApples(g);
+        drawApples(g);
         drawPlayers(g);
         drawScore(g);
     }
 
-    /*
+    
     private void drawApples(Graphics2D g) {
-        for (Apple apple : apples) {
-            apple.draw(g, this);
-        }
+        apples.forEach(a -> a.draw(g, this));
     }
-    */
-
+    
     private void drawPlayers(Graphics2D g) {
-        for (NetPlayer p : PlayerList.players.values()) {
-            p.draw(g, this);
-        }
+        PlayerList.players.values().forEach(p -> p.draw(g, this));
     }
 
     private void drawScore(Graphics2D g) {

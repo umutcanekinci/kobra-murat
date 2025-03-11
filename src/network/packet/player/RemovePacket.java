@@ -1,15 +1,15 @@
-package network.packet.client;
+package network.packet.player;
 
 import network.packet.Packet;
 
-public class AddPacket extends Packet {
-    public AddPacket(int id) {
+public class RemovePacket extends Packet {
+    public RemovePacket(int id) {
         super(id);
     }
 
     @Override
     public String toString() {
-        return "AddPacket{" +
+        return "RemovePacket{" +
                 "id=" + id +
                 '}';
     }

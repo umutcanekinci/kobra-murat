@@ -3,7 +3,7 @@ import javax.swing.*;
 
 public class Window extends JFrame {
 
-    public static String TITLE = "Kobra Murat";
+    public static final String TITLE = "Kobra Murat";
 
     public Window() {
 

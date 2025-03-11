@@ -1,6 +1,4 @@
-package network.packet.client;
-
-import network.packet.Packet;
+package network.packet;
 
 public class ServerClosedPacket extends Packet {
 

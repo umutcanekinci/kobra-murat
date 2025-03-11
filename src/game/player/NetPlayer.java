@@ -8,7 +8,7 @@ import network.PlayerList;
 public class NetPlayer extends Player{
 
     public Connection connection;
-    public int id;
+    public final int id;
 
     public NetPlayer(Board board, int id) {
         super(board, new Snake());
@@ -24,7 +24,7 @@ public class NetPlayer extends Player{
         return id == 0;
     }
 
-    public String[] getDebugInfo() {
+    public ArrayList<String> getDebugInfo() {
         ArrayList<String> info = new ArrayList<>();
         info.add("Player " + id + (isHost() ? " (Host)" : "") + (PlayerList.isCurrentPlayer(this) ? " (You)" : ""));
         info.add("Length: " + snake.length);
@@ -33,7 +33,7 @@ public class NetPlayer extends Player{
             Point part = snake.parts.get(i);
             info.add("Part " + i + ": (" + part.x + ", " + part.y + ")");
         }
-        return info.toArray(new String[0]);
+        return info;
     }
 
 }

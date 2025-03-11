@@ -11,32 +11,89 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import network.Connection;
-import network.packet.client.*;
+import network.packet.ServerClosedPacket;
+import network.packet.SetMapPacket;
+import network.packet.apple.SpawnApplePacket;
+import network.packet.player.AddPacket;
+import network.packet.player.IdPacket;
 import game.Board;
-
 
 //endregion
 
-enum State {
-    CLOSED,
-    CONNECTED,
-    LISTENING,
-}
-
 public class Server implements Runnable {
 
-    public State state = State.CLOSED;
     public String ip;
     private int port;
     private ServerSocket serverSocket;
     public Board board;
     private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
-    HashMap<Integer, Connection> connections = new HashMap<>();
-    //private ByteBuffer buffer;
-    //private Selector selector;
+    final HashMap<Integer, Connection> connections = new HashMap<>();
+    private int currentLevel;
+
+    public enum State {
+        CLOSED,
+        CONNECTED,
+        LISTENING,
+    }
+    public State state = State.CLOSED;
+
+    //region ------------------------------------ Constructors ------------------------------------
+
+    public Server(int port) {
+        PacketHandler.init(this);
+        setPort(port);
+        setIp();
+    }
 
     public void setBoard(Board board) {
         this.board = board;
+    }
+
+    private void setPort(int port) {
+        this.port = port;
+    }
+
+    private void setIp() {
+        try {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            ip = "Unknown";
+        }
+    }
+
+    //endregion
+
+    //region ------------------------------------ Methods ------------------------------------
+
+    public void start() {
+        setLevel(getRandomLevel());
+        spawnApples();  
+        open();
+        new Thread(this).start();
+    }
+
+    private void setLevel(int id) {
+        currentLevel = id;
+    }
+
+    private int getRandomLevel() {
+        return (int) Math.random() * game.map.Level.levels.length;
+    }
+
+    private void spawnApples() {
+        AppleManager.mapData = game.map.Level.levels[currentLevel];
+        AppleManager.spawnApples();
+    }
+
+
+    private void open() {
+        try {
+            serverSocket = new ServerSocket(port);
+            setState(State.CONNECTED);
+        } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Failed to open server socket.\n", e);
+            close();
+        }
     }
 
     private void setState(State state) {
@@ -55,55 +112,6 @@ public class Server implements Runnable {
         }
     }
 
-    public Server(int port) {
-        PacketHandler.init(this);
-        setPort(port);
-        setIp();
-        //buffer = ByteBuffer.allocate(bufferSize);
-    }
-
-    private void setPort(int port) {
-        this.port = port;
-    }
-
-    private void setIp() {
-        try {
-            ip = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            ip = "Unknown";
-        }
-    }
-
-    public void start() {
-        open();
-        new Thread(this).start();
-    }
-
-    private void open() {
-
-        /*
-
-        ServerSocketChannel serverChannel;
-        serverChannel = ServerSocketChannel.open();
-        serverChannel.configureBlocking(false);
-        serverSocket = serverChannel.socket();
-
-        InetSocketAddress address = new InetSocketAddress(port);
-        serverSocket.bind(address);
-        selector = Selector.open();
-        serverChannel.register(selector, SelectionKey.OP_ACCEPT);
-
-         */
-
-        try {
-            serverSocket = new ServerSocket(port);
-            setState(State.CONNECTED);
-        } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to open server socket.", e);
-            close();
-        }
-    }
-
     @Override
     public void run() {
         setState(State.LISTENING);
@@ -117,25 +125,6 @@ public class Server implements Runnable {
     }
 
     private void listen() {
-        /*
-        Set<SelectionKey> keys = selector.selectedKeys();
-
-        for (SelectionKey key : keys) {
-            boolean isAccept = (key.readyOps() & SelectionKey.OP_ACCEPT) == SelectionKey.OP_ACCEPT;
-            boolean isRead = (key.readyOps() & SelectionKey.OP_READ) == SelectionKey.OP_READ;
-
-            if (isAccept) {
-                acceptClient();
-            } else if (isRead) {
-                readData(key);
-            }
-
-            keys.clear();
-        }
-
-
-        */
-
         if(serverSocket == null || serverSocket.isClosed()) {
             close();
             return;
@@ -147,7 +136,7 @@ public class Server implements Runnable {
         } catch (IOException e) {
             if(!isRunning())
                 return;
-            LOGGER.log(Level.SEVERE, "Failed to accept client.", e);   
+            LOGGER.log(Level.SEVERE, "Failed to accept client.\n", e);   
         }
     }
 
@@ -158,9 +147,11 @@ public class Server implements Runnable {
         int id = connections.size();
         
         Connection newConnection = new Connection(socket, true); // Create new connection and add to list
+        newConnection.sendData(new SetMapPacket(currentLevel)); // Send current level to new player
+        sendApplesTo(newConnection);
         sendToAll(new AddPacket(id)); // Send new player to all clients
         connections.put(id, newConnection);
-        sendAllPlayersTo(newConnection); // Send all players to new client not including itself
+        sendPlayersTo(newConnection); // Send all players to new client not including itself
         newConnection.sendData(new IdPacket(id)); // Send id to new player so it can get its own player object from list
     }
 
@@ -168,38 +159,13 @@ public class Server implements Runnable {
         connections.values().forEach((connection) -> connection.sendData(packet));
     }
 
-    public void sendAllPlayersTo(Connection connection) {
-        connections.entrySet().forEach((set) -> connection.sendData(new AddPacket(set.getKey())));
+    public void sendPlayersTo(Connection connection) {
+        connections.forEach((key, value) -> connection.sendData(new AddPacket(key)));
     }
     
-    /*
-
-    private void acceptClient() throws IOException {
-        Socket socket = serverSocket.accept();
-        
-        SocketChannel socketChannel = socket.getChannel();
-        socketChannel.configureBlocking(false);
-        socketChannel.register(selector, SelectionKey.OP_READ);
+    public void sendApplesTo(Connection connection) {
+        AppleManager.apples.forEach((apple) -> connection.sendData(new SpawnApplePacket(apple)));
     }
-
-    private void readData(SelectionKey key) throws IOException {
-        SocketChannel channel = null;
-        channel = (SocketChannel) key.channel();
-        boolean connection = readData(channel, buffer);
-
-        if (!connection) {
-            key.cancel();
-            Socket socket = null;
-            socket = channel.socket();
-            socket.close();
-        }
-    }
-
-    private boolean readData(SocketChannel channel, ByteBuffer buffer) {
-        return true;
-    }
-
-    */
 
     public void close() {
         if(state == State.CLOSED) {
@@ -213,7 +179,7 @@ public class Server implements Runnable {
     private void closeConnections() {
 
         sendToAll(new ServerClosedPacket());
-        connections.values().forEach((connection) -> closeConnection(connection));
+        connections.values().forEach(this::closeConnection);
         connections.clear();
 
         if(serverSocket == null || serverSocket.isClosed())
@@ -222,7 +188,7 @@ public class Server implements Runnable {
         try {
             serverSocket.close();
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to close server socket.", e);
+            LOGGER.log(Level.SEVERE, "Failed to close server socket.\n", e);
         }
     }
 
@@ -236,5 +202,7 @@ public class Server implements Runnable {
     public void removeConnection(int id) {
         connections.remove(id);
     }
+
+    //endregion
 
 }

@@ -1,7 +1,7 @@
 package game.map;
 
 public class Level {
-    public static int[][][] levels = {
+    public static final int[][][] levels = {
         {
             {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
             {1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1},

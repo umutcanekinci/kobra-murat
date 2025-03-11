@@ -19,8 +19,8 @@ public class DebugLog {
             new Color(0, 255, 0),
             new Color(50, 120, 255),
     };
-    public static ArrayList<String> debugText = new ArrayList<String>();
-    public static ArrayList<String> playerList = new ArrayList<String>();
+    public static final ArrayList<String> debugText = new ArrayList<>();
+    public static ArrayList<String> playerList = new ArrayList<>();
     private static Server server;
     private static Client client;
     

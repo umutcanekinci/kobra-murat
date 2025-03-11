@@ -9,6 +9,8 @@ public class Tilemap {
     private int cols, rows;
     private final Point spawnPoint = new Point(0, 0);
 
+    public Tilemap() {}
+
     public Tilemap(int[][] mapData) {
         loadMap(mapData);
     }

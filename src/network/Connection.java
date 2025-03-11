@@ -5,7 +5,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import network.packet.client.PacketHandler;
+
+import network.client.PacketHandler;
 
 public class Connection implements Runnable {
     
@@ -13,7 +14,7 @@ public class Connection implements Runnable {
     private final Socket socket;
     private ObjectOutputStream output;
     private ObjectInputStream input;
-    private boolean isServer;
+    private final boolean isServer;
 
     public Connection(Socket socket, boolean isServer) {
         this.isServer = isServer;
@@ -24,7 +25,7 @@ public class Connection implements Runnable {
             input = new ObjectInputStream(socket.getInputStream());
             start();
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to create connection.", e);
+            LOGGER.log(Level.SEVERE, "Failed to create connection.\n", e);
         }
     }
 
@@ -52,7 +53,7 @@ public class Connection implements Runnable {
             if(socket.isClosed())
                 return;
 
-            LOGGER.log(Level.SEVERE, "Failed to read data from " + (isServer ? "server." : "client."), e);
+            LOGGER.log(Level.SEVERE, "Failed to read data from " + (isServer ? "server." : "client. \n"), e);
         }
     }
 
@@ -66,7 +67,7 @@ public class Connection implements Runnable {
                 output.flush();
             }
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Failed to send data to " + (isServer ? "server." : "client."), e);
+            LOGGER.log(Level.SEVERE, "Failed to send data to " + (isServer ? "server." : "client.\n"), e);
         }
     }
 
@@ -80,7 +81,7 @@ public class Connection implements Runnable {
 
             socket.close();
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Failed to close connection.", e); 
+            LOGGER.log(Level.SEVERE, "Failed to close connection.\n", e); 
         }
     }
 }
