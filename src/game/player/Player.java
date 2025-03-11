@@ -52,8 +52,8 @@ public class Player {
 
     //region ---------------------------------------- GET METHODS ---------------------------------------
 
-    public String getScore() {
-        return String.valueOf((snake.length - DEFAULT_LENGTH) * 100);
+    public int getScore() {
+        return (snake.length - DEFAULT_LENGTH) * 100;
     }
 
     public Point getPos() { return pos; }

@@ -15,6 +15,10 @@ public class Tilemap {
         loadMap(mapData);
     }
 
+    public boolean isReady() {
+        return tiles != null;
+    }
+
     private void loadMap(int[][] mapData) {
 
         if(mapData == null)

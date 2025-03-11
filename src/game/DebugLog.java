@@ -50,8 +50,8 @@ public class DebugLog {
         DEBUG_RECT.y = 20;
         drawDebugText(g, "Player List");
         drawPlayerList(g);
-        DEBUG_RECT.y = drawText(g, "SERVER: " + server.state, DEBUG_COLORS[1]);
-        DEBUG_RECT.y = drawText(g, "CLIENT: " + client.state, DEBUG_COLORS[1]);
+        DEBUG_RECT.y = drawText(g, Utils.getState(server), DEBUG_COLORS[1]);
+        DEBUG_RECT.y = drawText(g, Utils.getState(client), DEBUG_COLORS[1]);
     }
 
     private static int drawText(Graphics2D g, String text, Color color) {

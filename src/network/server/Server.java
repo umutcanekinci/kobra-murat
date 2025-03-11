@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 import network.Connection;
 import network.packet.ServerClosedPacket;
@@ -16,13 +14,13 @@ import network.packet.SetMapPacket;
 import network.packet.apple.SpawnApplePacket;
 import network.packet.player.AddPacket;
 import network.packet.player.IdPacket;
+import game.AppleManager;
 import game.Board;
 
 //endregion
 
 public class Server implements Runnable {
 
-    public String ip;
     private int port;
     private ServerSocket serverSocket;
     public Board board;
@@ -42,7 +40,6 @@ public class Server implements Runnable {
     public Server(int port) {
         PacketHandler.init(this);
         setPort(port);
-        setIp();
     }
 
     public void setBoard(Board board) {
@@ -51,14 +48,6 @@ public class Server implements Runnable {
 
     private void setPort(int port) {
         this.port = port;
-    }
-
-    private void setIp() {
-        try {
-            ip = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            ip = "Unknown";
-        }
     }
 
     //endregion

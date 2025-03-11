@@ -44,6 +44,7 @@ public class PacketHandler {
             }
             case SpawnApplePacket spawnApplePacket ->
                 board.spawnApple(spawnApplePacket.position);
+                
             case UpdateTransformPacket playerTransformPacket ->
                 PlayerList.updatePlayerTransform(playerTransformPacket);
 

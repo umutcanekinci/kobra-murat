@@ -2,14 +2,19 @@ package game;
 
 import javax.imageio.ImageIO;
 
+import game.map.Tilemap;
 import game.player.Direction;
 import game.player.MoveKey;
+import network.client.Client;
+import network.server.Server;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,6 +73,34 @@ public final class Utils {
         double locationY = (double) image.getHeight() / 2;
         AffineTransform tx = AffineTransform.getRotateInstance(rotationRequired, locationX, locationY);
         return new AffineTransformOp(tx, AffineTransformOp.TYPE_BILINEAR);
+    }
+
+    public static String getLocalIp() {
+        try {
+            return InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            return "Unknown";
+        }
+    }
+
+    public static boolean isClientConnected(Client client) {
+        return client != null && client.isConnected();
+    }
+
+    public static boolean isServerRunning(Server server) {
+        return server != null && server.isRunning();
+    }
+
+    public static String getState(Server server) {
+        return "SERVER: " + (isServerRunning(server) ? server.state : "STOPPED");
+    }
+
+    public static String getState(Client client) {
+        return "CLIENT: " + (isClientConnected(client) ? client.state : "DISCONNECTED");
+    }
+
+    public static boolean isMapReady(Tilemap map) {
+        return map != null && map.isReady();
     }
 
 }

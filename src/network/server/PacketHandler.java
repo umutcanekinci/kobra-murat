@@ -10,6 +10,8 @@ import network.packet.player.StepPacket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import game.AppleManager;
+
 public class PacketHandler {
 
     private static final Logger LOGGER = Logger.getLogger(PacketHandler.class.getName());

@@ -1,42 +1,46 @@
 package game;
 import network.client.Client;
+import network.client.PacketHandler;
+import network.packet.SetMapPacket;
 import network.packet.apple.EatApplePacket;
+import network.packet.apple.SpawnApplePacket;
+import network.packet.player.AddPacket;
+import network.packet.player.IdPacket;
 import network.packet.player.StepPacket;
 import network.server.Server;
 import network.PlayerList;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-//import java.util.Random;
+
+import game.graphics.InGame;
+import game.graphics.UI;
 import game.map.Level;
 import game.map.Tilemap;
 import game.player.NetPlayer;
-
 import javax.swing.*;
 
 public class Board extends JPanel implements ActionListener, KeyListener {
 
     //region ---------------------------------------- ATTRIBUTES ------------------------------------------
 
+    // Colors
+    private static final Color MENU_BACKGROUND_COLOR = Color.GREEN;
+    private static final Color BACKGROUND_COLOR = new Color(232, 232, 232);
+
     private static final int PORT = 7777;
     private static final String HOST_IP = "192.168.1.7";
+    private static String LOCAL_IP;
     private static final boolean isHostInLocal = true;
 
     private Client client;
-    private final Server server = new Server(PORT);
-
-    private static final Font DEFAULT_FONT = new Font("Lato", Font.BOLD, 25);
-    private final Font TITLE_FONT = new Font("Arial", Font.BOLD, 100);
+    private Server server;
 
     private GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
 
     // Players
     NetPlayer player;
-
-    // Colors
-    private static final Color MENU_BACKGROUND_COLOR = Color.GREEN;
-    private static final Color BACKGROUND_COLOR = new Color(232, 232, 232);
-
+   
     // Timer
     public static final int FPS = 60;
     public static final double DELTATIME = 1.0 / FPS;
@@ -45,8 +49,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     // Map
     public Tilemap map;
     public static final int TILE_SIZE = 64;
-    public static final int ROWS = 12;
-    public static final int COLUMNS = 18;
+    public static final int ROWS = 14;
+    public static final int COLUMNS = 24;
     public static final Dimension SIZE = new Dimension(TILE_SIZE * COLUMNS, TILE_SIZE * ROWS);
 
     // Apples
@@ -55,8 +59,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private boolean isGameStarted = false;
 
     // UI
-    private final String TITLE = "Kobra Murat";
-    private static final Rectangle SCORE_RECT = new Rectangle(0, TILE_SIZE * (ROWS - 1), TILE_SIZE * COLUMNS, TILE_SIZE);
+    
     private final ArrayList<JButton> buttons = new ArrayList<>();
 
     //endregion
@@ -65,30 +68,40 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     public Board() {
         super(new GridBagLayout());
+        UI.init(TILE_SIZE, COLUMNS, ROWS);
+        setLocalIp();
         setPreferredSize(SIZE);
-        initConnection();
         initDebugLog();
         initLayout();
         initWidgets();
         initTimer();
     }
 
+    private void setLocalIp() {
+        LOCAL_IP = Utils.getLocalIp();
+    }
+    
     private void initDebugLog() {
-        DebugLog.init(server, client);
         DebugLog.toggle();
         DebugLog.debugText.add("DEBUG MODE ON - Press F2 to toggle");
         DebugLog.debugText.add("FPS: " + FPS);
         DebugLog.debugText.add("SIZE: " + SIZE.width + "x" + SIZE.height + " px");
         DebugLog.debugText.add("");
-        DebugLog.debugText.add("CURRENT IP: " + server.ip);
-        DebugLog.debugText.add("HOST_IP: " + HOST_IP + " (Local: " + isHostInLocal + ")");
+        DebugLog.debugText.add("LOCAL IP: " + LOCAL_IP);
+        DebugLog.debugText.add("HOST IP: " + HOST_IP + " (Local: " + isHostInLocal + ")");
         DebugLog.debugText.add("PORT: " + PORT);
     }
 
-    private void initConnection() {
+    private void initServer() {
+        server = new Server(PORT);
+        server.setBoard(this);
+        DebugLog.init(server, client);
+    }
+
+    private void initClient() {
         client = new Client(isHostInLocal ? "localhost" : HOST_IP, PORT);
         client.setBoard(this);
-        server.setBoard(this);
+        DebugLog.init(server, client);
     }
 
     public void setMap(int id) {
@@ -97,6 +110,15 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     private void startGame() {
         isGameStarted = true;
+
+        if(!Utils.isClientConnected(client)) {
+            PacketHandler.init(this, client);
+            PacketHandler.handle(new SetMapPacket(0), null);
+            PacketHandler.handle(new AddPacket(0), null);
+            PacketHandler.handle(new IdPacket(0), null);
+            AppleManager.apples.forEach(a -> PacketHandler.handle(new SpawnApplePacket(a), null));
+        }
+    
         PlayerList.players.values().forEach(p -> p.onGameStart());
         hideWidgets();
     }
@@ -108,34 +130,23 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private void initWidgets() {
-
-        JButton startButton = newButton("Başla");
-        startButton.setEnabled(false);
-        startButton.addActionListener(e -> startGame());
-
-        JButton connectButton = newButton("Bağlan");
-        connectButton.addActionListener(e -> connect());
-
-        JButton hostButton = newButton("Sunucu Aç");
-        hostButton.addActionListener(e -> host());
-
-        JButton exitButton = newButton("Çıkış");
-        exitButton.addActionListener(e -> exit());
+        addButton("Başla", e -> startGame());
+        addButton("Bağlan", e -> connect());
+        addButton("Sunucu Aç", e -> host());
+        addButton("Çıkış", e -> exit());
     }
 
-    private JButton newButton(String text) {
-        JButton button = new JButton(text);
-        button.setRequestFocusEnabled(false);
-        button.setBackground(Color.WHITE);
-        button.setFont(new Font("Arial", Font.BOLD, 20));
-        button.setPreferredSize(new Dimension(200, 100));
-
+    private void addButton(String text, ActionListener listener) {
+        JButton button = UI.newButton(text);
+        button.addActionListener(listener);
         add(button, layout);
         buttons.add(button);
-        return button;
     }
     
     private void connect() {
+        if(client == null)
+            initClient();
+
         if(client.isConnected())
             return;
 
@@ -149,7 +160,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private void host() {
-        if(client.isConnected() || server.isRunning())
+        if(server == null)
+            initServer();
+
+        if(server.isRunning())
             return;
 
         buttons.get(2).setEnabled(false); // Don't allow to spam clicks
@@ -157,7 +171,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     public void onClientConnected() {
-        buttons.get(0).setEnabled(true);
         JButton button = buttons.get(1);
         addListenerToButton(button, e -> client.disconnect());
         button.setText("Bağlantıyı Kes");
@@ -175,7 +188,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         button.setText("Bağlan");
         button.setEnabled(true);
         buttons.get(2).setEnabled(true);
-        buttons.get(0).setEnabled(false);
         PlayerList.clear();
     }
 
@@ -195,7 +207,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         button.setText("Sunucu Aç");
         button.setEnabled(true);
         buttons.get(1).setEnabled(true);
-        buttons.get(0).setEnabled(false);
     }
 
     private void addListenerToButton(JButton button, ActionListener listener) {
@@ -258,7 +269,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private void sendTransform() {
-        if(!client.isConnected())
+        if(!Utils.isClientConnected(client))
             return;
         
         //client.sendData(new PlayerTransformPacket(player));   
@@ -325,10 +336,12 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         if(!isGameStarted)
             return;
 
-        player.keyPressed(e);
+        if(player != null)
+            player.keyPressed(e);
 
         if(e.getKeyCode() == KeyEvent.VK_R) {
-            player.reset();
+            if(player != null)
+                player.reset();
         }
         else if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             openMenu();
@@ -354,13 +367,18 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         // this method is called by the timer every DELTATIME ms.
         // so this is the mainloop of the game
         if(isGameStarted) {
-            player.move();
+            updatePlayer();
         }
 
         repaint();
     }
 
+    private void updatePlayer() {
+        if(player == null)
+            return;
 
+        player.move();
+    }
 
     //endregion
 
@@ -378,7 +396,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         */
 
         Graphics2D g2d = (Graphics2D) g; // we need to cast the Graphics to Graphics2D to draw nicer text
-        initGraphics(g2d);
+        UI.initGraphics(g2d);
+        drawBackground();
 
         if(isGameStarted) {
             drawGame(g2d);
@@ -388,64 +407,52 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         }
 
         DebugLog.draw(g2d);
-        
         Toolkit.getDefaultToolkit().sync(); // this smooths out animations on some systems
     }
 
-    private void initGraphics(Graphics2D g) {
-        g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+    private void drawBackground() {
+        setBackground(isGameStarted ? BACKGROUND_COLOR : MENU_BACKGROUND_COLOR);
     }
 
     private void drawGame(Graphics2D g) {
-        if(!isGameStarted)
-            return;
-
-        setBackground(BACKGROUND_COLOR);
-        map.render(g);
-        drawApples(g);
-        drawPlayers(g);
-        drawScore(g);
-    }
-
-    
-    private void drawApples(Graphics2D g) {
-        apples.forEach(a -> a.draw(g, this));
-    }
-    
-    private void drawPlayers(Graphics2D g) {
-        PlayerList.players.values().forEach(p -> p.draw(g, this));
-    }
-
-    private void drawScore(Graphics2D g) {
-        g.setFont(DEFAULT_FONT);
-        String text = "Score: " + player.getScore();
-        Utils.drawText(g, text, Color.GREEN, SCORE_RECT, true);
+        drawBackground();
+        InGame.drawMap(map, g);
+        InGame.drawApples(this, apples, g);
+        InGame.drawPlayers(this, g);
+        UI.drawScore((player == null ? 0 : player.getScore()), g);
     }
 
     private void drawMainMenu(Graphics2D g) {
-        if(isGameStarted)
-            return;
-
-        setBackground(MENU_BACKGROUND_COLOR);
-        drawTitle(g);
-    }
-
-    private void drawTitle(Graphics2D g) {
-        g.setFont(TITLE_FONT);
-        Utils.drawText(g, TITLE, Color.BLACK, new Rectangle(0, 200, SIZE.width, TILE_SIZE), true);
+        UI.drawTitle(SIZE.width, 100, g, this);
     }
 
     //endregion
 
     public void exit() {
-        if(client.isConnected())
-            client.disconnect();
-
-        if(server.isRunning())
-            server.close();
-
+        onExit();
         Window.exit();
+    }
+
+    public void onExit() {
+        disconnect();
+    }
+
+    private void disconnect() {
+        disconnectClient();
+        disconnectServer();
+    }
+
+    private void disconnectClient() {
+        if(!Utils.isClientConnected(client))
+            return;
+
+        client.disconnect();
+    }
+
+    private void disconnectServer() {
+        if(!Utils.isServerRunning(server))
+            return;
+
+        server.close();
     }
 }
