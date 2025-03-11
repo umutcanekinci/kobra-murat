@@ -19,63 +19,66 @@ import game.Board;
 
 //endregion
 
-public class Server implements Runnable {
+public class Server {
 
-    private int port;
-    private ServerSocket serverSocket;
-    public Board board;
+    private static int port;
+    private static ServerSocket serverSocket;
     private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
-    final HashMap<Integer, Connection> connections = new HashMap<>();
-    private int currentLevel;
+    private static final HashMap<Integer, Connection> connections = new HashMap<>();
+    private static int currentLevel;
 
     public enum State {
         CLOSED,
         CONNECTED,
         LISTENING,
     }
-    public State state = State.CLOSED;
+    public static State state = State.CLOSED;
+
+    public static String getState() {
+        return "SERVER: " + (Server.isRunning() ? Server.state : "STOPPED");
+    }
 
     //region ------------------------------------ Constructors ------------------------------------
 
     public Server(int port) {
-        PacketHandler.init(this);
         setPort(port);
     }
 
-    public void setBoard(Board board) {
-        this.board = board;
-    }
-
-    private void setPort(int port) {
-        this.port = port;
+    public static void setPort(int port) {
+        Server.port = port;
     }
 
     //endregion
 
     //region ------------------------------------ Methods ------------------------------------
 
-    public void start() {
+    public static void start() {
         setLevel(getRandomLevel());
         spawnApples();  
         open();
-        new Thread(this).start();
+        new Thread() {
+            public void run() {
+                while (isRunning()) {
+                    listen();
+                }
+            }
+        }.start();
     }
 
-    private void setLevel(int id) {
+    private static void setLevel(int id) {
         currentLevel = id;
     }
 
-    private int getRandomLevel() {
+    private static int getRandomLevel() {
         return (int) Math.random() * game.map.Level.levels.length;
     }
 
-    private void spawnApples() {
+    private static void spawnApples() {
         AppleManager.mapData = game.map.Level.levels[currentLevel];
         AppleManager.spawnApples();
     }
 
-
-    private void open() {
+    private static void open() {
         try {
             serverSocket = new ServerSocket(port);
             setState(State.CONNECTED);
@@ -85,35 +88,25 @@ public class Server implements Runnable {
         }
     }
 
-    private void setState(State state) {
-        this.state = state;
+    private static void setState(State state) {
+        Server.state = state;
         notifyBoard();
     }
 
-    private void notifyBoard() {
-        if(board == null)
-            return;
-        
+    private static void notifyBoard() {
         switch (state) {
-            case CLOSED -> board.onServerClosed();
-            case CONNECTED -> board.onServerOpened();
+            case CLOSED -> Board.onServerClosed();
+            case CONNECTED -> Board.onServerOpened();
             case LISTENING -> {}
         }
     }
 
-    @Override
-    public void run() {
-        setState(State.LISTENING);
-        while (isRunning()) {
-            listen();
-        }
-    }
-
-    public boolean isRunning() {
+    public static boolean isRunning() {
         return state != State.CLOSED;
     }
 
-    private void listen() {
+    private static void listen() {
+        setState(State.LISTENING);
         if(serverSocket == null || serverSocket.isClosed()) {
             close();
             return;
@@ -129,7 +122,7 @@ public class Server implements Runnable {
         }
     }
 
-    private void startConnection(Socket socket) {
+    private static void startConnection(Socket socket) {
         if(!isRunning())
             return;
         
@@ -144,19 +137,19 @@ public class Server implements Runnable {
         newConnection.sendData(new IdPacket(id)); // Send id to new player so it can get its own player object from list
     }
 
-    public void sendToAll(Object packet) {
+    public static void sendToAll(Object packet) {
         connections.values().forEach((connection) -> connection.sendData(packet));
     }
 
-    public void sendPlayersTo(Connection connection) {
+    public static void sendPlayersTo(Connection connection) {
         connections.forEach((key, value) -> connection.sendData(new AddPacket(key)));
     }
     
-    public void sendApplesTo(Connection connection) {
+    public static void sendApplesTo(Connection connection) {
         AppleManager.apples.forEach((apple) -> connection.sendData(new SpawnApplePacket(apple)));
     }
 
-    public void close() {
+    public static void close() {
         if(state == State.CLOSED) {
             return;
         }
@@ -165,10 +158,10 @@ public class Server implements Runnable {
         setState(State.CLOSED);
     }
 
-    private void closeConnections() {
+    private static void closeConnections() {
 
         sendToAll(new ServerClosedPacket());
-        connections.values().forEach(this::closeConnection);
+        connections.values().forEach(Server::closeConnection);
         connections.clear();
 
         if(serverSocket == null || serverSocket.isClosed())
@@ -181,14 +174,14 @@ public class Server implements Runnable {
         }
     }
 
-    public void closeConnection(Connection connection) {
+    public static void closeConnection(Connection connection) {
         if(connection == null)
             return;
         
         connection.close();
     }
 
-    public void removeConnection(int id) {
+    public static void removeConnection(int id) {
         connections.remove(id);
     }
 

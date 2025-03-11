@@ -15,30 +15,24 @@ import game.AppleManager;
 public class PacketHandler {
 
     private static final Logger LOGGER = Logger.getLogger(PacketHandler.class.getName());
-    private static Server server;
-
-    public static void init(Server server) {
-        PacketHandler.server = server;
-    }
-
     public static void handle(Object packet, Connection connection) {
         LOGGER.log(Level.INFO, "Server received a packet: " + packet + "\n");
         
         switch (packet) {
             case EatApplePacket eatApplePacket -> {
-                server.sendToAll(new SpawnApplePacket(AppleManager.spawnApple()));
+                Server.sendToAll(new SpawnApplePacket(AppleManager.spawnApple()));
             }
             case UpdateTransformPacket playerTransformPacket -> {
                 AppleManager.updatePlayerTransform(playerTransformPacket);
-                server.sendToAll(packet);
+                Server.sendToAll(packet);
             }
             case StepPacket stepPacket -> {
-                server.sendToAll(packet);
+                Server.sendToAll(packet);
             }
             case DisconnectPacket disconnectPacket -> {
-                server.closeConnection(connection);
-                server.removeConnection(disconnectPacket.id);
-                server.sendToAll(new RemovePacket(disconnectPacket.id));
+                Server.closeConnection(connection);
+                Server.removeConnection(disconnectPacket.id);
+                Server.sendToAll(new RemovePacket(disconnectPacket.id));
             }
             default -> {
                 LOGGER.log(Level.WARNING, "Unknown packet: " + packet + "\n");

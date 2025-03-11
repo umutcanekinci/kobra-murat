@@ -21,14 +21,7 @@ public class DebugLog {
     };
     public static final ArrayList<String> debugText = new ArrayList<>();
     public static ArrayList<String> playerList = new ArrayList<>();
-    private static Server server;
-    private static Client client;
     
-    public static void init(Server server, Client client) {
-        DebugLog.server = server;
-        DebugLog.client = client;
-    }
-
     public static void toggle() {
         isEnabled = !isEnabled;
     }
@@ -50,8 +43,8 @@ public class DebugLog {
         DEBUG_RECT.y = 20;
         drawDebugText(g, "Player List");
         drawPlayerList(g);
-        DEBUG_RECT.y = drawText(g, Utils.getState(server), DEBUG_COLORS[1]);
-        DEBUG_RECT.y = drawText(g, Utils.getState(client), DEBUG_COLORS[1]);
+        DEBUG_RECT.y = drawText(g, Server.getState(), DEBUG_COLORS[1]);
+        DEBUG_RECT.y = drawText(g, Client.getState(), DEBUG_COLORS[1]);
     }
 
     private static int drawText(Graphics2D g, String text, Color color) {

@@ -5,9 +5,6 @@ import javax.imageio.ImageIO;
 import game.map.Tilemap;
 import game.player.Direction;
 import game.player.MoveKey;
-import network.client.Client;
-import network.server.Server;
-
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
@@ -81,22 +78,6 @@ public final class Utils {
         } catch (UnknownHostException e) {
             return "Unknown";
         }
-    }
-
-    public static boolean isClientConnected(Client client) {
-        return client != null && client.isConnected();
-    }
-
-    public static boolean isServerRunning(Server server) {
-        return server != null && server.isRunning();
-    }
-
-    public static String getState(Server server) {
-        return "SERVER: " + (isServerRunning(server) ? server.state : "STOPPED");
-    }
-
-    public static String getState(Client client) {
-        return "CLIENT: " + (isClientConnected(client) ? client.state : "DISCONNECTED");
     }
 
     public static boolean isMapReady(Tilemap map) {

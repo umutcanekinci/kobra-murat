@@ -33,13 +33,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private static String LOCAL_IP;
     private static final boolean isHostInLocal = true;
 
-    private Client client;
-    private Server server;
-
-    private GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
+    private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
 
     // Players
-    NetPlayer player;
+    private static NetPlayer player;
    
     // Timer
     public static final int FPS = 60;
@@ -47,20 +44,19 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public static final int DELTATIME_MS = (int) (DELTATIME * 1000);
 
     // Map
-    public Tilemap map;
+    public static Tilemap map;
     public static final int TILE_SIZE = 64;
     public static final int ROWS = 14;
     public static final int COLUMNS = 24;
     public static final Dimension SIZE = new Dimension(TILE_SIZE * COLUMNS, TILE_SIZE * ROWS);
 
     // Apples
-    private final ArrayList<Apple> apples = new ArrayList<>();
+    private static final ArrayList<Apple> apples = new ArrayList<>();
 
-    private boolean isGameStarted = false;
+    private static boolean isGameStarted = false;
 
     // UI
-    
-    private final ArrayList<JButton> buttons = new ArrayList<>();
+    private static final ArrayList<JButton> buttons = new ArrayList<>();
 
     //endregion
 
@@ -69,6 +65,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public Board() {
         super(new GridBagLayout());
         UI.init(TILE_SIZE, COLUMNS, ROWS);
+        initClient();
+        initServer();
         setLocalIp();
         setPreferredSize(SIZE);
         initDebugLog();
@@ -77,11 +75,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         initTimer();
     }
 
-    private void setLocalIp() {
+    private static void setLocalIp() {
         LOCAL_IP = Utils.getLocalIp();
     }
     
-    private void initDebugLog() {
+    private static void initDebugLog() {
         DebugLog.toggle();
         DebugLog.debugText.add("DEBUG MODE ON - Press F2 to toggle");
         DebugLog.debugText.add("FPS: " + FPS);
@@ -92,27 +90,23 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         DebugLog.debugText.add("PORT: " + PORT);
     }
 
-    private void initServer() {
-        server = new Server(PORT);
-        server.setBoard(this);
-        DebugLog.init(server, client);
+    private static void initServer() {
+        Server.setPort(PORT);
     }
 
-    private void initClient() {
-        client = new Client(isHostInLocal ? "localhost" : HOST_IP, PORT);
-        client.setBoard(this);
-        DebugLog.init(server, client);
+    private static void initClient() {
+        Client.setHost(isHostInLocal ? "localhost" : HOST_IP);
+        Client.setPort(PORT);
     }
 
-    public void setMap(int id) {
+    public static void setMap(int id) {
         map = new Tilemap(Level.get(id));
     }
 
-    private void startGame() {
+    private static void startGame() {
         isGameStarted = true;
 
-        if(!Utils.isClientConnected(client)) {
-            PacketHandler.init(this, client);
+        if(!Client.isConnected()) {
             PacketHandler.handle(new SetMapPacket(0), null);
             PacketHandler.handle(new AddPacket(0), null);
             PacketHandler.handle(new IdPacket(0), null);
@@ -123,7 +117,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         hideWidgets();
     }
 
-    private void initLayout() {
+    private static void initLayout() {
         layout = new GridBagConstraints();
         layout.insets = new Insets(0, 10, 5, 0);
         layout.weighty = 1;
@@ -142,48 +136,29 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         add(button, layout);
         buttons.add(button);
     }
-    
-    private void connect() {
-        if(client == null)
-            initClient();
 
-        if(client.isConnected())
-            return;
-
-        buttons.get(1).setEnabled(false); // Don't allow to spam clicks
-
-        if(!server.isRunning()){ // Don't let open server if connected to another server
-            buttons.get(2).setEnabled(false);
-        }
-            
-        client.start();
-    }
-
-    private void host() {
-        if(server == null)
-            initServer();
-
-        if(server.isRunning())
+    private static void host() {
+        if(Server.isRunning())
             return;
 
         buttons.get(2).setEnabled(false); // Don't allow to spam clicks
-        server.start();
+        Server.start();
     }
 
-    public void onClientConnected() {
+    public static void onClientConnected() {
         JButton button = buttons.get(1);
-        addListenerToButton(button, e -> client.disconnect());
+        addListenerToButton(button, e -> Client.disconnect());
         button.setText("Bağlantıyı Kes");
         button.setEnabled(true);
     }
 
-    public void onClientDisconnected() {
+    public static void onClientDisconnected() {
         JButton button = buttons.get(1);
         
         for(ActionListener listener : button.getActionListeners()) {
             button.removeActionListener(listener);
         }
-        button.addActionListener(e -> connect());
+        button.addActionListener(e -> Board.connect());
 
         button.setText("Bağlan");
         button.setEnabled(true);
@@ -191,17 +166,32 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         PlayerList.clear();
     }
 
-    public void onServerOpened() {
+    private static void connect() {
+        if(Client.isConnected())
+            return;
+
+
+        buttons.get(1).setEnabled(false); // Don't allow to spam clicks
+        
+        if(!Server.isRunning()){ // Don't let open server if connected to another server
+            buttons.get(2).setEnabled(false);
+        }
+            
+        Client.start();
+    }
+
+
+    public static void onServerOpened() {
         JButton button = buttons.get(2);
         for(ActionListener listener : button.getActionListeners()) {
             button.removeActionListener(listener);
         }
-        button.addActionListener(e -> server.close());
+        button.addActionListener(e -> Server.close());
         button.setText("Sunucuyu Kapat");
         button.setEnabled(true);
     }
 
-    public void onServerClosed() {
+    public static void onServerClosed() {
         JButton button = buttons.get(2);
         addListenerToButton(button, e -> host());
         button.setText("Sunucu Aç");
@@ -209,14 +199,14 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         buttons.get(1).setEnabled(true);
     }
 
-    private void addListenerToButton(JButton button, ActionListener listener) {
+    private static void addListenerToButton(JButton button, ActionListener listener) {
         for(ActionListener l : button.getActionListeners()) {
             button.removeActionListener(l);
         }
         button.addActionListener(listener);
     }
 
-    public void initPlayer() {
+    public static void initPlayer() {
         player = PlayerList.getCurrentPlayer();
 
         if(player == null)
@@ -225,7 +215,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         player.setMap(map);
     }
 
-    private void hideWidgets() {
+    private static void hideWidgets() {
         for (JButton button : buttons) {
             if(button == null)
                 continue;
@@ -234,7 +224,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    private void showWidgets() {
+    private static void showWidgets() {
         for (JButton button : buttons) {
             if(button == null)
                 continue;
@@ -255,40 +245,39 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
 
-    public void spawnApple(Point position) {
+    public static void spawnApple(Point position) {
         apples.add(new Apple(position));
     }
 
-    public void onHit() {
+    public static void onHit() {
         player.reset();
     }
 
-    public void onStep() {
+    public static void onStep() {
         collectApples();
         sendTransform();
     }
 
-    private void sendTransform() {
-        if(!Utils.isClientConnected(client))
+    private static void sendTransform() {
+        if(!Client.isConnected())
             return;
         
-        //client.sendData(new PlayerTransformPacket(player));   
-        client.sendData(new StepPacket(player));
+        Client.sendData(new StepPacket(player));
     }
 
     
-    private void collectApples() {
+    private static void collectApples() {
         ArrayList<Apple> collectedApples = GetCollectedApples();
 
         if(collectedApples.isEmpty())
             return;
 
         apples.removeAll(collectedApples);
-        collectedApples.forEach(a -> client.sendData(new EatApplePacket(a.pos)));
+        collectedApples.forEach(a -> Client.sendData(new EatApplePacket(a.pos)));
         //spawnApples();
     }
 
-    private ArrayList<Apple> GetCollectedApples() {
+    private static ArrayList<Apple> GetCollectedApples() {
         ArrayList<Apple> collectedApples = new ArrayList<>();
         for (Apple apple : apples) {
             for(NetPlayer player : PlayerList.players.values()) {
@@ -326,13 +315,13 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     }
 
-    private void keyPressedMenu(KeyEvent e) {
+    private static void keyPressedMenu(KeyEvent e) {
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             exit();
         }
     }
 
-    private void keyPressedGame(KeyEvent e) {
+    private static void keyPressedGame(KeyEvent e) {
         if(!isGameStarted)
             return;
 
@@ -348,7 +337,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    public void openMenu() {
+    public static void openMenu() {
         isGameStarted = false;
         showWidgets();
     }
@@ -373,7 +362,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         repaint();
     }
 
-    private void updatePlayer() {
+    private static void updatePlayer() {
         if(player == null)
             return;
 
@@ -417,42 +406,42 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private void drawGame(Graphics2D g) {
         drawBackground();
         InGame.drawMap(map, g);
-        InGame.drawApples(this, apples, g);
-        InGame.drawPlayers(this, g);
+        InGame.drawApples(apples, g);
+        InGame.drawPlayers(g);
         UI.drawScore((player == null ? 0 : player.getScore()), g);
     }
 
-    private void drawMainMenu(Graphics2D g) {
-        UI.drawTitle(SIZE.width, 100, g, this);
+    private static void drawMainMenu(Graphics2D g) {
+        UI.drawTitle(SIZE.width, 100, g, null);
     }
 
     //endregion
 
-    public void exit() {
+    public static void exit() {
         onExit();
         Window.exit();
     }
 
-    public void onExit() {
+    public static void onExit() {
         disconnect();
     }
 
-    private void disconnect() {
+    private static void disconnect() {
         disconnectClient();
         disconnectServer();
     }
 
-    private void disconnectClient() {
-        if(!Utils.isClientConnected(client))
+    private static void disconnectClient() {
+        if(!Client.isConnected())
             return;
 
-        client.disconnect();
+        Client.disconnect();
     }
 
-    private void disconnectServer() {
-        if(!Utils.isServerRunning(server))
+    private static void disconnectServer() {
+        if(!Server.isRunning())
             return;
 
-        server.close();
+        Server.close();
     }
 }

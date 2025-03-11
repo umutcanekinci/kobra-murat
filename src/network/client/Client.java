@@ -7,24 +7,22 @@ import game.Board;
 import java.io.IOException;
 import java.net.Socket;
 
-public class Client implements Runnable {
+public class Client {
     public Board board;
-    private final String host;
-    private final int port;
-    public State state;
+    private static String host;
+    private static int port;
+    public static State state = State.CLOSED;;
 
-    public void setBoard(Board board) {
-        PacketHandler.init(board, this);
-        this.board = board;
+    public static String getState() {
+        return "CLIENT: " + (Client.isConnected() ? Client.state : "DISCONNECTED");
     }
 
-    private void setState(State state) {
-        this.state = state;
-        if(board != null)
-            switch (state) {
-                case CLOSED -> board.onClientDisconnected();
-                case CONNECTED -> board.onClientConnected();
-            }
+    private static void setState(State state) {
+        Client.state = state;
+        switch (state) {
+            case CLOSED -> Board.onClientDisconnected();
+            case CONNECTED -> Board.onClientConnected();
+        }
     }
 
     public enum State {
@@ -32,25 +30,25 @@ public class Client implements Runnable {
         CONNECTED
     }
 
-    private Socket socket;
-    private Connection connection;
+    private static Socket socket;
+    private static Connection connection;
 
-    public Client(String host, int port) {
-        this.host = host;
-        this.port = port;
-        state = State.CLOSED;
+    public static void setHost(String host) {
+        Client.host = host;
     }
 
-    public void start() {
-        new Thread(this).start();
+    public static void setPort(int port) {
+        Client.port = port;
     }
 
-    @Override
-    public void run() {
-        connect();
+    public static void start() {
+        new Thread() {
+            public void run() {
+                connect();
+            }
+        }.start();
     }
-
-    private void connect() {
+    private static void connect() {
         try {    
             socket = new Socket(host, port);
             connection = new Connection(socket, false);
@@ -60,18 +58,18 @@ public class Client implements Runnable {
         }
     }
 
-    public void sendData(Object data) {
+    public static void sendData(Object data) {
         if(!isConnected())
             return;
 
         connection.sendData(data);
     }
 
-    public boolean isConnected() {
+    public static boolean isConnected() {
         return !(connection == null || socket == null || socket.isClosed() || state == State.CLOSED);
     }
 
-    public void disconnect() {
+    public static void disconnect() {
         if(!isConnected())
             return;
 
@@ -79,7 +77,7 @@ public class Client implements Runnable {
         close();
     }
 
-    public void close() {
+    public static void close() {
         connection.close();
         setState(State.CLOSED);
     }

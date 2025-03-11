@@ -5,7 +5,6 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
-
 import game.Board;
 import game.Utils;
 import game.map.Tilemap;
@@ -13,6 +12,8 @@ import game.map.Tilemap;
 public class Player {
 
     //region ---------------------------------------- ATTRIBUTES -----------------------------------------
+
+    private Spritesheet spritesheet;
 
     public final Snake snake;
     private Tilemap map;
@@ -24,6 +25,7 @@ public class Player {
     public static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
 
     // Image
+    private static final File SPRITESHEET = new File("images/snake.png");
     private static final File HEAD_IMAGE = new File("images/head.png");
     private BufferedImage headImage;
     private AffineTransformOp headTransform;
@@ -33,8 +35,6 @@ public class Player {
     private final int speed = 3; // tiles/second
     public final Point pos = new Point(0, 0);
     private boolean canRotate = true;
-
-    private final Board board;
 
     //endregion
 
@@ -62,8 +62,15 @@ public class Player {
 
     //region ---------------------------------------- INIT METHODS ---------------------------------------
 
-    public Player(Board board, Snake snake) {
-        this.board = board;
+    public Player(Snake snake) {
+        BufferedImage sheet = Utils.loadImage(SPRITESHEET);
+        spritesheet = new SpritesheetBuilder().
+        withSheet(sheet).
+        withColumns(3).
+        withRows(3).
+        withSpriteCount(9).
+        build();
+
         this.snake = snake;
         loadImages();
     }
@@ -169,12 +176,12 @@ public class Player {
         clampPosition();
         
         if(snake.doesCollide(pos) || map.isCollide(pos)) {
-            board.onHit();
+            Board.onHit();
         }
 
         displacement = 0;
         snake.stepTo(pos);
-        board.onStep();
+        Board.onStep();
         rotateHeadTransform();
     }
 
@@ -206,7 +213,7 @@ public class Player {
     }
 
     private void drawHead(Graphics2D g, ImageObserver observer) {
-        drawSnakePart(g, headTransform.filter(headImage, null), pos, observer);
+        drawSnakePart(g, headTransform.filter(spritesheet.getSprite(4), null), pos, observer);
     }
 
     private void drawBody(Graphics2D g, Point snakePart, Color color) {

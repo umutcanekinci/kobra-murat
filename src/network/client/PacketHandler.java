@@ -15,14 +15,7 @@ import java.util.logging.Logger;
 
 public class PacketHandler {
 
-    private static Board board;
-    private static Client client;
     private static final Logger LOGGER = Logger.getLogger(PacketHandler.class.getName());
-
-    public static void init(Board board, Client client) {
-        PacketHandler.client = client;
-        PacketHandler.board = board;
-    }
 
     public static void handle(Object packet, Connection connection) {
         LOGGER.log(Level.INFO, "Client received a packet: " + packet + "\n");
@@ -30,20 +23,20 @@ public class PacketHandler {
         switch (packet) {
             case IdPacket idPacket -> {
                 PlayerList.id = idPacket.id;
-                board.initPlayer();
+                Board.initPlayer();
             }
 
             case SetMapPacket setMapPacket ->
-                board.setMap(setMapPacket.id);
+                Board.setMap(setMapPacket.id);
 
             case AddPacket addPacket -> {
                 if (PlayerList.players.containsKey(addPacket.id))
                     return;
 
-                PlayerList.addPlayer(board, connection, addPacket);
+                PlayerList.addPlayer(connection, addPacket);
             }
             case SpawnApplePacket spawnApplePacket ->
-                board.spawnApple(spawnApplePacket.position);
+                Board.spawnApple(spawnApplePacket.position);
                 
             case UpdateTransformPacket playerTransformPacket ->
                 PlayerList.updatePlayerTransform(playerTransformPacket);
@@ -55,8 +48,8 @@ public class PacketHandler {
                 PlayerList.removePlayer(removePacket);
                 
             case ServerClosedPacket serverClosedPacket -> {
-                client.close();
-                board.openMenu();
+                Client.close();
+                Board.openMenu();
             }
 
             default -> {

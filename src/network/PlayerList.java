@@ -51,13 +51,13 @@ public class PlayerList {
         return debugInfo.toArray(new String[0]);
     }
 
-    public static void addPlayer(Board board, Connection connection, AddPacket player) {
-        addPlayer(board, connection, player.id);
+    public static void addPlayer(Connection connection, AddPacket player) {
+        addPlayer(connection, player.id);
     }
 
-    public static void addPlayer(Board board, Connection connection, int id) {
-        NetPlayer player = new NetPlayer(board, id);
-        player.setMap(board.map);
+    public static void addPlayer(Connection connection, int id) {
+        NetPlayer player = new NetPlayer(id);
+        player.setMap(Board.map);
         players.put(id, player);
         players.get(id).connection = connection;
     }
