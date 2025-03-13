@@ -1,5 +1,3 @@
-//region Imports
-
 package network.server;
 import java.util.HashMap;
 import java.util.logging.Level;
@@ -7,17 +5,16 @@ import java.util.logging.Logger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-
 import network.Connection;
 import network.packet.ServerClosedPacket;
 import network.packet.SetMapPacket;
 import network.packet.apple.SpawnApplePacket;
 import network.packet.player.AddPacket;
 import network.packet.player.IdPacket;
+import network.packet.player.UpdateTransformPacket;
 import game.AppleManager;
 import game.Board;
-
-//endregion
+import network.PlayerList;
 
 public class Server {
 
@@ -133,8 +130,11 @@ public class Server {
         sendApplesTo(newConnection);
         sendToAll(new AddPacket(id)); // Send new player to all clients
         connections.put(id, newConnection);
+        PlayerList.addPlayer(newConnection, id); // Add player to list
         sendPlayersTo(newConnection); // Send all players to new client not including itself
         newConnection.sendData(new IdPacket(id)); // Send id to new player so it can get its own player object from list
+
+
     }
 
     public static void sendToAll(Object packet) {
@@ -143,6 +143,7 @@ public class Server {
 
     public static void sendPlayersTo(Connection connection) {
         connections.forEach((key, value) -> connection.sendData(new AddPacket(key)));
+        PlayerList.players.forEach((key, value) -> connection.sendData(new UpdateTransformPacket(key, value.snake.parts, value.snake.getDirection(), value.getPos())));
     }
     
     public static void sendApplesTo(Connection connection) {

@@ -1,6 +1,5 @@
 package game;
 import network.client.Client;
-import network.client.PacketHandler;
 import network.packet.SetMapPacket;
 import network.packet.apple.EatApplePacket;
 import network.packet.apple.SpawnApplePacket;
@@ -8,6 +7,7 @@ import network.packet.player.AddPacket;
 import network.packet.player.IdPacket;
 import network.packet.player.StepPacket;
 import network.server.Server;
+import network.PacketHandler;
 import network.PlayerList;
 import java.awt.*;
 import java.awt.event.*;

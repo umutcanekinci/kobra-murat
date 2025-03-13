@@ -1,15 +1,14 @@
 package game;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import network.packet.player.UpdateTransformPacket;
+import game.player.NetPlayer;
+import network.PlayerList;
 
 public class AppleManager {
 
     public static final int APPLE_COUNT = 5;
     public static ArrayList<Point> apples = new ArrayList<>();
-    private static HashMap<Integer, ArrayList<Point>> playerParts = new HashMap<>();
     public static int[][] mapData;
 
     private static Point getRandomPoint() {
@@ -31,8 +30,8 @@ public class AppleManager {
         boolean validPosition = false;
         while (!validPosition) {
             validPosition = true;
-            for (ArrayList<Point> parts : playerParts.values()) {
-                if (parts.contains(apple)) {
+            for (NetPlayer player : PlayerList.players.values()) {
+                if (player.snake.parts.contains(apple)) {
                     apple = getRandomPoint();
                     validPosition = false;
                     break;
@@ -46,10 +45,6 @@ public class AppleManager {
 
         apples.add(apple);
         return apple;
-    }
-
-    public static void updatePlayerTransform(UpdateTransformPacket playerTransformPacket) {
-        playerParts.put(playerTransformPacket.id, playerTransformPacket.parts);
     }
 
     public static void spawnApples() {
