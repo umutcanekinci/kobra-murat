@@ -11,7 +11,6 @@ import java.awt.Font;
 public class DebugLog {
 
     private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 150);
-    private static boolean isEnabled = false;
     private static final Font FONT = new Font("Lato", Font.BOLD, 20);
     private static final Rectangle DEBUG_RECT = new Rectangle(20, 20, 410, 0);
     private static final Color[] DEBUG_COLORS = {
@@ -22,15 +21,9 @@ public class DebugLog {
     public static final ArrayList<String> debugText = new ArrayList<>();
     public static ArrayList<String> playerList = new ArrayList<>();
     
-    public static void toggle() {
-        isEnabled = !isEnabled;
-    }
-
     public static void draw(Graphics2D g) {
-        if(isEnabled) {
-            drawDebugBackground(g);
-            drawDebug(g);
-        }
+        drawDebugBackground(g);
+        drawDebug(g);
     }
 
     private static void drawDebugBackground(Graphics2D g) {

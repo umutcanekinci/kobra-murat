@@ -17,7 +17,7 @@ public class StepPacket extends Packet {
     }
 
     public StepPacket(NetPlayer player) {
-        this(player.id, player.getPos(), player.snake.direction);
+        this(player.id, player.getPos(), player.snake.getDirection());
     }
 
     @Override

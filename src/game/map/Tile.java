@@ -38,7 +38,7 @@ public class Tile {
         if(!isCollidable)
             return;
 
-        renderer.setColor(Color.BLACK);
+        renderer.setColor(Color.GRAY);
         renderer.fillRect(x, y, WIDTH, HEIGHT);
 
         // This draws border

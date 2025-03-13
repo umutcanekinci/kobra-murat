@@ -24,9 +24,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     //region ---------------------------------------- ATTRIBUTES ------------------------------------------
 
+    private static boolean debugMode = true;
+
     // Colors
-    private static final Color MENU_BACKGROUND_COLOR = Color.GREEN;
-    private static final Color BACKGROUND_COLOR = new Color(232, 232, 232);
+    private static final Color MENU_BACKGROUND_COLOR = Color.BLACK;
+    private static final Color BACKGROUND_COLOR = Color.BLACK;
 
     private static final int PORT = 7777;
     private static final String HOST_IP = "192.168.1.7";
@@ -80,7 +82,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
     
     private static void initDebugLog() {
-        DebugLog.toggle();
         DebugLog.debugText.add("DEBUG MODE ON - Press F2 to toggle");
         DebugLog.debugText.add("FPS: " + FPS);
         DebugLog.debugText.add("SIZE: " + SIZE.width + "x" + SIZE.height + " px");
@@ -282,7 +283,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         for (Apple apple : apples) {
             for(NetPlayer player : PlayerList.players.values()) {
                 if (apple.isCollide(player.getPos())) {
-                    player.grow(1);
+                    player.snake.grow(1);
                     collectedApples.add(apple);
                     break;
                 }
@@ -304,7 +305,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public void keyPressed(KeyEvent e) {
 
         if(e.getKeyCode() == KeyEvent.VK_F2) {
-            DebugLog.toggle();
+            debugMode = !debugMode;
         }
 
         if(!isGameStarted) {
@@ -395,7 +396,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             drawMainMenu(g2d);
         }
 
-        DebugLog.draw(g2d);
+        if(debugMode) {
+            DebugLog.draw(g2d);
+            PlayerList.players.values().forEach(p -> p.snake.drawCollider(g2d));
+        }
+
         Toolkit.getDefaultToolkit().sync(); // this smooths out animations on some systems
     }
 

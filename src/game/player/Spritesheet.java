@@ -4,6 +4,8 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
+//https://stackoverflow.com/questions/35472233/load-a-sprites-image-in-java
+
 public class Spritesheet {
 
     private final List<BufferedImage> sprites;
@@ -14,11 +16,6 @@ public class Spritesheet {
 
     public int count() {
         return sprites.size();
-    }
-
-    public BufferedImage getSprite(double progress) {
-        int frame = (int) (count() * progress);
-        return sprites.get(frame);
     }
 
     public BufferedImage getSprite(int frame) {

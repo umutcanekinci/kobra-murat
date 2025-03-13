@@ -20,7 +20,7 @@ public class InGame {
     }
     
     public static void drawPlayers(Graphics2D g) {
-        PlayerList.players.values().forEach(p -> p.draw(g, null));
+        PlayerList.players.values().forEach(p -> p.snake.draw(g, null));
     }
 
 }

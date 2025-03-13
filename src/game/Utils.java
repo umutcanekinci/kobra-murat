@@ -1,7 +1,6 @@
 package game;
 
 import javax.imageio.ImageIO;
-
 import game.map.Tilemap;
 import game.player.Direction;
 import game.player.MoveKey;
@@ -84,4 +83,13 @@ public final class Utils {
         return map != null && map.isReady();
     }
 
+    public static Point moveTowards(Point position, Direction direction) {
+        return new Point(position.x + direction.getX(), position.y + direction.getY());
+    }
+
+    public static Point clampPosition(Point position) {
+        int x = (position.x + Board.COLUMNS) % Board.COLUMNS;
+        int y = (position.y + Board.ROWS) % Board.ROWS;
+        return new Point(x, y);
+    }
 }

@@ -27,10 +27,10 @@ public class NetPlayer extends Player{
         ArrayList<String> info = new ArrayList<>();
         info.add("Player " + id + (isHost() ? " (Host)" : "") + (PlayerList.isCurrentPlayer(this) ? " (You)" : ""));
         info.add("Length: " + snake.length);
-        info.add("Direction: " + snake.direction.name());
+        info.add("Direction: " + snake.getDirection().name());
         for(int i = 0; i < snake.parts.size(); i++) {
             Point part = snake.parts.get(i);
-            info.add("Part " + i + ": (" + part.x + ", " + part.y + ")");
+            info.add("Part " + i + ": " + part + (snake.isHead(part) ? " (Head)" : ""));
         }
         return info;
     }
