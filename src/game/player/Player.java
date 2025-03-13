@@ -8,13 +8,11 @@ import game.map.Tilemap;
 public class Player {
 
     public final Snake snake;
-    public final Point spawnPoint = new Point(10, 10);
-    public static final int DEFAULT_LENGTH = 3;
-    public static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
+    public final Point spawnPoint = new Point();
+    public static final int DEFAULT_LENGTH = 6;
     public double displacement;
-    private final int speed = 1; // tiles/second
+    private final int speed = 3; // tiles/second
     private boolean canRotate = true;
-
 
     public void onGameStart() {
         reset();
@@ -30,22 +28,20 @@ public class Player {
         this.snake = snake;
     }
 
-    public void setMap(Tilemap map) {
-        spawnPoint.setLocation(map.getSpawnPoint());
+    public void setMap() {
+        spawnPoint.setLocation(Tilemap.getSpawnPoint());
     }
 
     public void reset() {
         snake.setLength(DEFAULT_LENGTH);
         goSpawnPosition();
-        setDirection(DEFAULT_DIRECTION);
+        resetDirection();
     }
 
-    public void setDirection(Direction direction) {
-        if(direction == null)
-            return;
-
-        snake.setDirection(direction);
+    public void resetDirection() {
+        snake.resetDirection();
         canRotate = true;
+        snake.updateHead();
         snake.rotateHeadTransform();
     }
 
@@ -59,10 +55,6 @@ public class Player {
     private void setPosition(Point position) {
         snake.tailIndex = 0;
         snake.resetParts();
-        setHeadPosition(position);
-    }
-
-    private void setHeadPosition(Point position) {
         snake.getHead().setLocation(position);
     }
 
@@ -90,10 +82,6 @@ public class Player {
     public void move() {
         displacement += speed * Board.DELTATIME;
         step();
-    }
-
-    public void update() {
-        snake.rotateHeadTransform();
     }
 
     public void step() {

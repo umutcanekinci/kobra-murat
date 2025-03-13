@@ -9,12 +9,13 @@ import java.awt.image.BufferedImage;
 
 import game.Board;
 import game.Utils;
+import game.map.Tilemap;
 
 public class Snake implements Serializable {
 
     private AffineTransformOp headTransform;
     private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
-    private static Direction currentDirection = DEFAULT_DIRECTION;
+    private Direction direction = DEFAULT_DIRECTION;
     public ArrayList<SnakePart> parts = new ArrayList<>();
     
     private static final File SPRITESHEET_FILE = new File("images/snake.png");
@@ -28,7 +29,7 @@ public class Snake implements Serializable {
     }
 
     public SnakePart getHead() {
-        return parts.get((tailIndex + 1 + length) % length);
+        return parts.get((tailIndex - 1 + length) % length);
     }
 
     public boolean isHead(Point point) {
@@ -36,38 +37,22 @@ public class Snake implements Serializable {
     }
 
     public Direction getDirection() {
-        return currentDirection;
-        
-        //SnakePart head = getHead();
-        
-        //if (head == null)
-        //    return null;
-
-        //return head.getDirection();
+        return direction;
     }
 
     public void setDirection(Direction direction) {
-        //Direction currentDirection = getDirection();
-        
-        if(currentDirection != null && currentDirection.isParallel(direction))
+        if(direction != null && direction.isParallel(this.direction))
             return;
         
-        //SnakePart head = getHead();
-
-        //if (head == null)
-        //    return;
-    
-        //head.setDirection(direction);
-
-        currentDirection = direction;
+        this.direction = direction;
     }
 
     public void step() {
         SnakePart head = getHead();
         
-        Point newPosition = Utils.clampPosition(Utils.moveTowards(head, getDirection()));
+        Point position = Utils.clampPosition(Utils.moveTowards(head, direction));
 
-        if(doesCollide(newPosition) || Board.map.isCollide(newPosition))
+        if((doesCollide(position) && !isPointOnTail(position)) || Tilemap.isCollide(position))
         {
             Board.onHit();
             return;
@@ -76,43 +61,51 @@ public class Snake implements Serializable {
         tailIndex = (tailIndex + 1) % length;
 
         SnakePart newHead = getHead();
-        newHead.setLocation(newPosition);
+        newHead.setLocation(position);
 
         
-        Direction dir = head.getDirection();
-        Direction newDir = getDirection();
-    
-        if(dir == newDir)
-            if(dir == Direction.UP || dir == Direction.DOWN)
-                head.setImage(spritesheet.getSprite(3));
-            else
-                head.setImage(spritesheet.getSprite(1));
-        else {
-            int frame = 5;
-            if(newDir == Direction.UP && dir == Direction.RIGHT || newDir == Direction.LEFT && dir == Direction.DOWN)
-                frame = 8;
-            else if(newDir == Direction.RIGHT && dir == Direction.DOWN || newDir == Direction.UP && dir == Direction.LEFT)
-                frame = 6;
-            else if(newDir == Direction.DOWN && dir == Direction.LEFT || newDir == Direction.RIGHT && dir == Direction.UP)
-                frame = 0;
-            else if(newDir == Direction.LEFT && dir == Direction.UP || newDir == Direction.DOWN && dir == Direction.RIGHT)
-                frame = 2;
-            head.setImage(spritesheet.getSprite(frame));
-        }
-        
-        newHead.setImage(spritesheet.getSprite(4));
-        newHead.setDirection(currentDirection);
+        head.setImage(spritesheet.getSprite(getFrame(head.getDirection(), direction)));
+        updateHead();
 
         Board.onStep();
         rotateHeadTransform();
     }
+    
+    private int getFrame(Direction dir, Direction newDir){
+        if(dir == newDir){
+            if(dir == Direction.UP || dir == Direction.DOWN)
+                return 3; // same as 5
+            else if(dir == Direction.RIGHT || dir == Direction.LEFT)
+                return 1; // same as 7
+        }
+        else {
+            if(newDir == Direction.UP && dir == Direction.RIGHT || newDir == Direction.LEFT && dir == Direction.DOWN)
+                return 8;
+            else if(newDir == Direction.RIGHT && dir == Direction.DOWN || newDir == Direction.UP && dir == Direction.LEFT)
+                return 6;
+            else if(newDir == Direction.DOWN && dir == Direction.LEFT || newDir == Direction.RIGHT && dir == Direction.UP)
+                return 0;
+            else if(newDir == Direction.LEFT && dir == Direction.UP || newDir == Direction.DOWN && dir == Direction.RIGHT)
+                return 2;
+        }
+        return -1;
+    }
+
+    public void updateHead() {
+        getHead().setDirection(direction);
+        getHead().setImage(spritesheet.getSprite(4));
+    }
 
     public boolean doesCollide(Point point) {
-        return parts.contains(point) && !isPointOnTail(point);
+        return parts.contains(point);
     }
 
     public boolean isPointOnTail(Point point) {
-        return point.equals(parts.get(tailIndex));
+        return point.equals(getTail());
+    }
+
+    private SnakePart getTail() {
+        return parts.get(tailIndex);
     }
 
     public void setLength(int amount) {
@@ -141,14 +134,18 @@ public class Snake implements Serializable {
     }
 
     public void shrink(int amount) {
-        for(int i=0; i<amount; i++) {
+        for(int i=0; i<amount; i++) 
             parts.removeLast();
-        }
+        
         length -= amount;
     }
 
     public void resetParts() {
         parts.forEach(SnakePart::reset);
+    }
+
+    public void resetDirection() {
+        direction = DEFAULT_DIRECTION;
     }
 
     public Point getPosition() {
@@ -166,6 +163,10 @@ public class Snake implements Serializable {
         if(head == null)
             return;
         head.drawCollider(g, Color.GREEN);
+        SnakePart tail = getTail();
+        if(tail == null)
+            return;
+        tail.drawCollider(g, Color.BLUE);
     }
 
     public void draw(Graphics2D g, ImageObserver observer) {
@@ -179,10 +180,7 @@ public class Snake implements Serializable {
         }
     }
 
-    void rotateHeadTransform() {
-        if (getDirection() == null)
-            return;
-
+    public void rotateHeadTransform() {
         SnakePart head = getHead();
         
         if (head == null)
@@ -193,7 +191,7 @@ public class Snake implements Serializable {
         if (headImage == null)
             return;
 
-        headTransform = Utils.getRotatedTransform(headImage, getDirection().getAngle());
+        headTransform = Utils.getRotatedTransform(headImage, direction.getAngle());
     }
 
 }

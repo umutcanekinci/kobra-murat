@@ -63,7 +63,7 @@ public class SnakePart extends Point {
 
     public void drawCollider(Graphics2D g, Color color) {
         g.setColor(color);
-        g.fillRect(x * Board.TILE_SIZE, y * Board.TILE_SIZE, Board.TILE_SIZE, Board.TILE_SIZE);
+        g.drawRect(x * Board.TILE_SIZE, y * Board.TILE_SIZE, Board.TILE_SIZE, Board.TILE_SIZE);
     }
 
     public boolean isHidden(Point point) {

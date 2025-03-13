@@ -1,6 +1,5 @@
 package game.player;
 import java.awt.Point;
-import java.util.ArrayList;
 import network.Connection;
 import network.PlayerList;
 
@@ -23,15 +22,23 @@ public class NetPlayer extends Player{
         return id == 0;
     }
 
-    public ArrayList<String> getDebugInfo() {
-        ArrayList<String> info = new ArrayList<>();
-        info.add("Player " + id + (isHost() ? " (Host)" : "") + (PlayerList.isCurrentPlayer(this) ? " (You)" : ""));
-        info.add("Length: " + snake.length);
-        info.add("Direction: " + snake.getDirection().name());
+    public boolean isCurrentPlayer() {
+        return PlayerList.id == id;
+    }
+
+    public String toString() {
+        String info = 
+        "Player " + id +
+        (isHost()          ? " (Host)" : "") +
+        (isCurrentPlayer() ? " (You)"  : "") + "\n" +
+        "Length: " + snake.length + "\n" +
+        "Direction: " + snake.getDirection().name() + "\n";
+        
         for(int i = 0; i < snake.parts.size(); i++) {
             Point part = snake.parts.get(i);
-            info.add("Part " + i + ": " + part + (snake.isHead(part) ? " (Head)" : ""));
+            info += "Part " + i + ": " + part + (snake.isHead(part) ? " (Head)" : "") + "\n";
         }
+        
         return info;
     }
 

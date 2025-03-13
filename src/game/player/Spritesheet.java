@@ -19,6 +19,9 @@ public class Spritesheet {
     }
 
     public BufferedImage getSprite(int frame) {
+        if(frame < 0 || frame >= sprites.size())
+            return null;
+            
         return sprites.get(frame);
     }
 

@@ -30,10 +30,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private static final Color MENU_BACKGROUND_COLOR = Color.BLACK;
     private static final Color BACKGROUND_COLOR = Color.BLACK;
 
-    private static final int PORT = 7777;
-    private static final String HOST_IP = "192.168.1.7";
-    private static String LOCAL_IP;
-    private static final boolean isHostInLocal = true;
+    public static final int PORT = 7777;
+    public static final String HOST_IP = "192.168.1.7";
+    public static String LOCAL_IP;
+    public static final boolean isHostInLocal = true;
 
     private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
 
@@ -71,7 +71,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         initServer();
         setLocalIp();
         setPreferredSize(SIZE);
-        initDebugLog();
         initLayout();
         initWidgets();
         initTimer();
@@ -79,16 +78,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     private static void setLocalIp() {
         LOCAL_IP = Utils.getLocalIp();
-    }
-    
-    private static void initDebugLog() {
-        DebugLog.debugText.add("DEBUG MODE ON - Press F2 to toggle");
-        DebugLog.debugText.add("FPS: " + FPS);
-        DebugLog.debugText.add("SIZE: " + SIZE.width + "x" + SIZE.height + " px");
-        DebugLog.debugText.add("");
-        DebugLog.debugText.add("LOCAL IP: " + LOCAL_IP);
-        DebugLog.debugText.add("HOST IP: " + HOST_IP + " (Local: " + isHostInLocal + ")");
-        DebugLog.debugText.add("PORT: " + PORT);
     }
 
     private static void initServer() {
@@ -101,14 +90,14 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     public static void setMap(int id) {
-        map = new Tilemap(Level.get(id));
+        Tilemap.load(Level.get(id));
     }
 
     private static void startGame() {
         isGameStarted = true;
 
         if(!Client.isConnected()) {
-            PacketHandler.handle(new SetMapPacket(0), null);
+            PacketHandler.handle(new SetMapPacket(2), null);
             PacketHandler.handle(new AddPacket(0), null);
             PacketHandler.handle(new IdPacket(0), null);
             AppleManager.apples.forEach(a -> PacketHandler.handle(new SpawnApplePacket(a), null));
@@ -213,7 +202,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         if(player == null)
             return;
             
-        player.setMap(map);
+        player.setMap();
     }
 
     private static void hideWidgets() {
@@ -317,9 +306,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private static void keyPressedMenu(KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
             exit();
-        }
     }
 
     private static void keyPressedGame(KeyEvent e) {
@@ -329,12 +317,14 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         if(player != null)
             player.keyPressed(e);
 
-        if(e.getKeyCode() == KeyEvent.VK_R) {
-            if(player != null)
-                player.reset();
-        }
-        else if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-            openMenu();
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_R:
+                if(player != null)
+                    player.reset();
+                break;
+            case KeyEvent.VK_ESCAPE:
+                openMenu();
+                break;
         }
     }
 
@@ -398,7 +388,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
         if(debugMode) {
             DebugLog.draw(g2d);
-            PlayerList.players.values().forEach(p -> p.snake.drawCollider(g2d));
+            if(isGameStarted)
+                PlayerList.players.values().forEach(p -> p.snake.drawCollider(g2d));
         }
 
         Toolkit.getDefaultToolkit().sync(); // this smooths out animations on some systems
@@ -410,7 +401,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     private void drawGame(Graphics2D g) {
         drawBackground();
-        InGame.drawMap(map, g);
+        InGame.drawMap(g);
         InGame.drawApples(apples, g);
         InGame.drawPlayers(g);
         UI.drawScore((player == null ? 0 : player.getScore()), g);

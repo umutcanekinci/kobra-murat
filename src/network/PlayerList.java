@@ -1,7 +1,5 @@
 package network;
-import java.util.ArrayList;
 import java.util.HashMap;
-import game.Board;
 import game.player.NetPlayer;
 import network.packet.player.AddPacket;
 import network.packet.player.UpdateTransformPacket;
@@ -25,30 +23,18 @@ public class PlayerList {
         return players.get(id);
     }
 
-    public static boolean isCurrentPlayer(int id) {
-        return id == PlayerList.id;
-    }
+    public static String getDebugInfo() {
+        String info = "PLAYER LIST: \n";
 
-    public static boolean isCurrentPlayer(NetPlayer player) {
-        return isCurrentPlayer(player.id);
-    }
-
-    public static String[] getDebugInfo() {
-        ArrayList<String> debugInfo = new ArrayList<>();
-        debugInfo.add("");
         if(players.isEmpty()) {
-            debugInfo.add("No players.");
-            debugInfo.add("");
-            return debugInfo.toArray(new String[0]);
+            info += "No players.\n";
+            return info;
         }
-    
-        debugInfo.add("PLAYER LIST:");
+
         for (NetPlayer player: players.values()) {
-            player.getDebugInfo();
-            debugInfo.addAll(player.getDebugInfo());
-            debugInfo.add("");
+            info += player + "\n";
         }
-        return debugInfo.toArray(new String[0]);
+        return info;
     }
 
     public static void addPlayer(Connection connection, AddPacket player) {
@@ -57,7 +43,7 @@ public class PlayerList {
 
     public static void addPlayer(Connection connection, int id) {
         NetPlayer player = new NetPlayer(id);
-        player.setMap(Board.map);
+        player.setMap();
         players.put(id, player);
         players.get(id).connection = connection;
     }
@@ -76,7 +62,7 @@ public class PlayerList {
         player.snake.setDirection(packet.direction);
         player.snake.setParts(packet.parts);
         player.getPos().setLocation(packet.position);
-        player.update();
+        player.snake.rotateHeadTransform();
     }
 
     public static void playerStep(StepPacket packet) {

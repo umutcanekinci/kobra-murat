@@ -4,22 +4,18 @@ import java.awt.*;
 
 public class Tilemap {
 
-    private int[][] data;
-    private Tile[][] tiles;
-    private int cols, rows;
-    private final Point spawnPoint = new Point(0, 0);
+    private static int[][] data;
+    private static Tile[][] tiles;
+    private static int cols, rows;
+    private static final Point spawnPoint = new Point(0, 0);
 
     public Tilemap() {}
 
-    public Tilemap(int[][] mapData) {
-        loadMap(mapData);
-    }
-
-    public boolean isReady() {
+    public static boolean isReady() {
         return tiles != null;
     }
 
-    private void loadMap(int[][] mapData) {
+    public static void load(int[][] mapData) {
 
         if(mapData == null)
             return;
@@ -42,11 +38,11 @@ public class Tilemap {
         }
     }
 
-    public Point getSpawnPoint() {
+    public static Point getSpawnPoint() {
         return spawnPoint;
     }
 
-    public Tile getTile(int row, int col) {
+    public static Tile getTile(int row, int col) {
 
         if(row < 0 || row >= rows || col < 0 || col >= cols)
             return null;
@@ -54,7 +50,7 @@ public class Tilemap {
         return tiles[row][col];
     }
 
-    public boolean isCollide(Point position) {
+    public static boolean isCollide(Point position) {
         for(Tile[] row : tiles) {
             for(Tile tile : row) {
                 if(tile.isCollide(position))
@@ -64,7 +60,7 @@ public class Tilemap {
         return false;
     }
 
-    public void render(Graphics2D renderer) {
+    public static void render(Graphics2D renderer) {
         if(tiles == null)
             return;
 

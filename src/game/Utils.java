@@ -1,7 +1,6 @@
 package game;
 
 import javax.imageio.ImageIO;
-import game.map.Tilemap;
 import game.player.Direction;
 import game.player.MoveKey;
 import java.awt.*;
@@ -52,15 +51,14 @@ public final class Utils {
         return new int[]{x, y};
     }
 
-    public static int drawText(Graphics2D g, String text, Color color, Rectangle bounds, boolean center) {
+    public static void drawText(Graphics2D g, String text, Color color, Rectangle bounds, boolean center) {
 
         // set the text color and font
         g.setColor(color);
 
         int[] pos = getTextPosition(g, text, bounds, center);
-        g.drawString(text, pos[0], pos[1]);
-
-        return pos[1]; // the y position (I think it is the bottom position)
+        for (String line : text.split("\n"))
+            g.drawString(line, pos[0], pos[1] += g.getFontMetrics().getHeight());
     }
 
     public static AffineTransformOp getRotatedTransform(BufferedImage image, double angle) {
@@ -79,10 +77,6 @@ public final class Utils {
         }
     }
 
-    public static boolean isMapReady(Tilemap map) {
-        return map != null && map.isReady();
-    }
-
     public static Point moveTowards(Point position, Direction direction) {
         return new Point(position.x + direction.getX(), position.y + direction.getY());
     }
@@ -91,5 +85,9 @@ public final class Utils {
         int x = (position.x + Board.COLUMNS) % Board.COLUMNS;
         int y = (position.y + Board.ROWS) % Board.ROWS;
         return new Point(x, y);
+    }
+
+    public static int calculateTextHeight(Graphics2D g, String text) {
+        return g.getFontMetrics().getHeight() * text.split("\n").length;
     }
 }

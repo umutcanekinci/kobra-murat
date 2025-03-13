@@ -1,18 +1,17 @@
 package game.graphics;
 import java.util.ArrayList;
 import game.Apple;
-import game.Utils;
 import network.PlayerList;
 import java.awt.Graphics2D;
 import game.map.Tilemap;
 
 public class InGame {
 
-    public static void drawMap(Tilemap map, Graphics2D g) {
-        if(!Utils.isMapReady(map))
+    public static void drawMap(Graphics2D g) {
+        if(!Tilemap.isReady())
             return;
         
-        map.render(g);
+        Tilemap.render(g);
     }
 
     public static void drawApples(ArrayList<Apple> apples, Graphics2D g) {

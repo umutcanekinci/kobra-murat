@@ -10,49 +10,44 @@ import java.awt.Font;
 
 public class DebugLog {
 
-    private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 150);
     private static final Font FONT = new Font("Lato", Font.BOLD, 20);
-    private static final Rectangle DEBUG_RECT = new Rectangle(20, 20, 410, 0);
-    private static final Color[] DEBUG_COLORS = {
-            new Color(255, 0, 0),
-            new Color(0, 255, 0),
-            new Color(50, 120, 255),
-    };
-    public static final ArrayList<String> debugText = new ArrayList<>();
+    private static final Color COLOR = Color.WHITE;
+    private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 150);
+    
+    private static final Rectangle DEBUG_RECT = new Rectangle(20, 0, 410, 0);
     public static ArrayList<String> playerList = new ArrayList<>();
     
     public static void draw(Graphics2D g) {
-        drawDebugBackground(g);
         drawDebug(g);
-    }
-
-    private static void drawDebugBackground(Graphics2D g) {
-        g.setColor(BACKGROUND_COLOR);
-        g.fillRect(0, 0, DEBUG_RECT.width, DEBUG_RECT.y + 20);
     }
 
     private static void drawDebug(Graphics2D g) {
         g.setFont(FONT);
-        DEBUG_RECT.y = 20;
-        drawDebugText(g, "Player List");
-        drawPlayerList(g);
-        DEBUG_RECT.y = drawText(g, Server.getState(), DEBUG_COLORS[1]);
-        DEBUG_RECT.y = drawText(g, Client.getState(), DEBUG_COLORS[1]);
+
+        String text = 
+        "DEBUG MODE ON - Press F2 to toggle\n" +
+        "FPS: " + Board.FPS + "\n" +
+        "SIZE: " + Board.SIZE.width + "x" + Board.SIZE.height + " px\n" +
+        "LOCAL IP: " + Board.LOCAL_IP + "\n" +
+        "HOST IP: " + Board.HOST_IP + " (Local: " + Board.isHostInLocal + ")\n" +
+        "PORT: " + Board.PORT + "\n" +
+        "\n" +
+        PlayerList.getDebugInfo() + "\n" +
+        Server.getState() + "\n" +
+        Client.getState();
+
+        DEBUG_RECT.height = Utils.calculateTextHeight(g, text) + 40;
+        drawDebugBackground(g);
+        drawText(g, text);
     }
 
-    private static int drawText(Graphics2D g, String text, Color color) {
-        return Utils.drawText(g, text, color, DEBUG_RECT, false);
+    private static void drawDebugBackground(Graphics2D g) {
+        g.setColor(BACKGROUND_COLOR);
+        g.fillRect(0, DEBUG_RECT.y, DEBUG_RECT.width, DEBUG_RECT.height);
     }
 
-    private static void drawDebugText(Graphics2D g, String text) {
-        for (String s : debugText) {
-            DEBUG_RECT.y = drawText(g, s, DEBUG_COLORS[0]);
-        }   
+    private static void drawText(Graphics2D g, String text) {
+        Utils.drawText(g, text, COLOR, DEBUG_RECT, false);
     }
 
-    private static void drawPlayerList(Graphics2D g) {
-        for (String s : PlayerList.getDebugInfo()) {
-            DEBUG_RECT.y = drawText(g, s, DEBUG_COLORS[2]);
-        }
-    }
 }
