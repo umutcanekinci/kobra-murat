@@ -80,7 +80,7 @@ public class Snake implements Serializable {
 
         
         Direction dir = head.getDirection();
-        Direction newDir = newHead.getDirection();
+        Direction newDir = getDirection();
     
         if(dir == newDir)
             if(dir == Direction.UP || dir == Direction.DOWN)
@@ -90,13 +90,13 @@ public class Snake implements Serializable {
         else {
             int frame = 5;
             if(newDir == Direction.UP && dir == Direction.RIGHT || newDir == Direction.LEFT && dir == Direction.DOWN)
-                frame = 0;
-            else if(newDir == Direction.RIGHT && dir == Direction.DOWN || newDir == Direction.UP && dir == Direction.LEFT)
-                frame = 2;
-            else if(newDir == Direction.DOWN && dir == Direction.LEFT || newDir == Direction.RIGHT && dir == Direction.UP)
                 frame = 8;
-            else if(newDir == Direction.LEFT && dir == Direction.UP || newDir == Direction.DOWN && dir == Direction.RIGHT)
+            else if(newDir == Direction.RIGHT && dir == Direction.DOWN || newDir == Direction.UP && dir == Direction.LEFT)
                 frame = 6;
+            else if(newDir == Direction.DOWN && dir == Direction.LEFT || newDir == Direction.RIGHT && dir == Direction.UP)
+                frame = 0;
+            else if(newDir == Direction.LEFT && dir == Direction.UP || newDir == Direction.DOWN && dir == Direction.RIGHT)
+                frame = 2;
             head.setImage(spritesheet.getSprite(frame));
         }
         
