@@ -3,40 +3,32 @@ import java.awt.*;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
+import game.Object;
 
 import game.Board;
 
-public class SnakePart extends Point {
+public class SnakePart extends Object {
 
     public static final Point HIDDEN_POSITION = new Point(-1, -1);
-    private BufferedImage image;
     Direction direction;
 
-    public SnakePart(Point point, BufferedImage image) {
-        this(point);
-        setImage(image);
+    public SnakePart() {
+        super(HIDDEN_POSITION);
     }
 
     public SnakePart(Point point) {
         super(point);
     }
 
-    public SnakePart() {
-        super(HIDDEN_POSITION);
+    public SnakePart(Point point, BufferedImage image) {
+        this(point);
+        setImage(image);
     }
 
     public void reset() {
-        setLocation(HIDDEN_POSITION);
+        setPosition(HIDDEN_POSITION);
         setImage(null);
         setDirection(null);
-    }
-
-    public void setImage(BufferedImage image) {
-        this.image = image;
-    }
-
-    public BufferedImage getImage() {
-        return image;
     }
 
     public void setDirection(Direction direction) {
@@ -47,31 +39,18 @@ public class SnakePart extends Point {
         return direction;
     }
 
-    public void draw(Graphics2D g, ImageObserver observer) {
-        if(isHidden(this) || image == null)
-            return;
-        
-        g.drawImage(image, x * Board.TILE_SIZE, y * Board.TILE_SIZE, observer);
-    }
-
     public void drawHead(Graphics2D g, AffineTransformOp headTransform, ImageObserver observer) {
-        if(image == null || headTransform == null)
+        BufferedImage image = getImage();
+        Point position = getPosition();
+        
+        if(g == null || headTransform == null || image == null || position == null)
             return;
         
-        g.drawImage(headTransform.filter(image, null), x * Board.TILE_SIZE, y * Board.TILE_SIZE, observer);
-    }
-
-    public void drawCollider(Graphics2D g, Color color) {
-        g.setColor(color);
-        g.drawRect(x * Board.TILE_SIZE, y * Board.TILE_SIZE, Board.TILE_SIZE, Board.TILE_SIZE);
+        g.drawImage(headTransform.filter(image, null), position.x * Board.TILE_SIZE, position.y * Board.TILE_SIZE, observer);
     }
 
     public boolean isHidden(Point point) {
         return point.equals(HIDDEN_POSITION);
     }
 
-    @Override
-    public String toString() {
-        return "[" + x + ", " + y + "] " + direction;
-    }
 }

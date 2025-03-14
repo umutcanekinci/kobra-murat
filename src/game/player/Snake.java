@@ -32,8 +32,8 @@ public class Snake implements Serializable {
         return parts.get((tailIndex - 1 + length) % length);
     }
 
-    public boolean isHead(Point point) {
-        return point.equals(getHead());
+    public boolean isHead(SnakePart part) {
+        return part.getPosition().equals(getHead().getPosition());
     }
 
     public Direction getDirection() {
@@ -50,9 +50,9 @@ public class Snake implements Serializable {
     public void step() {
         SnakePart head = getHead();
         
-        Point position = Utils.clampPosition(Utils.moveTowards(head, direction));
+        Point position = Utils.clampPosition(Utils.moveTowards(head.getPosition(), direction));
 
-        if((doesCollide(position) && !isPointOnTail(position)) || Tilemap.isCollide(position))
+        if((doesCollide(position) && !isPointOnTail(position)) || Tilemap.doesCollide(position))
         {
             Board.onHit();
             return;
@@ -61,7 +61,7 @@ public class Snake implements Serializable {
         tailIndex = (tailIndex + 1) % length;
 
         SnakePart newHead = getHead();
-        newHead.setLocation(position);
+        newHead.setPosition(position);
 
         
         head.setImage(spritesheet.getSprite(getFrame(head.getDirection(), direction)));
@@ -97,11 +97,15 @@ public class Snake implements Serializable {
     }
 
     public boolean doesCollide(Point point) {
-        return parts.contains(point);
+        for(SnakePart part : parts) {
+            if(part.doesCollide(point))
+                return true;
+        }
+        return false;
     }
 
     public boolean isPointOnTail(Point point) {
-        return point.equals(getTail());
+        return getTail().doesCollide(point);
     }
 
     private SnakePart getTail() {
@@ -149,7 +153,7 @@ public class Snake implements Serializable {
     }
 
     public Point getPosition() {
-        return parts.get((tailIndex + 1) % length);
+        return getHead().getPosition();
     }
 
     public void setParts(ArrayList<Point> parts) {
@@ -192,6 +196,18 @@ public class Snake implements Serializable {
             return;
 
         headTransform = Utils.getRotatedTransform(headImage, direction.getAngle());
+    }
+
+    public String toString() {
+        String info =
+        "Length: " + length + "\n" +
+        "Direction: " + getDirection().name() + "\n";
+        
+        for(SnakePart part : parts) {
+            info += part + (isHead(part) ? " (Head)" : "") + "\n";
+        }
+
+        return info;
     }
 
 }

@@ -15,8 +15,8 @@ public class UpdateTransformPacket extends Packet {
  
     public UpdateTransformPacket(int id, ArrayList<SnakePart> parts, Direction direction, Point position) {
         super(id);
-        for(Point part : parts) {
-            this.parts.add(new Point(part));
+        for(SnakePart part : parts) {
+            this.parts.add(new Point(part.getPosition()));
         }
         this.direction = direction;
         this.position = new Point(position);

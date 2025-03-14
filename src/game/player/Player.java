@@ -22,7 +22,7 @@ public class Player {
         return (snake.length - DEFAULT_LENGTH) * 100;
     }
 
-    public Point getPos() { return snake.getHead(); }
+    public Point getPos() { return snake.getHead().getPosition(); }
 
     public Player(Snake snake) {
         this.snake = snake;
@@ -55,7 +55,7 @@ public class Player {
     private void setPosition(Point position) {
         snake.tailIndex = 0;
         snake.resetParts();
-        snake.getHead().setLocation(position);
+        snake.getHead().setPosition(position);
     }
 
     public void keyPressed(KeyEvent e) {

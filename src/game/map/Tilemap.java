@@ -1,6 +1,7 @@
 package game.map;
 
 import java.awt.*;
+import java.awt.image.ImageObserver;
 
 public class Tilemap {
 
@@ -8,8 +9,6 @@ public class Tilemap {
     private static Tile[][] tiles;
     private static int cols, rows;
     private static final Point spawnPoint = new Point(0, 0);
-
-    public Tilemap() {}
 
     public static boolean isReady() {
         return tiles != null;
@@ -50,27 +49,29 @@ public class Tilemap {
         return tiles[row][col];
     }
 
-    public static boolean isCollide(Point position) {
+    public static boolean doesCollide(Point position) {
         for(Tile[] row : tiles) {
             for(Tile tile : row) {
-                if(tile.isCollide(position))
+                if(tile.doesCollide(position))
                     return true;
             }
         }
         return false;
     }
 
-    public static void render(Graphics2D renderer) {
+    public static void draw(Graphics2D renderer, ImageObserver observer) {
         if(tiles == null)
             return;
 
         if(renderer == null)
             return;
-
+        
         for (Tile[] row : tiles) {
             for (Tile tile : row) {
-                tile.render(renderer);
+                tile.draw(renderer, observer);
             }
         }
     }
+
+
 }

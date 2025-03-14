@@ -264,7 +264,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             return;
 
         apples.removeAll(collectedApples);
-        collectedApples.forEach(a -> Client.sendData(new EatApplePacket(a.pos)));
+        collectedApples.forEach(apple -> Client.sendData(new EatApplePacket(apple)));
         //spawnApples();
     }
 
@@ -272,7 +272,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         ArrayList<Apple> collectedApples = new ArrayList<>();
         for (Apple apple : apples) {
             for(NetPlayer player : PlayerList.players.values()) {
-                if (apple.isCollide(player.getPos())) {
+                if (apple.doesCollide(player.getPos())) {
                     player.snake.grow(1);
                     collectedApples.add(apple);
                     break;
@@ -402,9 +402,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     private void drawGame(Graphics2D g) {
         drawBackground();
-        InGame.drawMap(g);
-        InGame.drawApples(apples, g);
-        InGame.drawPlayers(g);
+        InGame.drawMap(g, this);
+        InGame.drawApples(g, apples, this);
+        InGame.drawPlayers(g, this);
         UI.drawScore((player == null ? 0 : player.getScore()), g);
     }
 

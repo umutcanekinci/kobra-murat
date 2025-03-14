@@ -31,7 +31,7 @@ public class AppleManager {
         while (!validPosition) {
             validPosition = true;
             for (NetPlayer player : PlayerList.players.values()) {
-                if (player.snake.parts.contains(apple)) {
+                if (player.snake.doesCollide(apple)) {
                     apple = getRandomPoint();
                     validPosition = false;
                     break;
