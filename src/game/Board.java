@@ -154,6 +154,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         button.setEnabled(true);
         buttons.get(2).setEnabled(true);
         PlayerList.clear();
+        AppleManager.clear();
     }
 
     private static void connect() {

@@ -53,4 +53,8 @@ public class AppleManager {
         }
     }
 
+    public static void clear() {
+        apples.clear();
+    }
+
 }
