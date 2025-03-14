@@ -1,5 +1,5 @@
-package network;
-import network.client.Client;
+package network.client;
+import network.Connection;
 import network.packet.ServerClosedPacket;
 import network.packet.SetMapPacket;
 import network.packet.apple.SpawnApplePacket;
@@ -8,6 +8,7 @@ import network.packet.player.IdPacket;
 import network.packet.player.UpdateTransformPacket;
 import network.packet.player.RemovePacket;
 import network.packet.player.StepPacket;
+import game.AppleManager;
 import game.Board;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,7 +36,7 @@ public class PacketHandler {
                 PlayerList.addPlayer(connection, addPacket);
             }
             case SpawnApplePacket spawnApplePacket ->
-                Board.spawnApple(spawnApplePacket.position);
+                AppleManager.addApple(spawnApplePacket);
                 
             case UpdateTransformPacket playerTransformPacket ->
                 PlayerList.updatePlayerTransform(playerTransformPacket);

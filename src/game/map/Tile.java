@@ -11,7 +11,7 @@ public class Tile extends Object{
 
     private static final File IMAGE_FILE = new File("images/wall.png");
     
-    private final boolean isCollidable;
+    public final boolean isCollidable;
     private static final ArrayList<Integer> COLLIDABLE_IDS = new ArrayList<>() {{
         add(1);
     }};
@@ -40,6 +40,10 @@ public class Tile extends Object{
             return;
 
         super.drawCollider(renderer, Color.RED);
+    }
+
+    public boolean isCollidable() {
+        return isCollidable;
     }
 
 }

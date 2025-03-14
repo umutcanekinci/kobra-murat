@@ -1,7 +1,6 @@
 package network.client;
 
 import network.Connection;
-import network.PlayerList;
 import network.packet.player.DisconnectPacket;
 import game.Board;
 import java.io.IOException;

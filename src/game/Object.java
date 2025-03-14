@@ -63,7 +63,7 @@ public class Object extends Image {
 
     @Override
     public String toString() {
-        return position.toString();
+        return "[" + position.x + ", " + position.y + "]";
     }
 
 }

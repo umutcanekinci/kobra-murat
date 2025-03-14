@@ -1,6 +1,6 @@
 package game.player;
 import network.Connection;
-import network.PlayerList;
+import network.client.PlayerList;
 
 public class NetPlayer extends Player{
 

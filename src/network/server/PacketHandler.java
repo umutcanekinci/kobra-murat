@@ -1,16 +1,15 @@
 package network.server;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import network.Connection;
-import network.PlayerList;
+import network.client.PlayerList;
 import network.packet.apple.EatApplePacket;
 import network.packet.apple.SpawnApplePacket;
 import network.packet.player.DisconnectPacket;
 import network.packet.player.RemovePacket;
 import network.packet.player.StepPacket;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import game.AppleManager;
 
 public class PacketHandler {
 
@@ -20,6 +19,7 @@ public class PacketHandler {
         
         switch (packet) {
             case EatApplePacket eatApplePacket -> {
+                
                 Server.sendToAll(new SpawnApplePacket(AppleManager.spawnApple()));
             }
             case StepPacket stepPacket -> {

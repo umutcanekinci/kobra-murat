@@ -27,8 +27,8 @@ public class Tilemap {
         rows = data.length;
         tiles = new Tile[rows][cols];
 
-        for(int row = 0; row < data.length; row++) {
-            for(int col = 0; col < data[0].length; col++) {
+        for(int row = 0; row < rows; row++) {
+            for(int col = 0; col < cols; col++) {
                 tiles[row][col] = new Tile(data[row][col], row, col);
 
                 if(data[row][col] == 2)
@@ -37,11 +37,21 @@ public class Tilemap {
         }
     }
 
+    public static int getCols() {
+        return cols;
+    }
+
+    public static int getRows() {
+        return rows;
+    }
+
     public static Point getSpawnPoint() {
         return spawnPoint;
     }
 
-    public static Tile getTile(int row, int col) {
+    public static Tile getTile(Point position) {
+        int row = position.y;
+        int col = position.x;
 
         if(row < 0 || row >= rows || col < 0 || col >= cols)
             return null;
@@ -71,6 +81,27 @@ public class Tilemap {
                 tile.draw(renderer, observer);
             }
         }
+    }
+
+    public static void drawColliders(Graphics2D renderer) {
+        if(tiles == null)
+            return;
+
+        if(renderer == null)
+            return;
+
+        for (Tile[] row : tiles) {
+            for (Tile tile : row) 
+                tile.drawCollider(renderer);
+        }
+    }
+
+    public static Point getRandomEmptyPoint() {
+        Point point = new Point();
+        do {
+            point.setLocation((int) (Math.random() * cols), (int) (Math.random() * rows));
+        } while (Tilemap.getTile(point).isCollidable());
+        return point;
     }
 
 

@@ -3,9 +3,11 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.util.ArrayList;
-import network.PlayerList;
+
 import network.server.Server;
 import network.client.Client;
+import network.client.PlayerList;
+
 import java.awt.Font;
 
 public class DebugLog {
@@ -33,7 +35,7 @@ public class DebugLog {
         "PORT: " + Board.PORT + "\n" +
         "\n" +
         PlayerList.getDebugInfo() + "\n" +
-        Server.getState() + "\n" +
+        Server.getString() + "\n" +
         Client.getState();
 
         DEBUG_RECT.height = Utils.calculateTextHeight(g, text) + 40;

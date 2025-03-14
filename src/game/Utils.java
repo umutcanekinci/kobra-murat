@@ -90,4 +90,12 @@ public final class Utils {
     public static int calculateTextHeight(Graphics2D g, String text) {
         return g.getFontMetrics().getHeight() * text.split("\n").length;
     }
+
+    public static Point getRandomPoint(int maxX, int maxY) {
+        return new Point((int) (Math.random() * maxX), (int) (Math.random() * maxY));
+    }
+
+    public static Point getRandomMapPoint(int rows, int cols) {
+        return getRandomPoint(cols, rows);
+    }
 }

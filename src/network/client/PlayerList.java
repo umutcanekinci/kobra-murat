@@ -1,6 +1,7 @@
-package network;
+package network.client;
 import java.util.HashMap;
 import game.player.NetPlayer;
+import network.Connection;
 import network.packet.player.AddPacket;
 import network.packet.player.UpdateTransformPacket;
 import network.packet.player.RemovePacket;

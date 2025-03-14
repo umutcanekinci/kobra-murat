@@ -1,10 +1,12 @@
 package network.server;
+
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+
 import network.Connection;
 import network.packet.ServerClosedPacket;
 import network.packet.SetMapPacket;
@@ -12,9 +14,7 @@ import network.packet.apple.SpawnApplePacket;
 import network.packet.player.AddPacket;
 import network.packet.player.IdPacket;
 import network.packet.player.UpdateTransformPacket;
-import game.AppleManager;
-import game.Board;
-import network.PlayerList;
+import network.server.map.Tilemap;
 
 public class Server {
 
@@ -31,8 +31,8 @@ public class Server {
     }
     public static State state = State.CLOSED;
 
-    public static String getState() {
-        return "SERVER: " + (Server.isRunning() ? Server.state : "STOPPED");
+    public static String getString() {
+        return "SERVER: " + state;
     }
 
     //region ------------------------------------ Constructors ------------------------------------
@@ -71,7 +71,7 @@ public class Server {
     }
 
     private static void spawnApples() {
-        AppleManager.mapData = game.map.Level.levels[currentLevel];
+        Tilemap.load(currentLevel);
         AppleManager.spawnApples();
     }
 
@@ -87,15 +87,10 @@ public class Server {
 
     private static void setState(State state) {
         Server.state = state;
-        notifyBoard();
     }
 
-    private static void notifyBoard() {
-        switch (state) {
-            case CLOSED -> Board.onServerClosed();
-            case CONNECTED -> Board.onServerOpened();
-            case LISTENING -> {}
-        }
+    public static State getState() {
+        return state;
     }
 
     public static boolean isRunning() {
@@ -133,7 +128,6 @@ public class Server {
         PlayerList.addPlayer(newConnection, id); // Add player to list
         sendPlayersTo(newConnection); // Send all players to new client not including itself
         newConnection.sendData(new IdPacket(id)); // Send id to new player so it can get its own player object from list
-
 
     }
 
