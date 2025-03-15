@@ -1,9 +1,9 @@
-import client.Window;
+package server;
 
 public class Main {
 
     public static void main(String[] args) {
-        Window.start();
+        Server.start();
     }
 
 }
