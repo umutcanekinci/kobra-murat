@@ -12,8 +12,8 @@ public class Client {
     private static int port;
     public static State state = State.CLOSED;;
 
-    public static String getState() {
-        return "CLIENT: " + (Client.isConnected() ? Client.state : "DISCONNECTED");
+    public static String getInfo() {
+        return "CLIENT: " + state;
     }
 
     private static void setState(State state) {

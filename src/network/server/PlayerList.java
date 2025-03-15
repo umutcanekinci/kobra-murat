@@ -1,10 +1,9 @@
 package network.server;
+
 import java.util.HashMap;
-import game.player.NetPlayer;
+
 import network.Connection;
-import network.packet.player.AddPacket;
-import network.packet.player.UpdateTransformPacket;
-import network.packet.player.RemovePacket;
+import network.packet.player.DisconnectPacket;
 import network.packet.player.StepPacket;
 
 public class PlayerList {
@@ -16,16 +15,10 @@ public class PlayerList {
      * 1. addPlayer(Connection connection, AddPlayerPacket player)
      * 
      */
-    public static int id;
-
     public static final HashMap<Integer, NetPlayer> players = new HashMap<>();
 
-    public static NetPlayer getCurrentPlayer() {
-        return players.get(id);
-    }
-
-    public static String getDebugInfo() {
-        String info = "PLAYER LIST: \n";
+    public static String getInfo() {
+        String info = "PLAYERS (" + players.size() + ")\n";
 
         if(players.isEmpty()) {
             info += "No players.\n";
@@ -38,39 +31,30 @@ public class PlayerList {
         return info;
     }
 
-    public static void addPlayer(Connection connection, AddPacket player) {
-        addPlayer(connection, player.id);
-    }
-
     public static void addPlayer(Connection connection, int id) {
         NetPlayer player = new NetPlayer(id);
         player.setMap();
+        player.connection = connection;
         players.put(id, player);
-        players.get(id).connection = connection;
     }
 
-    public static void removePlayer(RemovePacket packet) {
+    public static void removePlayer(DisconnectPacket packet) {
         NetPlayer player = players.get(packet.id);
+        
         if(player == null)
             return;
+            
         players.remove(packet.id);
-    }
-
-    public static void updatePlayerTransform(UpdateTransformPacket packet) {
-        NetPlayer player = players.get(packet.id);
-        if(player == null)
-            return;
-        player.snake.setDirection(packet.direction);
-        player.snake.setParts(packet.parts);
-        player.getPos().setLocation(packet.position);
-        player.snake.rotateHeadTransform();
     }
 
     public static void playerStep(StepPacket packet) {
         NetPlayer player = players.get(packet.id);
+        
         if(player == null)
             return;
-        player.move();
+        
+        player.snake.setDirection(packet.direction);
+        player.snake.step();
     }
 
     public static void clear() {

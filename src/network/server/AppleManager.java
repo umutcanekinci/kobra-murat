@@ -4,7 +4,6 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import game.Utils;
-import game.player.NetPlayer;
 import network.server.map.Tilemap;
 
 class AppleManager {

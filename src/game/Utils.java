@@ -57,8 +57,14 @@ public final class Utils {
         g.setColor(color);
 
         int[] pos = getTextPosition(g, text, bounds, center);
-        for (String line : text.split("\n"))
+        for (String line : text.split("\n")) {
             g.drawString(line, pos[0], pos[1] += g.getFontMetrics().getHeight());
+
+            if(pos[1] > Board.SIZE.height - 20) {
+                pos[0] += bounds.width;
+                pos[1] = bounds.y + g.getFontMetrics().getHeight();
+            }
+        }
     }
 
     public static AffineTransformOp getRotatedTransform(BufferedImage image, double angle) {
@@ -77,6 +83,8 @@ public final class Utils {
         }
     }
 
+
+    
     public static Point moveTowards(Point position, Direction direction) {
         return new Point(position.x + direction.getX(), position.y + direction.getY());
     }
@@ -87,9 +95,34 @@ public final class Utils {
         return new Point(x, y);
     }
 
+    
+
+    public static int[] calculateTextSize(Graphics2D g, String text) {
+        int width = calculateTextWidth(g, text) + 20;
+        int height = calculateTextHeight(g, text) + 20;
+        
+        if(height >= Board.SIZE.height)
+            width = width * (height / Board.SIZE.height + 1) + 20;
+
+        return new int[]{Math.clamp(width + 20, 0, Board.SIZE.width), Math.clamp(height + 20, 0, Board.SIZE.height)};
+    }
+
+    public static int calculateTextWidth(Graphics2D g, String text) {
+        int width = 0;
+        for (String line : text.split("\n")) {
+            int lineWidth = g.getFontMetrics().stringWidth(line);
+            if (lineWidth > width) {
+                width = lineWidth;
+            }
+        }
+        return width;
+    }
+
     public static int calculateTextHeight(Graphics2D g, String text) {
         return g.getFontMetrics().getHeight() * text.split("\n").length;
     }
+
+
 
     public static Point getRandomPoint(int maxX, int maxY) {
         return new Point((int) (Math.random() * maxX), (int) (Math.random() * maxY));

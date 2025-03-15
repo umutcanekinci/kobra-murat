@@ -8,13 +8,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import network.Connection;
+import network.server.map.Tilemap;
 import network.packet.ServerClosedPacket;
 import network.packet.SetMapPacket;
 import network.packet.apple.SpawnApplePacket;
 import network.packet.player.AddPacket;
 import network.packet.player.IdPacket;
 import network.packet.player.UpdateTransformPacket;
-import network.server.map.Tilemap;
 
 public class Server {
 
@@ -31,8 +31,8 @@ public class Server {
     }
     public static State state = State.CLOSED;
 
-    public static String getString() {
-        return "SERVER: " + state;
+    public static String getInfo() {
+        return "SERVER: " + state + "\n" + PlayerList.getInfo();
     }
 
     //region ------------------------------------ Constructors ------------------------------------
@@ -137,7 +137,7 @@ public class Server {
 
     public static void sendPlayersTo(Connection connection) {
         connections.forEach((key, value) -> connection.sendData(new AddPacket(key)));
-        PlayerList.players.forEach((key, value) -> connection.sendData(new UpdateTransformPacket(key, value.snake.parts, value.snake.getDirection(), value.getPos())));
+        PlayerList.players.forEach((key, value) -> connection.sendData(new UpdateTransformPacket(value)));
     }
     
     public static void sendApplesTo(Connection connection) {

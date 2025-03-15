@@ -1,32 +1,24 @@
-package game.player;
+package network.server;
+
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.io.File;
-import java.awt.image.ImageObserver;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
 
 import game.Board;
 import game.Utils;
-import game.map.Tilemap;
+import network.server.map.Tilemap;
+import game.player.Direction;
 
 public class Snake implements Serializable {
 
-    private static final File SPRITESHEET_FILE = new File("images/snake.png");
-    private static Spritesheet spritesheet;
-    private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
-
-    private AffineTransformOp headTransform;
-    private Direction direction = DEFAULT_DIRECTION;
     public ArrayList<SnakePart> parts = new ArrayList<>();
-    
+    private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
+    private Direction direction = DEFAULT_DIRECTION;
     public int tailIndex = 0;
     public int length;
 
     Snake() {
         grow(1);
-        spritesheet = new SpritesheetBuilder().withColumns(3).withRows(3).withSpriteCount(9).withSheet(Utils.loadImage(SPRITESHEET_FILE)).build();
     }
 
     public ArrayList<Point> getParts() {
@@ -61,7 +53,7 @@ public class Snake implements Serializable {
 
         if((doesCollide(position) && !isPointOnTail(position)) || Tilemap.doesCollide(position))
         {
-            Board.onHit();
+            System.out.println((doesCollide(position) && !isPointOnTail(position)) + " " + Tilemap.doesCollide(position));
             return;
         }
             
@@ -69,37 +61,6 @@ public class Snake implements Serializable {
 
         SnakePart newHead = getHead();
         newHead.setPosition(position);
-
-        
-        head.setImage(spritesheet.getSprite(getFrame(head.getDirection(), direction)));
-        updateHead();
-
-        rotateHeadTransform();
-    }
-    
-    private int getFrame(Direction dir, Direction newDir){
-        if(dir == newDir){
-            if(dir == Direction.UP || dir == Direction.DOWN)
-                return 3; // same as 5
-            else if(dir == Direction.RIGHT || dir == Direction.LEFT)
-                return 1; // same as 7
-        }
-        else {
-            if(newDir == Direction.UP && dir == Direction.RIGHT || newDir == Direction.LEFT && dir == Direction.DOWN)
-                return 8;
-            else if(newDir == Direction.RIGHT && dir == Direction.DOWN || newDir == Direction.UP && dir == Direction.LEFT)
-                return 6;
-            else if(newDir == Direction.DOWN && dir == Direction.LEFT || newDir == Direction.RIGHT && dir == Direction.UP)
-                return 0;
-            else if(newDir == Direction.LEFT && dir == Direction.UP || newDir == Direction.DOWN && dir == Direction.RIGHT)
-                return 2;
-        }
-        return -1;
-    }
-
-    public void updateHead() {
-        getHead().setDirection(direction);
-        getHead().setImage(spritesheet.getSprite(4));
     }
 
     public boolean doesCollide(Point point) {
@@ -165,44 +126,6 @@ public class Snake implements Serializable {
     public void setParts(ArrayList<Point> parts) {
         this.parts.clear();
         parts.forEach(part -> this.parts.add(new SnakePart(part)));
-        length = parts.size();
-    }
-
-    public void drawCollider(Graphics2D g) {
-        parts.forEach(part -> part.drawCollider(g, Color.RED));
-        SnakePart head = getHead();
-        if(head == null)
-            return;
-        head.drawCollider(g, Color.GREEN);
-        SnakePart tail = getTail();
-        if(tail == null)
-            return;
-        tail.drawCollider(g, Color.BLUE);
-    }
-
-    public void draw(Graphics2D g, ImageObserver observer) {
-        for(SnakePart part : parts) {
-            if(isHead(part)) {
-                part.drawHead(g, headTransform, observer);
-                continue;
-            }
-
-            part.draw(g, observer);
-        }
-    }
-
-    public void rotateHeadTransform() {
-        SnakePart head = getHead();
-        
-        if (head == null)
-            return;
-
-        BufferedImage headImage = head.getImage();
-
-        if (headImage == null)
-            return;
-
-        headTransform = Utils.getRotatedTransform(headImage, direction.getAngle());
     }
 
     public String toString() {

@@ -8,7 +8,9 @@ import javax.swing.*;
 import game.graphics.Draw;
 import game.graphics.UI;
 import game.map.Level;
+
 import game.map.Tilemap;
+import game.player.Direction;
 import game.player.NetPlayer;
 
 import network.client.Client;
@@ -96,9 +98,13 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             PlayerList.id = 0;
             Board.initPlayer();
             AppleManager.spawnApples();
+            player.snake.setDirection(Direction.RIGHT);
+            //player.snake.setParts();
+            player.reset();
+            player.getPos().setLocation(Tilemap.getSpawnPoint());
+            player.snake.rotateHeadTransform();
         }
     
-        PlayerList.players.values().forEach(p -> p.onGameStart());
         hideWidgets();
     }
 
@@ -236,8 +242,14 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     public static void onStep() {
-        collectApples();
-        sendStep();
+        if(!Client.isConnected()) {
+            player.snake.step();
+            player.canRotate = true;
+            player.displacement = 0;
+            collectApples();
+        }
+        else
+            sendStep();
     }
     
     private static void collectApples() {
@@ -254,9 +266,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
     
     private static void sendStep() {
-        if(!Client.isConnected())
-            return;
-        
         Client.sendData(new StepPacket(player));
     }
 

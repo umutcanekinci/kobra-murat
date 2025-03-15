@@ -12,11 +12,7 @@ public class Player {
     public static final int DEFAULT_LENGTH = 6;
     public double displacement;
     private final int speed = 3; // tiles/second
-    private boolean canRotate = true;
-
-    public void onGameStart() {
-        reset();
-    }
+    public boolean canRotate = true;
 
     public int getScore() {
         return (snake.length - DEFAULT_LENGTH) * 100;
@@ -88,9 +84,7 @@ public class Player {
         if(displacement < 1)
             return;
         
-        canRotate = true;
-        displacement = 0;
-        snake.step();
+        Board.onStep();
     }
 
 }

@@ -4,7 +4,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import network.Connection;
-import network.client.PlayerList;
 import network.packet.apple.EatApplePacket;
 import network.packet.apple.SpawnApplePacket;
 import network.packet.player.DisconnectPacket;
@@ -27,6 +26,7 @@ public class PacketHandler {
                 Server.sendToAll(packet);
             }
             case DisconnectPacket disconnectPacket -> {
+                PlayerList.removePlayer(disconnectPacket);
                 Server.closeConnection(connection);
                 Server.removeConnection(disconnectPacket.id);
                 Server.sendToAll(new RemovePacket(disconnectPacket.id));

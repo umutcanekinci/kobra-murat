@@ -97,4 +97,18 @@ public class AppleManager {
         apples.clear();
     }
 
+    public static String getInfo() {
+        String str = "APPLES (" + apples.size() + ")\n";
+
+        if(apples.isEmpty()) {
+            str += "No apples.\n";
+        }
+
+        for (Apple apple : apples) {
+            str += apple + "\n";
+        }
+
+        return str;
+    }
+
 }

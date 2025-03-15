@@ -3,8 +3,8 @@ import java.util.HashMap;
 import game.player.NetPlayer;
 import network.Connection;
 import network.packet.player.AddPacket;
-import network.packet.player.UpdateTransformPacket;
 import network.packet.player.RemovePacket;
+import network.packet.player.UpdateTransformPacket;
 import network.packet.player.StepPacket;
 
 public class PlayerList {
@@ -24,8 +24,8 @@ public class PlayerList {
         return players.get(id);
     }
 
-    public static String getDebugInfo() {
-        String info = "PLAYER LIST: \n";
+    public static String getInfo() {
+        String info = "PLAYERS (" + players.size() + ") \n";
 
         if(players.isEmpty()) {
             info += "No players.\n";
@@ -70,7 +70,10 @@ public class PlayerList {
         NetPlayer player = players.get(packet.id);
         if(player == null)
             return;
-        player.move();
+        player.snake.setDirection(packet.direction);
+        player.canRotate = true;
+        player.displacement = 0;
+        player.snake.step();
     }
 
     public static void clear() {

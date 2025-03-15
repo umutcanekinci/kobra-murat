@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import game.player.Direction;
 import game.player.NetPlayer;
-import game.player.SnakePart;
 import network.packet.Packet;
 
 public class UpdateTransformPacket extends Packet {
@@ -13,17 +12,19 @@ public class UpdateTransformPacket extends Packet {
     public final ArrayList<Point> parts = new ArrayList<>();
     public final Direction direction;
  
-    public UpdateTransformPacket(int id, ArrayList<SnakePart> parts, Direction direction, Point position) {
+    public UpdateTransformPacket(int id, ArrayList<Point> parts, Direction direction, Point position) {
         super(id);
-        for(SnakePart part : parts) {
-            this.parts.add(new Point(part.getPosition()));
-        }
+        this.parts.addAll(parts);
         this.direction = direction;
         this.position = new Point(position);
     }
 
     public UpdateTransformPacket(NetPlayer player) {
-        this(player.id, player.snake.parts, player.snake.getDirection(), player.getPos());
+        this(player.id, player.snake.getParts(), player.snake.getDirection(), player.getPos());
+    }
+
+    public UpdateTransformPacket(network.server.NetPlayer player) {
+        this(player.id, player.snake.getParts(), player.snake.getDirection(), player.getPos());
     }
 
     @Override

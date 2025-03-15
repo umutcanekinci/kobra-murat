@@ -18,7 +18,7 @@ public class PacketHandler {
     private static final Logger LOGGER = Logger.getLogger(PacketHandler.class.getName());
 
     public static void handle(Object packet, Connection connection) {
-        LOGGER.log(Level.INFO, "Client received a packet:1                                  " + packet + "\n");
+        LOGGER.log(Level.INFO, "Client received a packet:                                  " + packet + "\n");
 
         switch (packet) {
             case IdPacket idPacket -> {
