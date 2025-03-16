@@ -59,7 +59,7 @@ public class PlayerList {
     public static ArrayList<Point> getSnakeParts() {
         ArrayList<Point> parts = new ArrayList<>();
         for (NetPlayer player : players.values()) {
-            parts.addAll(player.snake.getParts());
+            parts.addAll(player.getParts());
         }
         return parts;
     }
@@ -73,7 +73,7 @@ public class PlayerList {
 
     public static void addPlayer(int id) {
         NetPlayer player = new NetPlayer(id);
-        player.setMap();
+        player.setSpawnPoint();
         player.reset();
         players.put(id, player);
     }
@@ -89,20 +89,19 @@ public class PlayerList {
         NetPlayer player = players.get(packet.id);
         if(player == null)
             return;
-        player.snake.setDirection(packet.direction);
-        player.snake.setParts(packet.parts);
-        player.getPos().setLocation(packet.position);
-        player.snake.rotateHeadTransform();
+        player.setDirection(packet.direction);
+        player.setParts(packet.parts);
+        player.setPosition(packet.position);
+        player.rotateHeadTransform();
     }
 
     public static void playerStep(StepPacket packet) {
         NetPlayer player = players.get(packet.id);
         if(player == null)
             return;
-        player.snake.setDirection(packet.direction);
+        player.setDirection(packet.direction);
         player.canRotate = true;
-        player.displacement = 0;
-        player.snake.step();
+        player.step();
     }
 
     public static void clear() {
@@ -111,7 +110,7 @@ public class PlayerList {
 
     public static boolean doesCollide(Point position) {
         for (NetPlayer player : players.values()) {
-            if (player.snake.doesCollide(position)) {
+            if (player.doesCollide(position)) {
                 return true;
             }
         }
@@ -120,8 +119,8 @@ public class PlayerList {
 
     public static boolean growIfCollide(Point position) {
         for (NetPlayer player : players.values()) {
-            if (player.snake.doesCollide(position)) {
-                player.snake.grow(1);
+            if (player.doesCollide(position)) {
+                player.grow(1);
                 return true;
             }
         }
@@ -132,14 +131,14 @@ public class PlayerList {
         if(g == null || players.isEmpty())
             return;
 
-        players.values().forEach(p -> p.snake.draw(g, observer));
+        players.values().forEach(p -> p.draw(g, observer));
     }
 
     public static void drawColliders(Graphics2D g) {
         if(g == null || players.isEmpty())
             return;
 
-        players.values().forEach(p -> p.snake.drawCollider(g));
+        players.values().forEach(p -> p.drawCollider(g));
     }
 
 }

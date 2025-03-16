@@ -37,6 +37,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     public Board() {
         super(new GridBagLayout());
+        Player.loadSpritesheet();
         UI.init();
         initClient();
         initServer();
@@ -67,14 +68,14 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             setMap(0);
             PlayerList.addPlayer(0);
             PlayerList.setId(0);
-            Board.initPlayer();
+            initPlayer();
             AppleManager.spawnApples();
 
             Player player = PlayerList.getCurrentPlayer();
-            player.snake.setDirection(Direction.RIGHT);
+            player.setDirection(Direction.RIGHT);
             player.reset();
-            player.getPos().setLocation(Tilemap.getSpawnPoint());
-            player.snake.rotateHeadTransform();
+            player.setPosition(Tilemap.getSpawnPoint());
+            player.rotateHeadTransform();
         }
     
         hideWidgets();
@@ -176,7 +177,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         if(player == null)
             return;
             
-        player.setMap();
+        player.setSpawnPoint();
+        PlayerController.setPlayer(player);
     }
 
     private static void hideWidgets() {
@@ -216,9 +218,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public static void onStep() {
         if(!Client.isConnected()) {
             Player player = PlayerList.getCurrentPlayer();
-            player.snake.step();
+            player.step();
             player.canRotate = true;
-            player.displacement = 0;
             collectApples();
         }
         else
@@ -278,7 +279,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         Player player = PlayerList.getCurrentPlayer();
 
         if(player != null)
-            player.keyPressed(e);
+            PlayerController.keyPressed(e);
 
         switch (e.getKeyCode()) {
             case KeyEvent.VK_R:
@@ -309,7 +310,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public void actionPerformed(ActionEvent e) {
         // this method is called by the timer every DELTATIME ms.
         if(isGameStarted) {
-            updatePlayer();
+            PlayerController.update();
         }
 
         if(Server.isRunning() && !buttons.get(2).isEnabled()) {
@@ -321,15 +322,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         }
 
         repaint();
-    }
-
-    private static void updatePlayer() {
-        Player player = PlayerList.getCurrentPlayer();
-        
-        if(player == null)
-            return;
-
-        player.move();
     }
 
     //endregion

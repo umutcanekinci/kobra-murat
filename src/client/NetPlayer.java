@@ -8,14 +8,14 @@ public class NetPlayer extends Player{
         String info = 
         "Player " + id +
         (isHost()          ? " (Host)" : "") +
-        (isCurrentPlayer() ? " (You)"  : "") + "\n" +
-        snake.toString();
+        (isCurrentPlayer() ? " (You)"  : "")
+        + "\n" + super.toString();
         
         return info;
     }
 
     public NetPlayer(int id) {
-        super(new Snake());
+        super();
         this.id = id;
     }
 
