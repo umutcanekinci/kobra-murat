@@ -8,23 +8,23 @@ import common.packet.Packet;
 
 public class UpdateTransformPacket extends Packet {
 
-    public final Point position;
+    public final int tailIndex;
     public final ArrayList<Point> parts = new ArrayList<>();
     public final Direction direction;
  
-    public UpdateTransformPacket(int id, ArrayList<Point> parts, Direction direction, Point position) {
+    public UpdateTransformPacket(int id, ArrayList<Point> parts, Direction direction, int tailIndex) {
         super(id);
+        this.tailIndex = tailIndex;
         this.parts.addAll(parts);
         this.direction = direction;
-        this.position = new Point(position);
     }
 
     public UpdateTransformPacket(NetPlayer player) {
-        this(player.getId(), player.getParts(), player.getDirection(), player.getPosition());
+        this(player.getId(), player.getParts(), player.getDirection(), player.tailIndex);
     }
 
     public UpdateTransformPacket(server.NetPlayer player) {
-        this(player.id, player.snake.getParts(), player.snake.getDirection(), player.getPos());
+        this(player.id, player.getParts(), player.getDirection(), player.tailIndex);
     }
 
     @Override

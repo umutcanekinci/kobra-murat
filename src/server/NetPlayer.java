@@ -8,11 +8,11 @@ public class NetPlayer extends Player{
     public final int id;
 
     public NetPlayer(int id) {
-        super(new Snake());
+        super();
         this.id = id;
     }
 
-    public NetPlayer(int id, Snake snake, Connection connection) {
+    public NetPlayer(int id, Player snake, Connection connection) {
         this(id);
         this.connection = connection;
     }
@@ -20,7 +20,7 @@ public class NetPlayer extends Player{
     public String toString() {
         String info = 
         "Player " + id + "\n" +
-        snake.toString();
+        super.toString();
         return info;
     }
 

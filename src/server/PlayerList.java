@@ -54,8 +54,8 @@ public class PlayerList {
         if(player == null)
             return;
         
-        player.snake.setDirection(packet.direction);
-        player.snake.step();
+        player.setDirection(packet.direction);
+        player.step();
     }
 
     public static void clear() {

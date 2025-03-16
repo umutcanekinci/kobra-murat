@@ -96,7 +96,7 @@ public class PlayerList {
             return;
         player.setDirection(packet.direction);
         player.setParts(packet.parts);
-        player.setPosition(packet.position);
+        player.tailIndex = packet.tailIndex;
         player.rotateHeadTransform();
     }
 
