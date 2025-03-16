@@ -13,7 +13,7 @@ public class StepPacket extends Packet {
     }
 
     public StepPacket(NetPlayer player) {
-        this(player.id, player.snake.getDirection());
+        this(player.getId(), player.snake.getDirection());
     }
 
     @Override

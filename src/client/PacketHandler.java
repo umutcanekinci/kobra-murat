@@ -1,6 +1,9 @@
 package client;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.lang.Object;
+
 import common.Connection;
 import common.packet.ServerClosedPacket;
 import common.packet.SetMapPacket;
@@ -10,7 +13,6 @@ import common.packet.player.IdPacket;
 import common.packet.player.RemovePacket;
 import common.packet.player.StepPacket;
 import common.packet.player.UpdateTransformPacket;
-import java.lang.Object;
 
 public class PacketHandler {
 
@@ -28,9 +30,8 @@ public class PacketHandler {
             case SetMapPacket setMapPacket ->
                 Board.setMap(setMapPacket.id);
 
-            case AddPacket addPacket -> {
-                PlayerList.addPlayer(connection, addPacket);
-            }
+            case AddPacket addPacket ->
+                PlayerList.addPlayer(addPacket);
             
             case SpawnApplePacket spawnApplePacket ->
                 AppleManager.addApple(spawnApplePacket);
@@ -49,9 +50,8 @@ public class PacketHandler {
                 Board.openMenu();
             }
 
-            default -> {
+            default ->
                 LOGGER.log(Level.WARNING, "Unknown packet: " + packet + "\n");
-            }
         }
     }
 

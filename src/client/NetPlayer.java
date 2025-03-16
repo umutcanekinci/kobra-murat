@@ -1,29 +1,8 @@
 package client;
 
-import common.Connection;
-
 public class NetPlayer extends Player{
 
-    public Connection connection;
-    public final int id;
-
-    public NetPlayer(int id) {
-        super(new Snake());
-        this.id = id;
-    }
-
-    public NetPlayer(int id, Snake snake, Connection connection) {
-        this(id);
-        this.connection = connection;
-    }
-
-    public boolean isHost() {
-        return id == 0;
-    }
-
-    public boolean isCurrentPlayer() {
-        return PlayerList.getId() == id;
-    }
+    private final int id;
 
     public String toString() {
         String info = 
@@ -33,6 +12,23 @@ public class NetPlayer extends Player{
         snake.toString();
         
         return info;
+    }
+
+    public NetPlayer(int id) {
+        super(new Snake());
+        this.id = id;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean isHost() {
+        return id == 0;
+    }
+
+    public boolean isCurrentPlayer() {
+        return PlayerList.getId() == id;
     }
 
 }

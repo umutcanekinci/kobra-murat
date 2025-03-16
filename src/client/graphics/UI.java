@@ -97,7 +97,7 @@ public class UI {
 
         int i = 0;
         for (NetPlayer player : PlayerList.getPlayers()) {
-            Utils.drawText(g, "Player " + player.id, Color.WHITE, new Rectangle(x, y + (i + 2) * playerHeight + 10, width, playerHeight), true);
+            Utils.drawText(g, "Player " + player.getId(), Color.WHITE, new Rectangle(x, y + (i + 2) * playerHeight + 10, width, playerHeight), true);
         }
     }
 }

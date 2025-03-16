@@ -29,6 +29,10 @@ public final class Utils {
         }
     }
 
+    public static int getScore(int length, int defaultLength) {
+        return (length - defaultLength) * 100;
+    }
+
     public static Direction keyToDirection(int key) {
         int i = 0;
         for(MoveKey moveKey : MoveKey.values()) {

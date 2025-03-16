@@ -20,7 +20,7 @@ public class UpdateTransformPacket extends Packet {
     }
 
     public UpdateTransformPacket(NetPlayer player) {
-        this(player.id, player.snake.getParts(), player.snake.getDirection(), player.getPos());
+        this(player.getId(), player.snake.getParts(), player.snake.getDirection(), player.getPos());
     }
 
     public UpdateTransformPacket(server.NetPlayer player) {

@@ -5,18 +5,16 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
-import client.graphics.Draw;
-import client.graphics.UI;
 import common.Direction;
-import common.Utils;
 import common.packet.apple.EatApplePacket;
 import common.packet.player.StepPacket;
+import client.graphics.Draw;
+import client.graphics.UI;
 import server.Server;
 
 public class Board extends JPanel implements ActionListener, KeyListener {
 
-    //region ---------------------------------------- ATTRIBUTES ------------------------------------------
-
+    //region ---------------------------------------- Variables ------------------------------------------
 
     public static final int FPS = 60;
     public static final double DELTATIME = 1.0 / FPS;
@@ -24,7 +22,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public static final int PORT = 7777;
     public static final String HOST_IP = "192.168.1.7";
     public static final boolean isHostInLocal = true;
-    public static String LOCAL_IP;
     public static Tilemap map;
     
     private static boolean debugMode = false;
@@ -43,15 +40,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         UI.init();
         initClient();
         initServer();
-        setLocalIp();
         setPreferredSize(common.Level.SIZE);
         initLayout();
         initWidgets();
         initTimer();
-    }
-
-    private static void setLocalIp() {
-        LOCAL_IP = Utils.getLocalIp();
     }
 
     private static void initServer() {
@@ -73,7 +65,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
         if(!Client.isConnected()) {
             setMap(0);
-            PlayerList.addPlayer(null, 0);
+            PlayerList.addPlayer(0);
             PlayerList.setId(0);
             Board.initPlayer();
             AppleManager.spawnApples();

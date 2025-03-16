@@ -6,18 +6,17 @@ import java.awt.event.KeyEvent;
 import common.Direction;
 import common.Utils;
 
-
 public class Player {
-
+    
     public final Snake snake;
-    public final Point spawnPoint = new Point();
-    public static final int DEFAULT_LENGTH = 6;
     public double displacement;
-    private final int speed = 3; // tiles/second
     public boolean canRotate = true;
+    private static final int DEFAULT_LENGTH = 6;
+    private final Point spawnPoint = new Point();
+    private final int speed = 3; // tiles/second
 
     public int getScore() {
-        return (snake.length - DEFAULT_LENGTH) * 100;
+        return Utils.getScore(snake.length, DEFAULT_LENGTH);
     }
 
     public Point getPos() { return snake.getHead().getPosition(); }

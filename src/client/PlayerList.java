@@ -9,7 +9,6 @@ import common.packet.player.AddPacket;
 import common.packet.player.RemovePacket;
 import common.packet.player.StepPacket;
 import common.packet.player.UpdateTransformPacket;
-import common.Connection;
 
 public class PlayerList {
 
@@ -65,17 +64,16 @@ public class PlayerList {
         return parts;
     }
 
-    public static void addPlayer(Connection connection, AddPacket player) {
+    public static void addPlayer(AddPacket player) {
         if (PlayerList.players.containsKey(player.id))
             return;
 
-        addPlayer(connection, player.id);
+        addPlayer(player.id);
     }
 
-    public static void addPlayer(Connection connection, int id) {
+    public static void addPlayer(int id) {
         NetPlayer player = new NetPlayer(id);
         player.setMap();
-        player.connection = connection;
         player.reset();
         players.put(id, player);
     }
@@ -108,12 +106,6 @@ public class PlayerList {
     }
 
     public static void clear() {
-        for(NetPlayer player : players.values()) {
-            if(player.connection == null)
-                continue;
-
-            player.connection.close();
-        }
         players.clear();
     }
 

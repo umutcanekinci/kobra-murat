@@ -17,26 +17,27 @@ public class Image {
     public Image() {}
 
     public Image(File imageFile) {
-        loadImage(imageFile);
+        load(imageFile);
     }
 
-    private void loadImage(File imageFile) {
-        image = Utils.loadImage(imageFile);
-    }
-
-    public BufferedImage get() {
-        return image;
+    private void load(File imageFile) {
+        set(Utils.loadImage(imageFile));
     }
 
     public void set(BufferedImage image) {
         this.image = image;
     }
 
+    public BufferedImage get() {
+        return image;
+    }
+
     public void draw(Graphics2D g, Point position, ImageObserver observer) {
-        // with the Point class, note that position.getX() returns a double, but 
-        // position.x reliably returns an int. https://stackoverflow.com/a/30220114/4655368
-        // this is also where we translate board grid position into a canvas pixel
-        // position by multiplying by the tile size.
+        /* with the Point class, note that position.getX() returns a double, but 
+        *  position.x reliably returns an int. https://stackoverflow.com/a/30220114/4655368
+        *  this is also where we translate board grid position into a canvas pixel
+        * position by multiplying by the tile size.
+        */
 
         g.drawImage(
                 image,

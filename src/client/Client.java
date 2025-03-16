@@ -1,20 +1,36 @@
 package client;
 
-import common.Connection;
-
 import java.io.IOException;
 import java.net.Socket;
 import java.lang.Object;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import common.Connection;
 import common.packet.player.DisconnectPacket;
 
 public class Client {
-    public Board board;
+    
+    //region ----------------------------------- Variables -----------------------------------
+    
+    private enum State {
+        CLOSED,
+        CONNECTED
+    }
+    private static State state = State.CLOSED;
     private static String host;
     private static int port;
-    public static State state = State.CLOSED;;
+    private static Socket socket;
+    private static Connection connection;
+    private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
+
+    //endregion
+
+    //region ----------------------------------- Constructors -----------------------------------
 
     public static String getInfo() {
-        return "CLIENT: " + state;
+        return  "CLIENT: " + state + "\n" + 
+                "(HOST: " + host + " PORT: " + port + ")\n";
     }
 
     private static void setState(State state) {
@@ -25,14 +41,6 @@ public class Client {
         }
     }
 
-    public enum State {
-        CLOSED,
-        CONNECTED
-    }
-
-    private static Socket socket;
-    private static Connection connection;
-
     public static void setHost(String host) {
         Client.host = host;
     }
@@ -41,6 +49,10 @@ public class Client {
         Client.port = port;
     }
 
+    //endregion
+
+    //region ----------------------------------- Connection -----------------------------------
+
     public static void start() {
         new Thread() {
             public void run() {
@@ -48,12 +60,14 @@ public class Client {
             }
         }.start();
     }
+    
     private static void connect() {
         try {    
             socket = new Socket(host, port);
             connection = new Connection(socket, false);
             setState(State.CONNECTED);
         } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, e.toString(), e);
             setState(State.CLOSED);
         }
     }
@@ -81,4 +95,6 @@ public class Client {
         connection.close();
         setState(State.CLOSED);
     }
+
+    //endregion
 }

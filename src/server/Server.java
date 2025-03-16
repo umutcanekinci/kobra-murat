@@ -14,11 +14,13 @@ import common.packet.player.AddPacket;
 import common.packet.player.IdPacket;
 import common.packet.player.UpdateTransformPacket;
 import common.Connection;
+import common.Utils;
 
 public class Server {
 
     //region ------------------------------------ Variables ------------------------------------
-
+    
+    private static String ip;
     private static int port;
     private static ServerSocket serverSocket;
     private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
@@ -35,10 +37,22 @@ public class Server {
 
     //region ------------------------------------ Constructors ------------------------------------
 
+    public static String getInfo() {
+        return "SERVER: " + state + "\n" +
+        "(IP: " + ip + " PORT: " + port + ")\n" +
+        Tilemap.getInfo() + "\n\n" +
+        PlayerList.getInfo();
+    }
+
     public static void init(int port) {
+        setIp(Utils.getLocalIp());
         setPort(port);
         setLevel(common.Level.getRandomLevel());
         initApples();  
+    }
+
+    private static void setIp(String ip) {
+        Server.ip = ip;
     }
 
     private static void setPort(int port) {
@@ -63,12 +77,6 @@ public class Server {
 
     public static boolean isRunning() {
         return state != State.CLOSED;
-    }
-
-    public static String getInfo() {
-        return "SERVER: " + state + "\n"
-        + Tilemap.getInfo() + "\n\n"
-        + PlayerList.getInfo();
     }
 
     //endregion

@@ -11,10 +11,6 @@ public class Object extends Image {
 
     private Point position;
 
-    public Object() {
-        super();
-    }
-
     public Object(Point position) {
         super();
         this.position = position;
@@ -47,7 +43,6 @@ public class Object extends Image {
 
         return this.position.equals(position);
     }
-
 
     public void draw(Graphics2D g, ImageObserver observer) {
         super.draw(g, position, observer);
