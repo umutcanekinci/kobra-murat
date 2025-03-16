@@ -4,6 +4,8 @@ import java.io.File;
 import javax.swing.BorderFactory;
 
 import javax.swing.JButton;
+
+import client.NetPlayer;
 import client.PlayerList;
 import common.Utils;
 import common.Level;
@@ -79,7 +81,7 @@ public class UI {
             return;
         }
 
-        int count = PlayerList.players.size();
+        int count = PlayerList.getPlayerCount();
         int playerHeight = Utils.calculateTextHeight(g, "") + 15;
         int height = (count + 1) * playerHeight + 90;
         
@@ -94,8 +96,8 @@ public class UI {
         g.drawLine(x, y + playerHeight + 60, x + width, y + playerHeight + 60);
 
         int i = 0;
-        for (int id : PlayerList.players.keySet()) {
-            Utils.drawText(g, "Player " + id, Color.WHITE, new Rectangle(x, y + (i + 2) * playerHeight + 10, width, playerHeight), true);
+        for (NetPlayer player : PlayerList.getPlayers()) {
+            Utils.drawText(g, "Player " + player.id, Color.WHITE, new Rectangle(x, y + (i + 2) * playerHeight + 10, width, playerHeight), true);
         }
     }
 }

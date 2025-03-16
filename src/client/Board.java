@@ -16,34 +16,22 @@ import server.Server;
 public class Board extends JPanel implements ActionListener, KeyListener {
 
     //region ---------------------------------------- ATTRIBUTES ------------------------------------------
-    
-    private static boolean debugMode = true;
 
-    // Colors
-    private static final Color MENU_BACKGROUND_COLOR = Color.BLACK;
-    private static final Color BACKGROUND_COLOR = Color.BLACK;
 
-    public static final int PORT = 7777;
-    public static final String HOST_IP = "192.168.1.7";
-    public static String LOCAL_IP;
-    public static final boolean isHostInLocal = true;
-
-    private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
-
-    // Players
-    private static NetPlayer player;
-   
-    // Timer
     public static final int FPS = 60;
     public static final double DELTATIME = 1.0 / FPS;
     public static final int DELTATIME_MS = (int) (DELTATIME * 1000);
-
-    // Map
+    public static final int PORT = 7777;
+    public static final String HOST_IP = "192.168.1.7";
+    public static final boolean isHostInLocal = true;
+    public static String LOCAL_IP;
     public static Tilemap map;
-
+    
+    private static boolean debugMode = false;
+    private static final Color MENU_BACKGROUND_COLOR = Color.BLACK;
+    private static final Color BACKGROUND_COLOR = Color.BLACK;
+    private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
     private static boolean isGameStarted = false;
-
-    // UI
     private static final ArrayList<JButton> buttons = new ArrayList<>();
 
     //endregion
@@ -77,6 +65,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     public static void setMap(int id) {
         Tilemap.load(id);
+        AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
     }
 
     private static void startGame() {
@@ -85,11 +74,12 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         if(!Client.isConnected()) {
             setMap(0);
             PlayerList.addPlayer(null, 0);
-            PlayerList.id = 0;
+            PlayerList.setId(0);
             Board.initPlayer();
             AppleManager.spawnApples();
+
+            Player player = PlayerList.getCurrentPlayer();
             player.snake.setDirection(Direction.RIGHT);
-            //player.snake.setParts();
             player.reset();
             player.getPos().setLocation(Tilemap.getSpawnPoint());
             player.snake.rotateHeadTransform();
@@ -189,7 +179,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     public static void initPlayer() {
-        player = PlayerList.getCurrentPlayer();
+        Player player = PlayerList.getCurrentPlayer();
 
         if(player == null)
             return;
@@ -228,11 +218,12 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
 
     public static void onHit() {
-        player.reset();
+        PlayerList.getCurrentPlayer().reset();
     }
 
     public static void onStep() {
         if(!Client.isConnected()) {
+            Player player = PlayerList.getCurrentPlayer();
             player.snake.step();
             player.canRotate = true;
             player.displacement = 0;
@@ -256,7 +247,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
     
     private static void sendStep() {
-        Client.sendData(new StepPacket(player));
+        Client.sendData(new StepPacket(PlayerList.getCurrentPlayer()));
     }
 
     //endregion
@@ -291,6 +282,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private static void keyPressedGame(KeyEvent e) {
         if(!isGameStarted)
             return;
+
+        Player player = PlayerList.getCurrentPlayer();
 
         if(player != null)
             player.keyPressed(e);
@@ -339,6 +332,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private static void updatePlayer() {
+        Player player = PlayerList.getCurrentPlayer();
+        
         if(player == null)
             return;
 

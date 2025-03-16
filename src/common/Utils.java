@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -123,13 +124,23 @@ public final class Utils {
         return g.getFontMetrics().getHeight() * text.split("\n").length;
     }
 
-
+    public static int getRandomInt(int min, int max) {
+        return (int) (Math.random() * (max - min + 1) + min);
+    }
 
     public static Point getRandomPoint(int maxX, int maxY) {
-        return new Point((int) (Math.random() * maxX), (int) (Math.random() * maxY));
+        return new Point(getRandomInt(0, maxX - 1), getRandomInt(0, maxY - 1));
     }
 
     public static Point getRandomMapPoint(int rows, int cols) {
         return getRandomPoint(cols, rows);
+    }
+
+    public static Point getRandomPointFrom(ArrayList<Point> points) {
+        return points.get(getRandomInt(0, points.size() - 1));
+    }
+
+    public static int calculateFps(long lastTime, long currentTime) {
+        return (int) (1000 / (currentTime - lastTime));
     }
 }

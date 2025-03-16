@@ -2,6 +2,7 @@ package client;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
+import java.util.ArrayList;
 
 import common.Level;
 
@@ -9,6 +10,7 @@ public class Tilemap {
 
     private static int[][] data;
     private static Tile[][] tiles;
+    private static ArrayList<Point> emptyTiles;
     private static int cols, rows;
     private static final Point spawnPoint = new Point(0, 0);
     private static int currentLevel;
@@ -31,13 +33,19 @@ public class Tilemap {
         cols = data[0].length;
         rows = data.length;
         tiles = new Tile[rows][cols];
+        emptyTiles = new ArrayList<>();
 
         for(int row = 0; row < rows; row++) {
             for(int col = 0; col < cols; col++) {
-                tiles[row][col] = new Tile(data[row][col], row, col);
+                Tile tile = new Tile(data[row][col], row, col);
 
                 if(data[row][col] == 2)
                     spawnPoint.setLocation(col, row);
+
+                if(!tile.isCollidable())
+                    emptyTiles.add(tile.getPosition());
+
+                tiles[row][col] = tile;
             }
         }
     }
@@ -107,6 +115,10 @@ public class Tilemap {
             point.setLocation((int) (Math.random() * cols), (int) (Math.random() * rows));
         } while (Tilemap.getTile(point).isCollidable());
         return point;
+    }
+
+    public static ArrayList<Point> getEmptyTiles() {
+        return emptyTiles;
     }
 
     public static String getInfo() {

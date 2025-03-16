@@ -22,7 +22,7 @@ public class NetPlayer extends Player{
     }
 
     public boolean isCurrentPlayer() {
-        return PlayerList.id == id;
+        return PlayerList.getId() == id;
     }
 
     public String toString() {

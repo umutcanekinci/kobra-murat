@@ -54,7 +54,7 @@ public class Draw {
         if(g == null || !isGameStarted)
             return;
 
-        PlayerList.players.values().forEach(p -> p.snake.draw(g, observer));
+        PlayerList.draw(g, observer);
     }
 
     private static void score(Graphics2D g, boolean isGameStarted) {
@@ -75,7 +75,7 @@ public class Draw {
         if(!debugMode || !isGameStarted)
             return;
 
-        PlayerList.players.values().forEach(p -> p.snake.drawCollider(g));
+        PlayerList.drawColliders(g);
         Tilemap.drawColliders(g);
         AppleManager.drawColliders(g);
     }

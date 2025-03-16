@@ -11,4 +11,4 @@ cp -r ./images ./out/production/KobraMurat
 jar cfe out/artifacts/KobraMurat/KobraMurat.jar Main -C out/production/KobraMurat .
 
 :: Run the game
-:: java -jar out/artifacts/KobraMurat/KobraMurat.jar
+java -jar out/artifacts/KobraMurat/KobraMurat.jar

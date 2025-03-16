@@ -19,7 +19,7 @@ public class SpawnApplePacket implements Serializable {
     @Override
     public String toString() {
         return "SpawnApplePacket{" +
-                "position=" + position +
+                "position= [" + position.x + ", " + position.y + ']' +
                 '}';
     }
 }

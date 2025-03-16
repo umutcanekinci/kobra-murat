@@ -73,7 +73,7 @@ public class Client {
         if(!isConnected())
             return;
 
-        connection.sendData(new DisconnectPacket(PlayerList.id));
+        connection.sendData(new DisconnectPacket(PlayerList.getId()));
         close();
     }
 

@@ -1,4 +1,8 @@
 package client;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.image.ImageObserver;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import common.packet.player.AddPacket;
@@ -16,9 +20,16 @@ public class PlayerList {
      * 1. addPlayer(Connection connection, AddPlayerPacket player)
      * 
      */
-    public static int id;
+    private static int id;
+    private static final HashMap<Integer, NetPlayer> players = new HashMap<>();
 
-    public static final HashMap<Integer, NetPlayer> players = new HashMap<>();
+    public static int getId() {
+        return id;
+    }
+
+    public static void setId(int id) {
+        PlayerList.id = id;
+    }
 
     public static NetPlayer getCurrentPlayer() {
         return players.get(id);
@@ -38,7 +49,26 @@ public class PlayerList {
         return info;
     }
 
+    public static ArrayList<NetPlayer> getPlayers() {
+        return new ArrayList<>(players.values());
+    }
+
+    public static int getPlayerCount() {
+        return players.size();
+    }
+
+    public static ArrayList<Point> getSnakeParts() {
+        ArrayList<Point> parts = new ArrayList<>();
+        for (NetPlayer player : players.values()) {
+            parts.addAll(player.snake.getParts());
+        }
+        return parts;
+    }
+
     public static void addPlayer(Connection connection, AddPacket player) {
+        if (PlayerList.players.containsKey(player.id))
+            return;
+
         addPlayer(connection, player.id);
     }
 
@@ -85,6 +115,39 @@ public class PlayerList {
             player.connection.close();
         }
         players.clear();
+    }
+
+    public static boolean doesCollide(Point position) {
+        for (NetPlayer player : players.values()) {
+            if (player.snake.doesCollide(position)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean growIfCollide(Point position) {
+        for (NetPlayer player : players.values()) {
+            if (player.snake.doesCollide(position)) {
+                player.snake.grow(1);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static void draw(Graphics2D g, ImageObserver observer) {
+        if(g == null || players.isEmpty())
+            return;
+
+        players.values().forEach(p -> p.snake.draw(g, observer));
+    }
+
+    public static void drawColliders(Graphics2D g) {
+        if(g == null || players.isEmpty())
+            return;
+
+        players.values().forEach(p -> p.snake.drawCollider(g));
     }
 
 }

@@ -14,7 +14,7 @@ public class PacketHandler {
     
     private static final Logger LOGGER = Logger.getLogger(PacketHandler.class.getName());
     public static void handle(Object packet, Connection connection) {
-        LOGGER.log(Level.INFO, "Server received a packet: " + packet + "\n");
+        LOGGER.log(Level.INFO, packet + "\n");
         
         switch (packet) {
             case EatApplePacket eatApplePacket -> 

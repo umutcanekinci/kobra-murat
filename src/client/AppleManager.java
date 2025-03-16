@@ -9,11 +9,26 @@ import common.packet.apple.SpawnApplePacket;
 
 public class AppleManager {
 
-    public static final int APPLE_COUNT = 5;
-    private static ArrayList<Apple> apples = new ArrayList<>();
-    
-    public static void addApple(Apple apple) {
-        apples.add(apple);
+    private static final int APPLE_COUNT = 5;
+    private static final ArrayList<Apple> apples = new ArrayList<>();
+    private static ArrayList<Point> emptyTiles;
+
+    public static String getInfo() {
+        String str = "APPLES (" + apples.size() + ")\n";
+
+        if(apples.isEmpty()) {
+            return str + "No apples.\n";
+        }
+
+        for (Apple apple : apples) {
+            str += apple + "\n";
+        }
+
+        return str;
+    }
+
+    public static void setEmptyTiles(ArrayList<Point> emptyTiles) {
+        AppleManager.emptyTiles = emptyTiles;
     }
 
     public static void addApple(Point position) {
@@ -25,63 +40,50 @@ public class AppleManager {
     }
 
     public static void spawnApples() {
-        for (int i = 0; i < APPLE_COUNT - apples.size(); i++) {
-            spawnApple();
-        }
-    }
-
-    public static void spawnApple() {
-        apples.add(new Apple(getRandomApplePosition()));
-    }
-
-    public static Point getRandomApplePosition() {
-        Point position; boolean isPointOnSnake;
-
-        while(true) {
-            position = Tilemap.getRandomEmptyPoint();
-            for(Apple apple : apples) {
-                if(apple.doesCollide(position)) {
-                    continue;
-                }
-            }
-
-            isPointOnSnake = false;
-            for (NetPlayer player : PlayerList.players.values()) {
-                if (player.snake.doesCollide(position)) {
-                    isPointOnSnake = true;
-                    break;
-                }
-            }
-
-            if(!isPointOnSnake)
+        while(apples.size() < APPLE_COUNT) {
+            if(!spawnApple())
                 break;
-
         }
-
-        return position;
-
     }
 
-    public static Point getRandomPoint() {
-        return Utils.getRandomPoint(Tilemap.getCols(), Tilemap.getRows());
+    public static boolean spawnApple() {
+        /*
+         * Instead of getting a random point and checking if it collides with the snake or an apple,
+         * we can get the arraylist of empty points and get a random point from there.
+         * EMPTY_TILE_COUNT = TOTAL_TILES - TOTAL_COLLIDABLE_TILES - TOTAL_APPLES
+         * We should not spawn an apple if EMPTY_TILE_COUNT <= TOTAL_SNAKE_SIZE + APPLE_COUNT
+         * We have to remove the snake parts from the empty tiles every time we spawn an apple because the snake can grow and move
+         */
+        if(emptyTiles == null)
+            return false;
+        
+        ArrayList<Point> spawnableTiles = new ArrayList<>(emptyTiles);
+        spawnableTiles.removeAll(PlayerList.getSnakeParts()); 
+
+        if(spawnableTiles.isEmpty())
+            return false;
+        
+        Point position = Utils.getRandomPointFrom(spawnableTiles);
+        addApple(position);
+        emptyTiles.remove(position);
+        return true;
     }
 
     public static void removeAll(ArrayList<Apple> applesToRemove) {
         apples.removeAll(applesToRemove);
     }
 
-    static ArrayList<Apple> getCollecteds() {
+    public static ArrayList<Apple> getCollecteds() {
         ArrayList<Apple> collectedApples = new ArrayList<>();
         for (Apple apple : apples) {
-            for(NetPlayer player : PlayerList.players.values()) {
-                if (apple.doesCollide(player.getPos())) {
-                    player.snake.grow(1);
-                    collectedApples.add(apple);
-                    break;
-                }
-            }
+            if(PlayerList.growIfCollide(apple.getPosition()))
+                collectedApples.add(apple);
         }
         return collectedApples;
+    }
+
+    public static void clear() {
+        apples.clear();
     }
 
     public static void draw(Graphics2D g, ImageObserver observer) {
@@ -90,24 +92,6 @@ public class AppleManager {
 
     public static void drawColliders(Graphics2D g) {
         apples.forEach(apple -> apple.drawCollider(g));
-    }
-
-    public static void clear() {
-        apples.clear();
-    }
-
-    public static String getInfo() {
-        String str = "APPLES (" + apples.size() + ")\n";
-
-        if(apples.isEmpty()) {
-            str += "No apples.\n";
-        }
-
-        for (Apple apple : apples) {
-            str += apple + "\n";
-        }
-
-        return str;
     }
 
 }

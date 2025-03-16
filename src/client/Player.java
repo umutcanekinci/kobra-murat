@@ -22,6 +22,8 @@ public class Player {
 
     public Point getPos() { return snake.getHead().getPosition(); }
 
+    public int getLength() { return snake.length; }
+
     public Player(Snake snake) {
         this.snake = snake;
     }
