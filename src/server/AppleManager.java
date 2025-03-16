@@ -2,7 +2,6 @@ package server;
 
 import java.awt.Point;
 import java.util.ArrayList;
-
 import common.Utils;
 
 class AppleManager {
@@ -14,6 +13,11 @@ class AppleManager {
 
     public static final int APPLE_COUNT = 5;
     public static ArrayList<Point> apples = new ArrayList<>();
+
+    public static void spawnApples() {
+        for (int i = 0; i < APPLE_COUNT - apples.size(); i++)
+            spawnApple();
+    }
 
     public static Point spawnApple() {
         Point apple = getRandomPoint();
@@ -47,10 +51,18 @@ class AppleManager {
         return Utils.getRandomPoint(Tilemap.getCols(), Tilemap.getRows());
     }
 
-    public static void spawnApples() {
-        for (int i = 0; i < APPLE_COUNT - apples.size(); i++) {
-            spawnApple();
+    public static ArrayList<Point> getCollecteds(NetPlayer player) {
+        ArrayList<Point> collectedApples = new ArrayList<>();
+        for (Point apple : apples) {
+            //if(PlayerList.growIfCollide(apple.getPosition()))
+            if(player.doesCollide(apple))
+                collectedApples.add(apple);
         }
+        return collectedApples;
+    }
+
+    public static void removeAll(ArrayList<Point> applesToRemove) {
+        apples.removeAll(applesToRemove);
     }
 
 }

@@ -28,6 +28,11 @@ public class PlayerList {
 
     public static void setId(int id) {
         PlayerList.id = id;
+        Board.onIdSetted();
+    }
+
+    public static NetPlayer getPlayer(int id) {
+        return players.get(id);
     }
 
     public static NetPlayer getCurrentPlayer() {
@@ -96,12 +101,16 @@ public class PlayerList {
     }
 
     public static void playerStep(StepPacket packet) {
-        NetPlayer player = players.get(packet.id);
-        if(player == null)
-            return;
-        player.setDirection(packet.direction);
-        player.canRotate = true;
-        player.step();
+        if(packet.id == id)
+            PlayerController.onStep();
+
+        else {
+            NetPlayer player = players.get(packet.id);
+            if(player == null)
+                return;
+            player.setDirection(packet.direction);
+            player.step();
+        }
     }
 
     public static void clear() {

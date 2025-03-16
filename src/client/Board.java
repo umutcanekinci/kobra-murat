@@ -5,8 +5,6 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
-import common.Direction;
-import common.packet.apple.EatApplePacket;
 import common.packet.player.StepPacket;
 import client.graphics.Draw;
 import client.graphics.UI;
@@ -37,11 +35,12 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     public Board() {
         super(new GridBagLayout());
+        setPreferredSize(common.Level.SIZE);
+
         Player.loadSpritesheet();
         UI.init();
-        initClient();
         initServer();
-        setPreferredSize(common.Level.SIZE);
+        initClient();
         initLayout();
         initWidgets();
         initTimer();
@@ -54,31 +53,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private static void initClient() {
         Client.setHost(isHostInLocal ? "localhost" : HOST_IP);
         Client.setPort(PORT);
-    }
-
-    public static void setMap(int id) {
-        Tilemap.load(id);
-        AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
-    }
-
-    private static void startGame() {
-        isGameStarted = true;
-
-        if(!Client.isConnected()) {
-            setMap(0);
-            PlayerList.addPlayer(0);
-            PlayerList.setId(0);
-            initPlayer();
-            AppleManager.spawnApples();
-
-            Player player = PlayerList.getCurrentPlayer();
-            player.setDirection(Direction.RIGHT);
-            player.reset();
-            player.setPosition(Tilemap.getSpawnPoint());
-            player.rotateHeadTransform();
-        }
-    
-        hideWidgets();
     }
 
     private static void initLayout() {
@@ -101,12 +75,68 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         buttons.add(button);
     }
 
+    //region ---------------------------------------- BUTTON METHODS ----------------------------------------
+
+    private static void startGame() {        
+        isGameStarted = true;
+        OfflineServer.init();
+        hideWidgets();
+    }
+
+    private static void hideWidgets() {
+        for (JButton button : buttons) {
+            if(button == null)
+                continue;
+
+            button.setVisible(false);
+        }
+    }
+
+    private static void connect() {
+        if(Client.isConnected())
+            return;
+
+        buttons.get(1).setEnabled(false); // Don't allow to spam clicks
+        
+        if(!Server.isRunning()){ // Don't let open server if connected to another server
+            buttons.get(2).setEnabled(false);
+        }
+        
+        PlayerList.clear();
+        AppleManager.clear();
+        Client.start();
+    }
+
     private static void host() {
         if(Server.isRunning())
             return;
 
         buttons.get(2).setEnabled(false); // Don't allow to spam clicks
         Server.start();
+    }
+
+    public static void exit() {
+        disconnect();
+        Window.exit();
+    }
+
+    private static void disconnect() {
+        disconnectClient();
+        disconnectServer();
+    }
+
+    private static void disconnectClient() {
+        if(!Client.isConnected())
+            return;
+
+        Client.disconnect();
+    }
+
+    private static void disconnectServer() {
+        if(!Server.isRunning())
+            return;
+
+        Server.close();
     }
 
     public static void onClientConnected() {
@@ -127,22 +157,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         button.setText("Bağlan");
         button.setEnabled(true);
         buttons.get(2).setEnabled(true);
-        PlayerList.clear();
-        AppleManager.clear();
-    }
-
-    private static void connect() {
-        if(Client.isConnected())
-            return;
-
-
-        buttons.get(1).setEnabled(false); // Don't allow to spam clicks
-        
-        if(!Server.isRunning()){ // Don't let open server if connected to another server
-            buttons.get(2).setEnabled(false);
-        }
-            
-        Client.start();
     }
 
     public static void onServerOpened() {
@@ -165,13 +179,33 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private static void addListenerToButton(JButton button, ActionListener listener) {
-        for(ActionListener l : button.getActionListeners()) {
+        for(ActionListener l : button.getActionListeners()) 
             button.removeActionListener(l);
-        }
+    
         button.addActionListener(listener);
     }
 
-    public static void initPlayer() {
+    //endregion
+
+    private void initTimer() {
+        new Timer(DELTATIME_MS, this).start();
+    }
+
+    //endregion
+
+    //region ---------------------------------------- EVENT METHODS ---------------------------------------
+
+
+    public static void setMap(int id) {
+        Tilemap.load(id);
+        AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
+    }
+
+    public static void onIdSetted() {
+        initPlayer();
+    }
+
+    private static void initPlayer() {
         Player player = PlayerList.getCurrentPlayer();
 
         if(player == null)
@@ -179,68 +213,29 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             
         player.setSpawnPoint();
         PlayerController.setPlayer(player);
+
+        
+        /*player.setDirection(Direction.RIGHT);
+        player.reset();
+        player.setPosition(Tilemap.getSpawnPoint());
+        player.rotateHeadTransform();*/
     }
-
-    private static void hideWidgets() {
-        for (JButton button : buttons) {
-            if(button == null)
-                continue;
-
-            button.setVisible(false);
-        }
-    }
-
-    private static void showWidgets() {
-        for (JButton button : buttons) {
-            if(button == null)
-                continue;
-
-            button.setVisible(true);
-        }
-    }
-
-    private void initTimer() {
-        // this timer will call the actionPerformed() method every DELTATIME ms
-        // keep a reference to the timer object that triggers actionPerformed() in
-        // case we need access to it in another method
-        Timer timer = new Timer(DELTATIME_MS, this);
-        timer.start();
-    }
-
-    //endregion
-
-    //region ---------------------------------------- EVENT METHODS ---------------------------------------
 
     public static void onHit() {
         PlayerList.getCurrentPlayer().reset();
     }
-
-    public static void onStep() {
-        if(!Client.isConnected()) {
-            Player player = PlayerList.getCurrentPlayer();
-            player.step();
-            player.canRotate = true;
-            collectApples();
-        }
-        else
-            sendStep();
-    }
-    
-    private static void collectApples() {
-        ArrayList<Apple> collectedApples = AppleManager.getCollecteds();
-
-        if(collectedApples.isEmpty())
-            return;
-
-        AppleManager.removeAll(collectedApples);
-        collectedApples.forEach(apple -> Client.sendData(new EatApplePacket(apple)));
         
-        if(!Server.isRunning())
-            AppleManager.spawnApples();
-    }
-    
-    private static void sendStep() {
-        Client.sendData(new StepPacket(PlayerList.getCurrentPlayer()));
+    public static void sendStep() {
+        /*
+         * This function sends a step packet when the player wants to move when displacement become greater then one.
+         * If there is no connection it will send a fake packet to PacketHandler.
+         */
+
+        NetPlayer player = PlayerList.getCurrentPlayer();
+        if(Client.isConnected())
+            Client.sendData(new StepPacket(player));
+        else
+            OfflineServer.hanle(new StepPacket(player));
     }
 
     //endregion
@@ -297,6 +292,15 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         showWidgets();
     }
 
+    private static void showWidgets() {
+        for (JButton button : buttons) {
+            if(button == null)
+                continue;
+
+            button.setVisible(true);
+        }
+    }
+
     @Override
     public void keyReleased(KeyEvent e) {
         // react to key up events
@@ -341,31 +345,4 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     //endregion
 
-    public static void exit() {
-        onExit();
-        Window.exit();
-    }
-
-    public static void onExit() {
-        disconnect();
-    }
-
-    private static void disconnect() {
-        disconnectClient();
-        disconnectServer();
-    }
-
-    private static void disconnectClient() {
-        if(!Client.isConnected())
-            return;
-
-        Client.disconnect();
-    }
-
-    private static void disconnectServer() {
-        if(!Server.isRunning())
-            return;
-
-        Server.close();
-    }
 }

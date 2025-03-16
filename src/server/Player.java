@@ -38,4 +38,8 @@ public class Player {
         snake.getHead().setLocation(position);
     }
 
+    public boolean doesCollide(Point position) {
+        return snake.doesCollide(position);
+    }
+
 }

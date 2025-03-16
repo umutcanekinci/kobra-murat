@@ -1,14 +1,17 @@
 package common.packet.apple;
 
 import java.awt.Point;
-import java.io.Serializable;
+import common.packet.Packet;
 
-import client.Apple;
-
-public class EatApplePacket implements Serializable{
+public class EatApplePacket extends Packet{
     public Point position;
 
-    public EatApplePacket(Apple apple) {
-        position = apple.getPosition();
+    public EatApplePacket(int id, Point apple) {
+        super(id);
+        position = apple;
+    }
+
+    public String toString() {
+        return "EatApplePacket[" + id + "]: " + "(" + position.x + ", " + position.y + ")";
     }
 }

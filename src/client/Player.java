@@ -15,7 +15,6 @@ import common.Level;
 public class Player implements Serializable {
 
     public ArrayList<SnakePart> parts = new ArrayList<>();
-    public boolean canRotate = true;
     public int tailIndex = 0;
     public int length;
 
@@ -54,27 +53,11 @@ public class Player implements Serializable {
         resetParts();
         setPosition(spawnPoint);
         resetDirection();
-        canRotate = true;
+        PlayerController.enableRotation();
         updateHead();
         rotateHeadTransform();
     }
     
-    void rotate(int key) {
-        if(!canRotate)
-            return;
-
-        Direction newDirection = Utils.keyToDirection(key);
-
-        if(newDirection == null)
-            return;
-
-        if(newDirection.isParallel(getDirection()))
-            return;
-
-        setDirection(newDirection);
-        canRotate = false;
-    }
-
     public ArrayList<Point> getParts() {
         ArrayList<Point> points = new ArrayList<>();
         parts.forEach(part -> points.add(part.getPosition()));
@@ -130,7 +113,6 @@ public class Player implements Serializable {
         head.setImage(spritesheet.getSprite(getFrame(head.getDirection(), direction)));
 
         updateHead();
-
         rotateHeadTransform();
     }
     

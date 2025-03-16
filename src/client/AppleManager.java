@@ -6,6 +6,7 @@ import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 
 import common.Utils;
+import common.packet.apple.EatApplePacket;
 import common.packet.apple.SpawnApplePacket;
 
 public class AppleManager {
@@ -74,11 +75,12 @@ public class AppleManager {
         apples.removeAll(applesToRemove);
     }
 
-    public static ArrayList<Apple> getCollecteds() {
-        ArrayList<Apple> collectedApples = new ArrayList<>();
+    public static ArrayList<Point> getCollecteds(NetPlayer player) {
+        ArrayList<Point> collectedApples = new ArrayList<>();
         for (Apple apple : apples) {
-            if(PlayerList.growIfCollide(apple.getPosition()))
-                collectedApples.add(apple);
+            //if(PlayerList.growIfCollide(apple.getPosition()))
+            if(player.doesCollide(apple.getPosition()))
+                collectedApples.add(apple.getPosition());
         }
         return collectedApples;
     }
@@ -93,6 +95,10 @@ public class AppleManager {
 
     public static void drawColliders(Graphics2D g) {
         apples.forEach(apple -> apple.drawCollider(g));
+    }
+
+    public static void remove(EatApplePacket packet) {
+        apples.removeIf(apple -> apple.getPosition().equals(packet.position));
     }
 
 }

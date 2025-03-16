@@ -49,7 +49,7 @@ public class Connection implements Runnable {
             if(isServer)
                 server.PacketHandler.handle(packet, this);
             else
-                PacketHandler.handle(packet, this);
+                PacketHandler.handle(packet);
         } catch (Exception e) {
             if(socket.isClosed())
                 return;

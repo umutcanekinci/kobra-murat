@@ -1,5 +1,7 @@
 package server;
 
+import java.awt.Point;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,12 +19,10 @@ public class PacketHandler {
         LOGGER.log(Level.INFO, packet + "\n");
         
         switch (packet) {
-            case EatApplePacket eatApplePacket -> 
-                Server.sendToAll(new SpawnApplePacket(AppleManager.spawnApple()));
-            
             case StepPacket stepPacket -> {
                 PlayerList.playerStep(stepPacket);
                 Server.sendToAll(packet);
+                collectApples(PlayerList.players.get(stepPacket.id));
             }
 
             case DisconnectPacket disconnectPacket -> {
@@ -35,6 +35,17 @@ public class PacketHandler {
             default -> 
                 LOGGER.log(Level.WARNING, "Unknown packet: " + packet + "\n");
         }
+    }
+
+    private static void collectApples(NetPlayer player) {
+        ArrayList<Point> collectedApples = AppleManager.getCollecteds(player);
+
+        if(collectedApples.isEmpty())
+            return;
+
+        AppleManager.removeAll(collectedApples);
+        collectedApples.forEach(apple -> Server.sendToAll(new EatApplePacket(player.id, apple)));
+        collectedApples.forEach(apple -> Server.sendToAll(new SpawnApplePacket(AppleManager.spawnApple())));
     }
 
 }
