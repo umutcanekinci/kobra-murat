@@ -62,7 +62,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     private void initWidgets() {
         addButton("Başla", e -> startGame());
-        addButton("Bağlan", e -> connect());
+        addButton("Bağlan", e -> onConnectButtonClick());
         addButton("Sunucu Aç", e -> host());
         addButton("Çıkış", e -> exit());
     }
@@ -91,10 +91,15 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    private static void connect() {
-        if(Client.isConnected())
+    private static void onConnectButtonClick() {
+        if(Client.isConnected()) {
+            disconnect();
             return;
+        }
+        connect();
+    }
 
+    private static void connect() {
         buttons.get(1).setEnabled(false); // Don't allow to spam clicks
         
         if(!Server.isRunning()){ // Don't let open server if connected to another server
@@ -129,19 +134,12 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     public static void onClientConnected() {
         JButton button = buttons.get(1);
-        addListenerToButton(button, e -> Client.disconnect());
         button.setText("Bağlantıyı Kes");
         button.setEnabled(true);
     }
 
     public static void onClientDisconnected() {
         JButton button = buttons.get(1);
-        
-        for(ActionListener listener : button.getActionListeners()) {
-            button.removeActionListener(listener);
-        }
-        button.addActionListener(e -> Board.connect());
-
         button.setText("Bağlan");
         button.setEnabled(true);
         buttons.get(2).setEnabled(true);
