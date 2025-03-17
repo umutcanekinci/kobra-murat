@@ -1,18 +1,14 @@
 package server;
 
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import common.packet.apple.SpawnApplePacket;
 import common.packet.ServerClosedPacket;
-import common.packet.SetMapPacket;
 import common.packet.player.AddPacket;
 import common.packet.player.IdPacket;
-import common.packet.player.UpdateTransformPacket;
 import common.Connection;
 import common.Utils;
 
@@ -20,12 +16,10 @@ public class Server {
 
     //region ------------------------------------ Variables ------------------------------------
     
+    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
     private static String ip;
     private static int port;
     private static ServerSocket serverSocket;
-    private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
-    private static final HashMap<Integer, Connection> connections = new HashMap<>();
-
     public enum State {
         CLOSED,
         CONNECTED,
@@ -61,10 +55,11 @@ public class Server {
 
     private static void setLevel(int level) {
         Tilemap.load(level);
+        AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
     }
 
     private static void initApples() {
-        AppleManager.spawnApples();
+        AppleManager.spawnAll();
     }
 
     private static void setState(State state) {
@@ -128,46 +123,28 @@ public class Server {
         if(!isRunning())
             return;
         
-        int id = connections.size();
+        int id = PlayerList.size();
         
         Connection newConnection = new Connection(socket, true); // Create new connection and add to list
-        newConnection.sendData(new SetMapPacket(Tilemap.currentLevel)); // Send current level to new player
-        sendApplesTo(newConnection);
-        sendToAll(new AddPacket(id)); // Send new player to all clients
-        connections.put(id, newConnection);
+        Tilemap.sendLevel(newConnection); // Send current level to new player // Send current level to new player
+        AppleManager.sendAllTo(newConnection);
+        PlayerList.sendToAll(new AddPacket(id)); // Send new player to all clients
         PlayerList.addPlayer(newConnection, id); // Add player to list
-        sendPlayersTo(newConnection); // Send all players to new client not including itself
+        PlayerList.sendAllTo(newConnection); // Send all players to new client including itself
         newConnection.sendData(new IdPacket(id)); // Send id to new player so it can get its own player object from list
-
-    }
-
-    public static void sendToAll(Object packet) {
-        connections.values().forEach((connection) -> connection.sendData(packet));
-    }
-
-    public static void sendPlayersTo(Connection connection) {
-        connections.forEach((key, value) -> connection.sendData(new AddPacket(key)));
-        PlayerList.players.forEach((key, value) -> connection.sendData(new UpdateTransformPacket(value)));
-    }
-    
-    public static void sendApplesTo(Connection connection) {
-        AppleManager.apples.forEach((apple) -> connection.sendData(new SpawnApplePacket(apple)));
     }
 
     public static void close() {
-        if(state == State.CLOSED) {
+        if(state == State.CLOSED)
             return;
-        }
 
         closeConnections();
         setState(State.CLOSED);
     }
 
     private static void closeConnections() {
-
-        sendToAll(new ServerClosedPacket());
-        connections.values().forEach(Server::closeConnection);
-        connections.clear();
+        PlayerList.sendToAll(new ServerClosedPacket());
+        PlayerList.clear();
 
         if(serverSocket == null || serverSocket.isClosed())
             return;
@@ -187,7 +164,7 @@ public class Server {
     }
 
     public static void removeConnection(int id) {
-        connections.remove(id);
+        PlayerList.players.remove(id);
     }
 
     //endregion

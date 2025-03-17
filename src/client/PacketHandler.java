@@ -33,12 +33,12 @@ public class PacketHandler {
                 PlayerList.addPlayer(addPacket);
             
             case EatApplePacket eatApplePacket -> {
-                AppleManager.remove(eatApplePacket);
+                AppleManager.remove(eatApplePacket.position);
                 PlayerList.getPlayer(eatApplePacket.id).grow(1);
             }
 
             case SpawnApplePacket spawnApplePacket ->
-                AppleManager.addApple(spawnApplePacket);
+                AppleManager.add(spawnApplePacket.position);
                 
             case UpdateTransformPacket playerTransformPacket ->
                 PlayerList.updatePlayerTransform(playerTransformPacket);

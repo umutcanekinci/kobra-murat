@@ -4,9 +4,10 @@ import java.awt.event.KeyEvent;
 
 import common.Direction;
 import common.Utils;
+import common.packet.player.StepPacket;
 
 public class PlayerController {
-    private static Player player;
+    private static NetPlayer player;
     private static final int speed = 3; // tiles/second
     private static double displacement = 0;
     private static boolean canRotate = true;
@@ -15,7 +16,7 @@ public class PlayerController {
         canRotate = true;
     }
 
-    public static void setPlayer(Player player) {
+    public static void setPlayer(NetPlayer player) {
         PlayerController.player = player;
     }
 
@@ -32,7 +33,7 @@ public class PlayerController {
         if(displacement < 1)
             return;
 
-        Board.sendStep();
+        player.step();
     }
 
     public static void onStep() {
@@ -41,7 +42,6 @@ public class PlayerController {
 
         displacement = 0;
         enableRotation();
-        player.step();
     }
 
     public static void keyPressed(KeyEvent e) {

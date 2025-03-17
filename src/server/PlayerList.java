@@ -1,9 +1,13 @@
 package server;
 
+import java.awt.Point;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import common.packet.player.AddPacket;
 import common.packet.player.DisconnectPacket;
 import common.packet.player.StepPacket;
+import common.packet.player.UpdateTransformPacket;
 import common.Connection;
 
 public class PlayerList {
@@ -31,10 +35,13 @@ public class PlayerList {
         return info;
     }
 
+    public static int size() {
+        return players.size();
+    }
+
     public static void addPlayer(Connection connection, int id) {
-        NetPlayer player = new NetPlayer(id);
+        NetPlayer player = new NetPlayer(connection, id);
         player.setMap();
-        player.connection = connection;
         player.reset();
         players.put(id, player);
     }
@@ -59,13 +66,27 @@ public class PlayerList {
     }
 
     public static void clear() {
-        for(NetPlayer player : players.values()) {
-            if(player.connection == null)
-                continue;
-
-            player.connection.close();
-        }
+        players.values().forEach(NetPlayer::close);
         players.clear();
     }
+
+    public static ArrayList<Point> getSnakeParts() {
+        ArrayList<Point> parts = new ArrayList<>();
+        for (NetPlayer player : players.values()) {
+            parts.addAll(player.getParts());
+        }
+        return parts;
+    }
+
+    public static void sendAllTo(Connection connection) {
+        players.forEach((key, value) -> connection.sendData(new AddPacket(key)));
+        players.forEach((key, value) -> connection.sendData(new UpdateTransformPacket(value)));
+    }
+
+    public static void sendToAll(Object packet) {
+        players.values().forEach((player) -> player.send(packet));
+    }
+
+ 
 
 }

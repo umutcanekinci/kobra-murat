@@ -24,7 +24,7 @@ public class UpdateTransformPacket extends Packet {
     }
 
     public UpdateTransformPacket(server.NetPlayer player) {
-        this(player.id, player.getParts(), player.getDirection(), player.tailIndex);
+        this(player.getId(), player.getParts(), player.getDirection(), player.tailIndex);
     }
 
     @Override

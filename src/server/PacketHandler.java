@@ -21,7 +21,7 @@ public class PacketHandler {
         switch (packet) {
             case StepPacket stepPacket -> {
                 PlayerList.playerStep(stepPacket);
-                Server.sendToAll(packet);
+                PlayerList.sendToAll(packet);
                 collectApples(PlayerList.players.get(stepPacket.id));
             }
 
@@ -29,7 +29,7 @@ public class PacketHandler {
                 PlayerList.removePlayer(disconnectPacket);
                 Server.closeConnection(connection);
                 Server.removeConnection(disconnectPacket.id);
-                Server.sendToAll(new RemovePacket(disconnectPacket.id));
+                PlayerList.sendToAll(new RemovePacket(disconnectPacket.id));
             }
             
             default -> 
@@ -44,8 +44,9 @@ public class PacketHandler {
             return;
 
         AppleManager.removeAll(collectedApples);
-        collectedApples.forEach(apple -> Server.sendToAll(new EatApplePacket(player.id, apple)));
-        collectedApples.forEach(apple -> Server.sendToAll(new SpawnApplePacket(AppleManager.spawnApple())));
+        collectedApples.forEach(apple -> PlayerList.sendToAll(new EatApplePacket(player.getId(), apple)));
+        collectedApples.forEach(apple -> PlayerList.sendToAll(new SpawnApplePacket(AppleManager.spawn())));
+        player.grow(collectedApples.size());
     }
 
 }

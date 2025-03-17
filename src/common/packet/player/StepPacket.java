@@ -1,5 +1,5 @@
 package common.packet.player;
-import client.NetPlayer;
+import server.NetPlayer;
 import common.Direction;
 import common.packet.Packet;
 

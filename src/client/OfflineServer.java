@@ -29,7 +29,7 @@ public class OfflineServer {
         PlayerList.clear();
         AppleManager.clear();
         PacketHandler.handle(new SetMapPacket(0));
-        AppleManager.spawnApples();
+        AppleManager.spawnAll();
         PacketHandler.handle(new AddPacket(0));
         PacketHandler.handle(new IdPacket(0));
     }
@@ -54,6 +54,6 @@ public class OfflineServer {
             return;
             
         collectedApples.forEach(apple -> PacketHandler.handle(new EatApplePacket(player.getId(), apple)));
-        collectedApples.forEach(apple -> AppleManager.spawnApple());
+        collectedApples.forEach(apple -> AppleManager.spawn());
     }
 }

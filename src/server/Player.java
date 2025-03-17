@@ -77,8 +77,8 @@ public class Player implements Serializable {
 
         if((doesCollide(position) && !isPointOnTail(position)) || Tilemap.doesCollide(position))
         {
-            System.out.println((doesCollide(position) && !isPointOnTail(position)) + " " + Tilemap.doesCollide(position));
             return;
+            
         }
             
         tailIndex = (tailIndex + 1) % length;

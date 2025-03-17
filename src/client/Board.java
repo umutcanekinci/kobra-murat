@@ -5,7 +5,6 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
-import common.packet.player.StepPacket;
 import client.graphics.Draw;
 import client.graphics.UI;
 import server.Server;
@@ -206,7 +205,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private static void initPlayer() {
-        Player player = PlayerList.getCurrentPlayer();
+        NetPlayer player = PlayerList.getCurrentPlayer();
 
         if(player == null)
             return;
@@ -214,7 +213,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         player.setSpawnPoint();
         PlayerController.setPlayer(player);
 
-        
         /*player.setDirection(Direction.RIGHT);
         player.reset();
         player.setPosition(Tilemap.getSpawnPoint());
@@ -223,19 +221,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     public static void onHit() {
         PlayerList.getCurrentPlayer().reset();
-    }
-        
-    public static void sendStep() {
-        /*
-         * This function sends a step packet when the player wants to move when displacement become greater then one.
-         * If there is no connection it will send a fake packet to PacketHandler.
-         */
-
-        NetPlayer player = PlayerList.getCurrentPlayer();
-        if(Client.isConnected())
-            Client.sendData(new StepPacket(player));
-        else
-            OfflineServer.hanle(new StepPacket(player));
     }
 
     //endregion
@@ -277,10 +262,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             PlayerController.keyPressed(e);
 
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_R:
-                if(player != null)
-                    player.reset();
-                break;
             case KeyEvent.VK_ESCAPE:
                 openMenu();
                 break;

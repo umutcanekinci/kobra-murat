@@ -6,8 +6,6 @@ import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 
 import common.Utils;
-import common.packet.apple.EatApplePacket;
-import common.packet.apple.SpawnApplePacket;
 
 public class AppleManager {
 
@@ -33,22 +31,18 @@ public class AppleManager {
         AppleManager.emptyTiles = emptyTiles;
     }
 
-    public static void addApple(Point position) {
+    public static void add(Point position) {
         apples.add(new Apple(position));
     }
 
-    public static void addApple(SpawnApplePacket packet) {
-        apples.add(new Apple(packet.position));
-    }
-
-    public static void spawnApples() {
+    public static void spawnAll() {
         while(apples.size() < APPLE_COUNT) {
-            if(!spawnApple())
+            if(!spawn())
                 break;
         }
     }
 
-    public static boolean spawnApple() {
+    public static boolean spawn() {
         /*
          * Instead of getting a random point and checking if it collides with the snake or an apple,
          * we can get the arraylist of empty points and get a random point from there.
@@ -66,13 +60,9 @@ public class AppleManager {
             return false;
         
         Point position = Utils.getRandomPointFrom(spawnableTiles);
-        addApple(position);
+        add(position);
         emptyTiles.remove(position);
         return true;
-    }
-
-    public static void removeAll(ArrayList<Apple> applesToRemove) {
-        apples.removeAll(applesToRemove);
     }
 
     public static ArrayList<Point> getCollecteds(NetPlayer player) {
@@ -97,8 +87,8 @@ public class AppleManager {
         apples.forEach(apple -> apple.drawCollider(g));
     }
 
-    public static void remove(EatApplePacket packet) {
-        apples.removeIf(apple -> apple.getPosition().equals(packet.position));
+    public static void remove(Point position) {
+        apples.removeIf(apple -> apple.getPosition().equals(position));
     }
 
 }
