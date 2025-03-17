@@ -47,5 +47,6 @@ public class NetPlayer extends Player{
             return;
 
         send(new StepPacket(this));
+        displacement = 0;
     }
 }
