@@ -4,7 +4,6 @@ import java.awt.event.KeyEvent;
 
 import common.Direction;
 import common.Utils;
-import common.packet.player.StepPacket;
 
 public class PlayerController {
     private static NetPlayer player;
@@ -34,16 +33,10 @@ public class PlayerController {
             return;
 
         player.step();
-    }
-
-    public static void onStep() {
-        if(player == null)
-            return;
-
         displacement = 0;
         enableRotation();
     }
-
+    
     public static void keyPressed(KeyEvent e) {
         if(player == null)
             return;

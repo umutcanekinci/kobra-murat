@@ -101,16 +101,11 @@ public class PlayerList {
     }
 
     public static void playerStep(StepPacket packet) {
-        if(packet.id == id)
-            PlayerController.onStep();
-
-        else {
-            NetPlayer player = players.get(packet.id);
-            if(player == null)
-                return;
-            player.setDirection(packet.direction);
-            player.step();
-        }
+        NetPlayer player = players.get(packet.id);
+        if(player == null)
+            return;
+        player.setDirection(packet.direction);
+        player.step();
     }
 
     public static void clear() {

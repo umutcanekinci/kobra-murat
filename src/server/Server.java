@@ -82,6 +82,7 @@ public class Server {
 
     public static void start() {
         open();
+        new GameManager().start();
         new Thread() {
             public void run() {
                 while (isRunning())

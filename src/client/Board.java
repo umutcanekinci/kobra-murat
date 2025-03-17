@@ -295,7 +295,8 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public void actionPerformed(ActionEvent e) {
         // this method is called by the timer every DELTATIME ms.
         if(isGameStarted) {
-            PlayerController.update();
+            if(!Client.isConnected())
+                PlayerController.update();
         }
 
         if(Server.isRunning() && !buttons.get(2).isEnabled()) {

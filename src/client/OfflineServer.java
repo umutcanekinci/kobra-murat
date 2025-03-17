@@ -34,7 +34,7 @@ public class OfflineServer {
         PacketHandler.handle(new IdPacket(0));
     }
 
-    public static void hanle(Object packet) {
+    public static void handle(Object packet) {
         LOGGER.log(Level.INFO, packet + "\n");
         
         switch (packet) {
@@ -56,4 +56,6 @@ public class OfflineServer {
         collectedApples.forEach(apple -> PacketHandler.handle(new EatApplePacket(player.getId(), apple)));
         collectedApples.forEach(apple -> AppleManager.spawn());
     }
+
+    
 }
