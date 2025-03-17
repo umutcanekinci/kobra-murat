@@ -7,9 +7,7 @@ import java.util.ArrayList;
 
 public class Tile extends Object{
 
-
     private static final File IMAGE_FILE = new File("images/wall.png");
-    
     public final boolean isCollidable;
     private static final ArrayList<Integer> COLLIDABLE_IDS = new ArrayList<>() {{
         add(1);

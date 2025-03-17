@@ -136,7 +136,7 @@ public class Server {
     }
 
     public static void close() {
-        if(state == State.CLOSED)
+        if(!isRunning())
             return;
 
         closeConnections();

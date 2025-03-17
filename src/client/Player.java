@@ -53,7 +53,7 @@ public class Player implements Serializable {
         resetParts();
         setPosition(spawnPoint);
         resetDirection();
-        PlayerController.enableRotation();
+        OfflinePlayerController.enableRotation();
         updateHead();
         rotateHeadTransform();
     }

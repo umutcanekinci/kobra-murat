@@ -1,6 +1,5 @@
 package server;
 
-import client.Board;
 import common.Connection;
 import common.packet.player.StepPacket;
 
@@ -38,15 +37,14 @@ public class NetPlayer extends Player{
 
         connection.close();
     }
-
     
     public void move() {
-        displacement += speed * Board.DELTATIME;
+        displacement += speed * GameManager.DELTATIME;
 
         if(displacement < 1)
             return;
 
-        send(new StepPacket(this));
+        PacketHandler.handle(new StepPacket(id, getDirection()), connection);
         displacement = 0;
     }
 }

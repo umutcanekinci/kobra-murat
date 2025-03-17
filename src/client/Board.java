@@ -78,7 +78,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     private static void startGame() {        
         isGameStarted = true;
-        OfflineServer.init();
+        OfflinePlayerController.init();
         hideWidgets();
     }
 
@@ -120,22 +120,11 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private static void disconnect() {
-        disconnectClient();
-        disconnectServer();
-    }
-
-    private static void disconnectClient() {
-        if(!Client.isConnected())
+        if(Server.isRunning()) {
+            Server.close(); // Server will close all clients so no need to close the client.
             return;
-
+        }
         Client.disconnect();
-    }
-
-    private static void disconnectServer() {
-        if(!Server.isRunning())
-            return;
-
-        Server.close();
     }
 
     public static void onClientConnected() {
@@ -211,7 +200,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             return;
             
         player.setSpawnPoint();
-        PlayerController.setPlayer(player);
+        OfflinePlayerController.setPlayer(player);
 
         /*player.setDirection(Direction.RIGHT);
         player.reset();
@@ -243,8 +232,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             keyPressedMenu(e);
             return;
         }
-        keyPressedGame(e);
-
+        else {
+            keyPressedGame(e);
+        }
     }
 
     private static void keyPressedMenu(KeyEvent e) {
@@ -253,13 +243,10 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private static void keyPressedGame(KeyEvent e) {
-        if(!isGameStarted)
-            return;
-
         Player player = PlayerList.getCurrentPlayer();
 
         if(player != null)
-            PlayerController.keyPressed(e);
+            OfflinePlayerController.keyPressed(e);
 
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
@@ -293,19 +280,14 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        // this method is called by the timer every DELTATIME ms.
-        if(isGameStarted) {
-            if(!Client.isConnected())
-                PlayerController.update();
-        }
+        if(isGameStarted)
+            OfflinePlayerController.update();
 
-        if(Server.isRunning() && !buttons.get(2).isEnabled()) {
+        if(Server.isRunning() && !buttons.get(2).isEnabled())
             onServerOpened();
-        }
 
-        if(!Server.isRunning() && buttons.get(2).isEnabled()) {
+        if(!Server.isRunning() && buttons.get(2).isEnabled())
             onServerClosed();
-        }
 
         repaint();
     }

@@ -19,7 +19,7 @@ public class PacketHandler {
         LOGGER.log(Level.INFO, packet + "\n");
         
         switch (packet) {
-            case StepPacket stepPacket -> {
+            case StepPacket stepPacket -> { // This packet comes from game manager, not client. To be more organized, I placed it here.
                 PlayerList.playerStep(stepPacket);
                 PlayerList.sendToAll(packet);
                 collectApples(PlayerList.players.get(stepPacket.id));
