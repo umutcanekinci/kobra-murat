@@ -7,9 +7,13 @@ import javax.swing.*;
 
 import client.graphics.Draw;
 import client.graphics.UI;
+import common.Direction;
+import common.Utils;
+import common.packet.player.RotatePacket;
 import server.Server;
+import server.ServerListener;
 
-public class Board extends JPanel implements ActionListener, KeyListener {
+public class Board extends JPanel implements ActionListener, KeyListener, ServerListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
 
@@ -45,8 +49,9 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         initTimer();
     }
 
-    private static void initServer() {
+    private void initServer() {
         Server.init(PORT);
+        Server.setListener(this);
     }
 
     private static void initClient() {
@@ -63,7 +68,7 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     private void initWidgets() {
         addButton("Başla", e -> startGame());
         addButton("Bağlan", e -> onConnectButtonClick());
-        addButton("Sunucu Aç", e -> host());
+        addButton("Sunucu Aç", e -> onHostButtonClick());
         addButton("Çıkış", e -> exit());
     }
 
@@ -92,31 +97,38 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private static void onConnectButtonClick() {
+        disableConnectButton(); // Don't allow to spam clicks, maybe this not needed but just in case
         if(Client.isConnected()) {
-            disconnect();
+            Client.disconnect();
             return;
         }
         connect();
     }
 
-    private static void connect() {
-        buttons.get(1).setEnabled(false); // Don't allow to spam clicks
-        
-        if(!Server.isRunning()){ // Don't let open server if connected to another server
-            buttons.get(2).setEnabled(false);
-        }
+    private static void disableConnectButton() {
+        buttons.get(1).setEnabled(false);
+    }
+
+    private static void connect() {        
+        if(!Server.isRunning()) // Don't let open server if connected to another server
+            disableHostButton();
         
         PlayerList.clear();
         AppleManager.clear();
         Client.start();
     }
 
-    private static void host() {
-        if(Server.isRunning())
+    private static void onHostButtonClick() {
+        disableHostButton(); // Don't allow to spam clicks, maybe this not needed but just in case
+        if(Server.isRunning()) {
+            Server.close();
             return;
-
-        buttons.get(2).setEnabled(false); // Don't allow to spam clicks
+        }
         Server.start();
+    }
+
+    private static void disableHostButton() {
+        buttons.get(2).setEnabled(false);
     }
 
     public static void exit() {
@@ -130,6 +142,19 @@ public class Board extends JPanel implements ActionListener, KeyListener {
             return;
         }
         Client.disconnect();
+    }
+
+    public void onServerStateChange(Server.State state) {
+        switch (state) {
+            case CONNECTED:
+                onServerOpened();
+                break;
+            case CLOSED:
+                onServerClosed();
+                break;
+            case LISTENING:
+                break;
+        }
     }
 
     public static void onClientConnected() {
@@ -147,28 +172,15 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
     public static void onServerOpened() {
         JButton button = buttons.get(2);
-
-        for(ActionListener listener : button.getActionListeners()) 
-            button.removeActionListener(listener);
-        button.addActionListener(e -> Server.close());
-
         button.setText("Sunucuyu Kapat");
         button.setEnabled(true);
     }
 
     public static void onServerClosed() {
         JButton button = buttons.get(2);
-        addListenerToButton(button, e -> host());
         button.setText("Sunucu Aç");
         button.setEnabled(true);
         buttons.get(1).setEnabled(true);
-    }
-
-    private static void addListenerToButton(JButton button, ActionListener listener) {
-        for(ActionListener l : button.getActionListeners()) 
-            button.removeActionListener(l);
-    
-        button.addActionListener(listener);
     }
 
     //endregion
@@ -180,7 +192,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     //endregion
 
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
-
 
     public static void setMap(int id) {
         Tilemap.load(id);
@@ -206,10 +217,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
         player.rotateHeadTransform();*/
     }
 
-    public static void onHit() {
-        PlayerList.getCurrentPlayer().reset();
-    }
-
     //endregion
 
     //region ---------------------------------------- INPUT METHODS ---------------------------------------
@@ -228,7 +235,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
 
         if(!isGameStarted) {
             keyPressedMenu(e);
-            return;
         }
         else {
             keyPressedGame(e);
@@ -241,16 +247,23 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     }
 
     private static void keyPressedGame(KeyEvent e) {
-        Player player = PlayerList.getCurrentPlayer();
-
-        if(player != null)
+        if(!Client.isConnected())
             OfflinePlayerController.keyPressed(e);
-
+        else {
+            Direction direction = Utils.keyToDirection(e.getKeyCode());
+            if(direction != null)
+                sendDirection(direction);
+        }
+        
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
                 openMenu();
                 break;
         }
+    }
+
+    private static void sendDirection(Direction direction) {
+        Client.sendData(new RotatePacket(PlayerList.getCurrentPlayer().getId(), direction));
     }
 
     public static void openMenu() {
@@ -280,12 +293,6 @@ public class Board extends JPanel implements ActionListener, KeyListener {
     public void actionPerformed(ActionEvent e) {
         if(isGameStarted)
             OfflinePlayerController.update();
-
-        if(Server.isRunning() && !buttons.get(2).isEnabled())
-            onServerOpened();
-
-        if(!Server.isRunning() && buttons.get(2).isEnabled())
-            onServerClosed();
 
         repaint();
     }

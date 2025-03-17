@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import common.packet.player.AddPacket;
 import common.packet.player.RemovePacket;
+import common.packet.player.RotatePacket;
 import common.packet.player.StepPacket;
 import common.packet.player.UpdateTransformPacket;
 
@@ -110,6 +111,13 @@ public class PlayerList {
 
     public static void clear() {
         players.clear();
+    }
+
+    public static void rotatePlayer(RotatePacket packet) {
+        NetPlayer player = players.get(packet.id);
+        if(player == null)
+            return;
+        player.setDirection(packet.direction);
     }
 
     public static boolean doesCollide(Point position) {

@@ -101,7 +101,7 @@ public class Player implements Serializable {
         Boolean doesHitSelf = doesCollide(position) && !isPointOnTail(position);
         if(doesHitSelf || Tilemap.doesCollide(position))
         {
-            Board.onHit();
+            //Board.onHit();
             return;
         }
             

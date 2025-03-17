@@ -36,9 +36,8 @@ public final class Utils {
     public static Direction keyToDirection(int key) {
         int i = 0;
         for(MoveKey moveKey : MoveKey.values()) {
-            if(moveKey.isEqual(key)) {
+            if(moveKey.isEqual(key))
                 return Direction.values()[i% Direction.values().length];
-            }
             i++;
         }
         return null;

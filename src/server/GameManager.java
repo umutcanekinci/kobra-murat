@@ -27,6 +27,9 @@ public class GameManager implements ActionListener {
     }
     
     private void update() {
+        if(!Server.isRunning())
+            return;
+
         PlayerList.players.values().forEach(player -> player.move());
     }
 }

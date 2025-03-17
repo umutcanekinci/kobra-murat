@@ -11,6 +11,7 @@ import common.packet.apple.SpawnApplePacket;
 import common.packet.player.AddPacket;
 import common.packet.player.IdPacket;
 import common.packet.player.RemovePacket;
+import common.packet.player.RotatePacket;
 import common.packet.player.StepPacket;
 import common.packet.player.UpdateTransformPacket;
 
@@ -40,6 +41,9 @@ public class PacketHandler {
             case SpawnApplePacket spawnApplePacket ->
                 AppleManager.add(spawnApplePacket.position);
                 
+            case RotatePacket rotatePacket ->
+                PlayerList.rotatePlayer(rotatePacket);
+
             case UpdateTransformPacket playerTransformPacket ->
                 PlayerList.updatePlayerTransform(playerTransformPacket);
 

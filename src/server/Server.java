@@ -25,7 +25,8 @@ public class Server {
         CONNECTED,
         LISTENING,
     }
-    public static State state = State.CLOSED;
+    private static State state = State.CLOSED;
+    private static ServerListener listener;
 
     //endregion
 
@@ -36,6 +37,10 @@ public class Server {
         "(IP: " + ip + " PORT: " + port + ")\n" +
         Tilemap.getInfo() + "\n\n" +
         PlayerList.getInfo();
+    }
+
+    public static void setListener(ServerListener listener) {
+        Server.listener = listener;
     }
 
     public static void init(int port) {
@@ -64,6 +69,9 @@ public class Server {
 
     private static void setState(State state) {
         Server.state = state;
+
+        if(listener != null)
+            listener.onServerStateChange(state);
     }
 
     public static State getState() {

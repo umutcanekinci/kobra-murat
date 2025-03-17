@@ -9,6 +9,7 @@ import common.packet.apple.EatApplePacket;
 import common.packet.apple.SpawnApplePacket;
 import common.packet.player.DisconnectPacket;
 import common.packet.player.RemovePacket;
+import common.packet.player.RotatePacket;
 import common.packet.player.StepPacket;
 import common.Connection;
 
@@ -32,6 +33,11 @@ public class PacketHandler {
                 PlayerList.sendToAll(new RemovePacket(disconnectPacket.id));
             }
             
+            case RotatePacket rotatePacket -> {
+                PlayerList.players.get(rotatePacket.id).setDirection(rotatePacket.direction);
+                PlayerList.sendToAll(packet);
+            }
+
             default -> 
                 LOGGER.log(Level.WARNING, "Unknown packet: " + packet + "\n");
         }

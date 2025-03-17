@@ -12,4 +12,12 @@ public class RotatePacket extends Packet {
         this.direction = direction;
     }
 
+    @Override
+    public String toString() {
+        return "RotatePacket{" +
+                "id=" + id +
+                ", direction=" + direction +
+                '}';
+    }
+
 }
