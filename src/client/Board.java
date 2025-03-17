@@ -39,7 +39,6 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     public Board() {
         super(new GridBagLayout());
         setPreferredSize(common.Level.SIZE);
-
         Player.loadSpritesheet();
         UI.init();
         initServer();
@@ -249,17 +248,23 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     private static void keyPressedGame(KeyEvent e) {
         if(!Client.isConnected())
             OfflinePlayerController.keyPressed(e);
-        else {
-            Direction direction = Utils.keyToDirection(e.getKeyCode());
-            if(direction != null)
-                sendDirection(direction);
-        }
+        else
+            updateDirection(e);
         
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE:
                 openMenu();
                 break;
         }
+    }
+
+    private static void updateDirection(KeyEvent e) {
+        Direction direction = Utils.keyToDirection(e.getKeyCode());
+
+        if(direction == null)
+            return;
+
+        sendDirection(direction);
     }
 
     private static void sendDirection(Direction direction) {
