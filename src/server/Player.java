@@ -16,7 +16,7 @@ public class Player implements Serializable {
     public int tailIndex = 0;
     public int length;
     public final Point spawnPoint = new Point();
-    public static final int DEFAULT_LENGTH = 6;
+    public static final int DEFAULT_LENGTH = 12;
 
     public Player() {    
         reset();
@@ -75,11 +75,8 @@ public class Player implements Serializable {
         
         Point position = Utils.clampPosition(Utils.moveTowards(head, direction));
 
-        if((doesCollide(position) && !isPointOnTail(position)) || Tilemap.doesCollide(position))
-        {
-            return;
-            
-        }
+        //if((doesCollide(position) && !isPointOnTail(position)) || Tilemap.doesCollide(position))
+        //    return;
             
         tailIndex = (tailIndex + 1) % length;
 

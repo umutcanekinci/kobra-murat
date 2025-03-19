@@ -20,7 +20,7 @@ public class PacketHandler {
     private static final Logger LOGGER = Logger.getLogger(PacketHandler.class.getName());
 
     public static void handle(Object packet) {
-        LOGGER.log(Level.INFO, packet + "\n");
+        //LOGGER.log(Level.INFO, packet + "\n");
 
         switch (packet) {
             case IdPacket idPacket -> {
@@ -35,7 +35,7 @@ public class PacketHandler {
             
             case EatApplePacket eatApplePacket -> {
                 AppleManager.remove(eatApplePacket.position);
-                PlayerList.getPlayer(eatApplePacket.id).grow(1);
+                PlayerList.grow(eatApplePacket.id, 1);
             }
 
             case SpawnApplePacket spawnApplePacket ->
@@ -49,7 +49,7 @@ public class PacketHandler {
 
             case StepPacket stepPacket ->
                 PlayerList.playerStep(stepPacket);
-
+                
             case RemovePacket removePacket ->
                 PlayerList.removePlayer(removePacket);
                 

@@ -32,8 +32,11 @@ public class PlayerList {
         Board.onIdSetted();
     }
 
-    public static NetPlayer getPlayer(int id) {
-        return players.get(id);
+    public static void grow(int id, int amount) {
+        NetPlayer player = players.get(id);
+        if(player == null)
+            return;
+        player.grow(amount);
     }
 
     public static NetPlayer getCurrentPlayer() {
@@ -106,7 +109,7 @@ public class PlayerList {
         if(player == null)
             return;
         player.setDirection(packet.direction);
-        player.step();
+        player.stepTo(player.getNextPosition());
     }
 
     public static void clear() {

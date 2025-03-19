@@ -2,8 +2,11 @@ package client.graphics;
 
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.ImageObserver;
+
+import javax.swing.JPanel;
 
 import client.AppleManager;
 import client.DebugLog;
@@ -13,7 +16,10 @@ import common.Level;
 
 public class Draw {
 
-    public static void all(Graphics g, boolean isGameStarted, boolean debugMode, ImageObserver observer) {
+    private static final Color MENU_BACKGROUND_COLOR = Color.BLACK;
+    private static final Color BACKGROUND_COLOR = Color.BLACK;
+
+    public static void all(Graphics g, JPanel panel, boolean isGameStarted, boolean debugMode, ImageObserver observer) {
         /*
          when calling g.drawImage() we can use "this" for the ImageObserver
          because Component implements the ImageObserver interface, and JPanel
@@ -23,7 +29,7 @@ public class Draw {
 
         Graphics2D g2d = (Graphics2D) g; // we need to cast the Graphics to Graphics2D to draw nicer text
         UI.initGraphics(g2d);
-
+        background(panel, isGameStarted);
         map(g2d, isGameStarted, observer);
         apples(g2d, isGameStarted, observer);
         players(g2d, isGameStarted, observer);
@@ -36,21 +42,25 @@ public class Draw {
         Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems
     }
 
-    public static void map(Graphics2D g, boolean isGameStarted, ImageObserver observer) {
+    private static void background(JPanel panel, Boolean isGameStarted) {
+        panel.setBackground(isGameStarted ? BACKGROUND_COLOR : MENU_BACKGROUND_COLOR);
+    }
+
+    private static void map(Graphics2D g, boolean isGameStarted, ImageObserver observer) {
         if(!isGameStarted || !Tilemap.isReady() || g == null)
             return;
         
         Tilemap.draw(g, observer);
     }
 
-    public static void apples(Graphics2D g, boolean isGameStarted, ImageObserver observer) {
+    private static void apples(Graphics2D g, boolean isGameStarted, ImageObserver observer) {
         if(g == null || !isGameStarted)
             return;
 
         AppleManager.draw(g, observer);
     }
     
-    public static void players(Graphics2D g, boolean isGameStarted, ImageObserver observer) {
+    private static void players(Graphics2D g, boolean isGameStarted, ImageObserver observer) {
         if(g == null || !isGameStarted)
             return;
 

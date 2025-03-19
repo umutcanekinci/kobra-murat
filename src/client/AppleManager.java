@@ -14,17 +14,14 @@ public class AppleManager {
     private static ArrayList<Point> emptyTiles;
 
     public static String getInfo() {
-        String str = "APPLES (" + apples.size() + ")\n";
+        StringBuilder str = new StringBuilder("APPLES (" + apples.size() + ")\n");
 
-        if(apples.isEmpty()) {
-            return str + "No apples.\n";
-        }
+        if(apples.isEmpty()) 
+            return str.append("No apples.\n").toString();
 
-        for (Apple apple : apples) {
-            str += apple + "\n";
-        }
+        apples.forEach(apple -> str.append(apple).append("\n"));
 
-        return str;
+        return str.toString();
     }
 
     public static void setEmptyTiles(ArrayList<Point> emptyTiles) {
@@ -65,11 +62,10 @@ public class AppleManager {
         return true;
     }
 
-    public static ArrayList<Point> getCollecteds(NetPlayer player) {
+    public static ArrayList<Point> getCollecteds(Point position) {
         ArrayList<Point> collectedApples = new ArrayList<>();
         for (Apple apple : apples) {
-            //if(PlayerList.growIfCollide(apple.getPosition()))
-            if(player.doesCollide(apple.getPosition()))
+            if(apple.doesCollide(position))
                 collectedApples.add(apple.getPosition());
         }
         return collectedApples;

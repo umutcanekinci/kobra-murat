@@ -93,18 +93,13 @@ public class Player implements Serializable {
         this.direction = direction;
     }
 
-    public void step() {
+    public Point getNextPosition() {
+        return Utils.clampPosition(Utils.moveTowards(getHead().getPosition(), direction));
+    }
+
+    public void stepTo(Point position) {
         SnakePart head = getHead();
         
-        Point position = Utils.clampPosition(Utils.moveTowards(head.getPosition(), direction));
-
-        Boolean doesHitSelf = doesCollide(position) && !isPointOnTail(position);
-        if(doesHitSelf || Tilemap.doesCollide(position))
-        {
-            //Board.onHit();
-            return;
-        }
-            
         tailIndex = (tailIndex + 1) % length;
 
         SnakePart newHead = getHead();

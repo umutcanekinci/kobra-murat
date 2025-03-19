@@ -30,7 +30,7 @@ public class DebugLog {
                 Client.getInfo() + "\n" +
                 Tilemap.getInfo() + "\n\n" +
                 PlayerList.getInfo() + "\n" +
-                //AppleManager.getInfo() + "\n\n" +
+                AppleManager.getInfo() + "\n\n" +
                 Server.getInfo() + "\n";
     }
 

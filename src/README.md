@@ -26,5 +26,10 @@ Constructors
 
 Methods: These methods should be grouped by functionality rather than by scope or accessibility. For example, a private class method can be in between two public instance methods. The goal is to make reading and understanding the code easier.
 
+
+HELPS
+https://www.reddit.com/r/gamedev/comments/8tdmaa/question_about_server_vs_client/
+https://www.quora.com/Do-games-use-server-side-programming-or-client-side-programming
+
 <h1>Tileset</h1>
 https://opengameart.org/content/snake-sprites-2d

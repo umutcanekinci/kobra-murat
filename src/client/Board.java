@@ -26,8 +26,6 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     public static Tilemap map;
     
     private static boolean debugMode = false;
-    private static final Color MENU_BACKGROUND_COLOR = Color.BLACK;
-    private static final Color BACKGROUND_COLOR = Color.BLACK;
     private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
     private static boolean isGameStarted = false;
     private static final ArrayList<JButton> buttons = new ArrayList<>();
@@ -202,18 +200,9 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     }
 
     private static void initPlayer() {
-        NetPlayer player = PlayerList.getCurrentPlayer();
-
-        if(player == null)
-            return;
-            
+        NetPlayer player = PlayerList.getCurrentPlayer();            
         player.setSpawnPoint();
         OfflinePlayerController.setPlayer(player);
-
-        /*player.setDirection(Direction.RIGHT);
-        player.reset();
-        player.setPosition(Tilemap.getSpawnPoint());
-        player.rotateHeadTransform();*/
     }
 
     //endregion
@@ -221,16 +210,16 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     //region ---------------------------------------- INPUT METHODS ---------------------------------------
 
     @Override
-    public void keyTyped(KeyEvent e) {
-        // this is not used but must be defined as part of the KeyListener interface
-    }
+    public void keyTyped(KeyEvent e) {}
+
+    @Override
+    public void keyReleased(KeyEvent e) {}
 
     @Override
     public void keyPressed(KeyEvent e) {
 
-        if(e.getKeyCode() == KeyEvent.VK_F2) {
+        if(e.getKeyCode() == KeyEvent.VK_F2)
             debugMode = !debugMode;
-        }
 
         if(!isGameStarted) {
             keyPressedMenu(e);
@@ -285,38 +274,20 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
         }
     }
 
-    @Override
-    public void keyReleased(KeyEvent e) {
-        // react to key up events
-    }
-
     //endregion
-
-    //region ---------------------------------------- UPDATE METHODS --------------------------------------
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(isGameStarted)
+        if(isGameStarted && !Client.isConnected())
             OfflinePlayerController.update();
 
-        repaint();
+        repaint(); // Redraw the screen
     }
-
-    //endregion
-
-    //region ---------------------------------------- DRAW METHODS ----------------------------------------
 
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        drawBackground();
-        Draw.all(g, isGameStarted, debugMode, this);
+        super.paintComponent(g); // Clear the screen
+        Draw.all(g, this, isGameStarted, debugMode, this); // Draw everything
     }
-
-    private void drawBackground() {
-        setBackground(isGameStarted ? BACKGROUND_COLOR : MENU_BACKGROUND_COLOR);
-    }
-
-    //endregion
 
 }

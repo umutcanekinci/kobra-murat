@@ -10,6 +10,7 @@ import common.packet.SetMapPacket;
 import common.packet.apple.EatApplePacket;
 import common.packet.player.AddPacket;
 import common.packet.player.IdPacket;
+import common.packet.player.StepPacket;
 
 public class OfflinePlayerController {    
     /*
@@ -43,11 +44,7 @@ public class OfflinePlayerController {
     }
 
     public static void update() {
-        if(Client.isConnected() ||player == null)
-            return;
-
         move();
-        collectApples(PlayerList.getCurrentPlayer());
     }
 
     private static void move() {
@@ -56,13 +53,27 @@ public class OfflinePlayerController {
         if(displacement < 1)
             return;
 
-        player.step();
         displacement = 0;
         enableRotation();
+        
+        Point position = player.getNextPosition();
+        if(doesCollide(position)) {
+            player.reset();
+            return;
+        }
+        collectApples(position);
+        PacketHandler.handle(new StepPacket(player.getId(), player.getDirection()));
     }
 
-    private static void collectApples(NetPlayer player) {
-        ArrayList<Point> collectedApples = AppleManager.getCollecteds(player);
+    private static boolean doesCollide(Point position) {
+        Boolean doesHitSelf = player.doesCollide(position) && !player.isPointOnTail(position);
+        if(doesHitSelf || Tilemap.doesCollide(position))
+            return true;
+        return false;
+    }
+
+    private static void collectApples(Point position) {
+        ArrayList<Point> collectedApples = AppleManager.getCollecteds(position);
 
         if(collectedApples.isEmpty())
             return;

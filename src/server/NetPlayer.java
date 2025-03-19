@@ -1,6 +1,11 @@
 package server;
 
+import java.awt.Point;
+import java.util.ArrayList;
+
 import common.Connection;
+import common.packet.apple.EatApplePacket;
+import common.packet.apple.SpawnApplePacket;
 import common.packet.player.StepPacket;
 
 public class NetPlayer extends Player{
@@ -31,20 +36,37 @@ public class NetPlayer extends Player{
         connection.sendData(packet);
     }
 
-    public void close() {
-        if(connection == null)
-            return;
-
-        connection.close();
-    }
-    
     public void move() {
         displacement += speed * GameManager.DELTATIME;
 
         if(displacement < 1)
             return;
 
-        PacketHandler.handle(new StepPacket(id, getDirection()), connection);
         displacement = 0;
+
+        StepPacket packet = new StepPacket(id, getDirection());
+        PlayerList.playerStep(packet);
+        PlayerList.sendToAll(packet);
+        collectApples();
     }
+
+    private void collectApples() {
+        ArrayList<Point> collectedApples = AppleManager.getCollecteds(this);
+
+        if(collectedApples.isEmpty())
+            return;
+
+        AppleManager.removeAll(collectedApples);
+        collectedApples.forEach(apple -> PlayerList.sendToAll(new EatApplePacket(id, apple)));
+        collectedApples.forEach(apple -> PlayerList.sendToAll(new SpawnApplePacket(AppleManager.spawn())));
+        grow(collectedApples.size());
+    }
+
+    public void close() {
+        if(connection == null)
+            return;
+
+        connection.close();
+    }
+
 }
