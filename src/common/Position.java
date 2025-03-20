@@ -6,7 +6,7 @@ public class Position extends Point {
 
     /*
      * This class presents a position as row and column.
-     */
+    */
 
     public Position() {
         super();

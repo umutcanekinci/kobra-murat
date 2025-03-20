@@ -108,6 +108,10 @@ public class PlayerList {
         NetPlayer player = players.get(packet.id);
         if(player == null)
             return;
+        
+        if(player.isCurrentPlayer())
+            Camera.focus(player.getHead().getPosition());
+
         player.setDirection(packet.direction);
         player.stepTo(player.getNextPosition());
     }

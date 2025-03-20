@@ -69,7 +69,7 @@ public class Player implements Serializable {
     public void setPosition(Position position) {
         if(position == null)
             return;
-        
+            
         getHead().setPosition(position);
     }
 
@@ -155,12 +155,13 @@ public class Player implements Serializable {
     }
 
     public void setLength(int amount) {
+        
         if(amount > Tilemap.getRows() * Tilemap.getCols())
             return;
 
         if(amount < 1)
             return;
-
+        
         if(amount == length)
             return;
 

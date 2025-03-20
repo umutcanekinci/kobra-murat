@@ -19,7 +19,7 @@ public class Tilemap {
     private static Tile[][] tiles;
     private static ArrayList<Position> emptyTiles;
     private static int cols, rows;
-    private static final Position spawnPoint = new Position(0, 0);
+    private static Position spawnPoint;
     private static int currentLevel;
 
     public static void loadSheet() {
@@ -30,21 +30,20 @@ public class Tilemap {
         return tiles != null;
     }
 
-
     public static void load(int id) {
         File file = new File("maps/" + id + ".txt");
 
         Path path = Paths.get(file.getAbsolutePath());
         if(!Files.exists(path))
             return;
-
+            
         String str = "";
         try {
             str = Files.readString(path);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         load(Utils.stringToData(str));
     }
 
@@ -60,13 +59,16 @@ public class Tilemap {
         tiles = new Tile[rows][cols];
 
         for(int row = 0; row < rows; row++) {
-            for(int col = 0; col < cols; col++) {
-                Tile tile = new Tile(data[row][col], row, col, TILE_SPRITESHEET.getSprite(data[row][col]));
-                tiles[row][col] = tile;
+            for(int col = 0; col < cols; col++)
+            {
+                tiles[row][col] = new Tile(data[row][col], row, col, TILE_SPRITESHEET.getSprite(data[row][col]));
+
+                if(tiles[row][col].isSpawnPoint)
+                    spawnPoint = tiles[row][col].getPosition();
             }
+                
         }
     }
-
 
     public static int getCols() {
         return cols;
@@ -78,16 +80,6 @@ public class Tilemap {
 
     public static Position getSpawnPoint() {
         return spawnPoint;
-    }
-
-    public static Tile getTile(Position position) {
-        int row = position.y;
-        int col = position.x;
-
-        if(row < 0 || row >= rows || col < 0 || col >= cols)
-            return null;
-
-        return tiles[row][col];
     }
 
     public static boolean doesCollide(Position position) {
@@ -130,8 +122,18 @@ public class Tilemap {
         Position point = new Position();
         do {
             point.setLocation((int) (Math.random() * cols), (int) (Math.random() * rows));
-        } while (Tilemap.getTile(point).isCollidable());
+        } while (Tilemap.getTile(point).isCollidable);
         return point;
+    }
+
+    public static Tile getTile(Position position) {
+        int row = position.y;
+        int col = position.x;
+
+        if(row < 0 || row >= rows || col < 0 || col >= cols)
+            return null;
+
+        return tiles[row][col];
     }
 
     public static ArrayList<Position> getEmptyTiles() {
@@ -139,8 +141,9 @@ public class Tilemap {
     }
 
     public static String getInfo() {
-        return "Level " + currentLevel + " (" + cols + "x" + rows + ")" + "\n" +
-        "Spawn Position: [" + spawnPoint.x + ", " + spawnPoint.y + "]";
+        return "Level " + currentLevel +
+        " (" + cols + "x" + rows + ")" + "\n" +
+        "Spawn Position: " + spawnPoint;
     }
 
 }

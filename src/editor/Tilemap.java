@@ -21,10 +21,6 @@ public class Tilemap {
         TILE_SPRITESHEET = new SpritesheetBuilder().withColumns(1).withRows(1).withSpriteCount(1).withSheet(Utils.loadImage(new File("images/wall.png"))).build();
     }
 
-    public static boolean isReady() {
-        return tiles != null;
-    }
-
     public static void newMap(int rows, int cols) {
         currentLevel = -1;
         int[][] data = new int[rows][cols];
@@ -55,10 +51,8 @@ public class Tilemap {
         tiles = new Tile[rows][cols];
 
         for(int row = 0; row < rows; row++) {
-            for(int col = 0; col < cols; col++) {
-                Tile tile = new Tile(data[row][col], row, col, TILE_SPRITESHEET.getSprite(data[row][col]));
-                tiles[row][col] = tile;
-            }
+            for(int col = 0; col < cols; col++)
+                tiles[row][col] = new Tile(data[row][col], row, col, TILE_SPRITESHEET.getSprite(data[row][col]));
         }
     }
 
@@ -72,34 +66,6 @@ public class Tilemap {
                 data[row][col] = tiles[row][col].getId();
         }
         return data;
-    }
-
-    public static int getCols() {
-        return cols;
-    }
-
-    public static int getRows() {
-        return rows;
-    }
-
-    public static Tile getTile(Position position) {
-        int row = position.y;
-        int col = position.x;
-
-        if(row < 0 || row >= rows || col < 0 || col >= cols)
-            return null;
-
-        return tiles[row][col];
-    }
-
-    public static boolean doesCollide(Position position) {
-        for(Tile[] row : tiles) {
-            for(Tile tile : row) {
-                if(tile.doesCollide(position))
-                    return true;
-            }
-        }
-        return false;
     }
 
     public static void changeTile(Position tile, int tileId) {

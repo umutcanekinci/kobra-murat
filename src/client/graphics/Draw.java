@@ -3,7 +3,6 @@ package client.graphics;
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.image.ImageObserver;
 
 import javax.swing.JPanel;
@@ -19,7 +18,7 @@ public class Draw {
     private static final Color MENU_BACKGROUND_COLOR = Color.BLACK;
     private static final Color BACKGROUND_COLOR = Color.BLACK;
 
-    public static void all(Graphics g, JPanel panel, boolean isGameStarted, boolean debugMode, ImageObserver observer) {
+    public static void all(Graphics2D g, JPanel panel, boolean isGameStarted, boolean debugMode, ImageObserver observer) {
         /*
          when calling g.drawImage() we can use "this" for the ImageObserver
          because Component implements the ImageObserver interface, and JPanel
@@ -27,17 +26,16 @@ public class Draw {
          react to imageUpdate() events triggered by g.drawImage()
         */
 
-        Graphics2D g2d = (Graphics2D) g; // we need to cast the Graphics to Graphics2D to draw nicer text
-        UI.initGraphics(g2d);
+        UI.initGraphics(g);
         background(panel, isGameStarted);
-        map(g2d, isGameStarted, observer);
-        apples(g2d, isGameStarted, observer);
-        players(g2d, isGameStarted, observer);
-        score(g2d, isGameStarted);
-        mainMenu(g2d, isGameStarted);
-        colliders(g2d, isGameStarted, debugMode);
-        playerBoard(g2d, isGameStarted);
-        debug(g2d, debugMode);
+        map(g, isGameStarted, observer);
+        apples(g, isGameStarted, observer);
+        players(g, isGameStarted, observer);
+        score(g, isGameStarted);
+        mainMenu(g, isGameStarted);
+        colliders(g, isGameStarted, debugMode);
+        playerBoard(g, isGameStarted);
+        debug(g, debugMode);
 
         Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems
     }

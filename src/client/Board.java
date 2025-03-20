@@ -24,8 +24,6 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     public static final int PORT = 7777;
     public static final String HOST_IP = "192.168.1.7";
     public static final boolean isHostInLocal = true;
-    public static Tilemap map;
-    
     private static boolean debugMode = false;
     private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
     private static boolean isGameStarted = false;
@@ -198,7 +196,6 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
 
     public static void setMap(int id) {
-
         Tilemap.load(id);
         AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
     }
@@ -286,16 +283,20 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(isGameStarted && !Client.isConnected())
-            OfflinePlayerController.update();
-
+        if(isGameStarted)
+        {    
+            if(!Client.isConnected())
+                OfflinePlayerController.update();
+        }
         repaint(); // Redraw the screen
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g); // Clear the screen
-        Draw.all(g, this, isGameStarted, debugMode, this); // Draw everything
+        Graphics2D g2d = (Graphics2D) g;
+        Camera.draw(g2d, this); // Set the camera
+        Draw.all(g2d, this, isGameStarted, debugMode, this); // Draw everything
     }
 
 }

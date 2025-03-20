@@ -11,12 +11,16 @@ import common.Position;
 public class Tile extends Object{
 
     public final boolean isCollidable;
+    public final boolean isSpawnPoint;
+    private static final int SPAWN_POINT = -2;
+
     private static final ArrayList<Integer> COLLIDABLE_IDS = new ArrayList<>() {{
-        add(1);
+        add(0);
     }};
 
     Tile(int id, int row, int column, BufferedImage image) {
         super(new Position(column, row));
+        isSpawnPoint = id == SPAWN_POINT;
         super.setImage(image);
         isCollidable = COLLIDABLE_IDS.contains(id);
     }
@@ -40,10 +44,6 @@ public class Tile extends Object{
             return;
 
         super.drawCollider(renderer, Color.RED);
-    }
-
-    public boolean isCollidable() {
-        return isCollidable;
     }
 
 }

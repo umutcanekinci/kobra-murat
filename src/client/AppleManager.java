@@ -84,7 +84,7 @@ public class AppleManager {
     }
 
     public static void remove(Position position) {
-        apples.removeIf(apple -> apple.getPosition().equals(position));
+        apples.removeIf(apple -> apple.doesCollide(position));
     }
 
 }
