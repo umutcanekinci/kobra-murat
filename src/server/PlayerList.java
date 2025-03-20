@@ -40,9 +40,7 @@ public class PlayerList {
     }
 
     public static void addPlayer(Connection connection, int id) {
-        NetPlayer player = new NetPlayer(connection, id);
-        player.setMap();
-        player.reset();
+        NetPlayer player = new NetPlayer(connection, id, Tilemap.getSpawnPoint());
         players.put(id, player);
     }
 
@@ -79,7 +77,7 @@ public class PlayerList {
     }
 
     public static void sendAllTo(Connection connection) {
-        players.forEach((key, value) -> connection.sendData(new AddPacket(key)));
+        players.forEach((key, value) -> connection.sendData(new AddPacket(key, value.length, Tilemap.getSpawnPoint())));
         players.forEach((key, value) -> connection.sendData(new UpdateTransformPacket(value)));
     }
 

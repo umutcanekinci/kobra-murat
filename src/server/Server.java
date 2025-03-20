@@ -16,6 +16,7 @@ public class Server {
 
     //region ------------------------------------ Variables ------------------------------------
     
+    private static final int DEFAULT_LENGTH = 3;
     private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
     private static String ip;
     private static int port;
@@ -46,7 +47,7 @@ public class Server {
     public static void init(int port) {
         setIp(Utils.getLocalIp());
         setPort(port);
-        setLevel(common.Level.getRandomLevel());
+        setLevel(0);
         initApples();  
     }
 
@@ -137,7 +138,7 @@ public class Server {
         Connection newConnection = new Connection(socket, true); // Create new connection and add to list
         Tilemap.sendLevel(newConnection); // Send current level to new player // Send current level to new player
         AppleManager.sendAllTo(newConnection);
-        PlayerList.sendToAll(new AddPacket(id)); // Send new player to all clients
+        PlayerList.sendToAll(new AddPacket(id, DEFAULT_LENGTH, Tilemap.getSpawnPoint())); // Send new player to all clients
         PlayerList.addPlayer(newConnection, id); // Add player to list
         PlayerList.sendAllTo(newConnection); // Send all players to new client including itself
         newConnection.sendData(new IdPacket(id)); // Send id to new player so it can get its own player object from list

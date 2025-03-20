@@ -22,8 +22,8 @@ public class NetPlayer extends Player{
         return info;
     }
 
-    public NetPlayer(Connection connection, int id) {
-        super();
+    public NetPlayer(Connection connection, int id, Position spawnPoint) {
+        super(spawnPoint);
         this.connection = connection;
         this.id = id;
     }

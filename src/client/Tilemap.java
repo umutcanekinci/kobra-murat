@@ -22,6 +22,14 @@ public class Tilemap {
     private static Position spawnPoint;
     private static int currentLevel;
 
+    public static int getWidth() {
+        return cols * common.Level.TILE_SIZE;
+    }
+
+    public static int getHeight() {
+        return rows * common.Level.TILE_SIZE;
+    }
+
     public static void loadSheet() {
         TILE_SPRITESHEET = new SpritesheetBuilder().withColumns(1).withRows(1).withSpriteCount(1).withSheet(Utils.loadImage(new File("images/wall.png"))).build();
     }
@@ -57,14 +65,19 @@ public class Tilemap {
         cols = data[0].length;
         rows = data.length;
         tiles = new Tile[rows][cols];
+        emptyTiles = new ArrayList<>();
 
         for(int row = 0; row < rows; row++) {
             for(int col = 0; col < cols; col++)
             {
-                tiles[row][col] = new Tile(data[row][col], row, col, TILE_SPRITESHEET.getSprite(data[row][col]));
+                Tile tile = new Tile(data[row][col], row, col, TILE_SPRITESHEET.getSprite(data[row][col]));
+                tiles[row][col] = tile;
 
-                if(tiles[row][col].isSpawnPoint)
-                    spawnPoint = tiles[row][col].getPosition();
+                if(tile.isSpawnPoint)
+                    spawnPoint = tile.getPosition();
+
+                if(!tile.isCollidable)
+                    emptyTiles.add(tile.getPosition());
             }
                 
         }
@@ -113,7 +126,7 @@ public class Tilemap {
             return;
 
         for (Tile[] row : tiles) {
-            for (Tile tile : row) 
+            for (Tile tile : row)
                 tile.drawCollider(renderer);
         }
     }

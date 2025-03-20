@@ -5,7 +5,6 @@ import java.awt.image.ImageObserver;
 import java.io.File;
 
 import common.Position;
-import common.Level;
 import common.Spritesheet;
 import common.SpritesheetBuilder;
 import common.Utils;
@@ -29,13 +28,6 @@ public class Tilemap {
                 data[row][col] = -1;
             }
         }
-        load(data);
-    }
-
-    public static void load(int level) {
-        currentLevel = level;
-        int[][] data = Level.get(level);
-
         load(data);
     }
 

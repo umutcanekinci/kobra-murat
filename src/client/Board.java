@@ -36,8 +36,9 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     public Board() {
         super(new GridBagLayout());
         Tilemap.loadSheet();
-        setFullscreen();
         Player.loadSpritesheet();
+
+        setFullscreen();
         UI.init();
         initServer();
         initClient();
@@ -198,16 +199,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     public static void setMap(int id) {
         Tilemap.load(id);
         AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
-    }
-
-    public static void onIdSetted() {
-        initPlayer();
-    }
-
-    private static void initPlayer() {
-        NetPlayer player = PlayerList.getCurrentPlayer();            
-        player.setSpawnPoint();
-        OfflinePlayerController.setPlayer(player);
+        Camera.init(SIZE.width, SIZE.height, Tilemap.getWidth(), Tilemap.getHeight());
     }
 
     //endregion

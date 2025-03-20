@@ -29,7 +29,8 @@ public class PlayerList {
 
     public static void setId(int id) {
         PlayerList.id = id;
-        Board.onIdSetted();
+        if(!Client.isConnected())
+            OfflinePlayerController.setPlayer(getCurrentPlayer());
     }
 
     public static void grow(int id, int amount) {
@@ -73,19 +74,13 @@ public class PlayerList {
         return parts;
     }
 
-    public static void addPlayer(AddPacket player) {
-        if (PlayerList.players.containsKey(player.id))
+    public static void addPlayer(AddPacket packet) {
+        if (PlayerList.players.containsKey(packet.id))
             return;
 
-        addPlayer(player.id);
+        players.put(packet.id, new NetPlayer(packet));
     }
 
-    public static void addPlayer(int id) {
-        NetPlayer player = new NetPlayer(id);
-        player.setSpawnPoint();
-        player.reset();
-        players.put(id, player);
-    }
 
     public static void removePlayer(RemovePacket packet) {
         NetPlayer player = players.get(packet.id);
@@ -100,7 +95,7 @@ public class PlayerList {
             return;
         player.setDirection(packet.direction);
         player.setParts(packet.parts);
-        player.tailIndex = packet.tailIndex;
+        player.setTailIndex(packet.tailIndex);
         player.rotateHeadTransform();
     }
 

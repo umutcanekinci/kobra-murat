@@ -20,19 +20,26 @@ public class PacketHandler {
     private static final Logger LOGGER = Logger.getLogger(PacketHandler.class.getName());
 
     public static void handle(Object packet) {
-        //LOGGER.log(Level.INFO, packet + "\n");
+        LOGGER.log(Level.INFO, packet + "\n");
 
         switch (packet) {
             case IdPacket idPacket -> {
                 PlayerList.setId(idPacket.id);
+                //player.setSpawnPoint();
+                
             }
-
+    
             case SetMapPacket setMapPacket ->
                 Board.setMap(setMapPacket.id);
 
             case AddPacket addPacket ->
                 PlayerList.addPlayer(addPacket);
             
+                
+            case UpdateTransformPacket playerTransformPacket ->
+                PlayerList.updatePlayerTransform(playerTransformPacket);
+
+
             case EatApplePacket eatApplePacket -> {
                 AppleManager.remove(eatApplePacket.position);
                 PlayerList.grow(eatApplePacket.id, 1);
@@ -43,9 +50,6 @@ public class PacketHandler {
                 
             case RotatePacket rotatePacket ->
                 PlayerList.rotatePlayer(rotatePacket);
-
-            case UpdateTransformPacket playerTransformPacket ->
-                PlayerList.updatePlayerTransform(playerTransformPacket);
 
             case StepPacket stepPacket ->
                 PlayerList.playerStep(stepPacket);

@@ -1,32 +1,48 @@
 package server;
 
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import common.Position;
+import common.Utils;
 import common.Connection;
-import common.Level;
 import common.packet.SetMapPacket;
 
 public class Tilemap {
 
     static int currentLevel;
-    private static int[][] data;
     private static Tile[][] tiles;
     private static ArrayList<Position> emptyTiles;
     private static int cols, rows;
     private static final Position spawnPoint = new Position(0, 0);
 
-    public static void load(int level) {
-        currentLevel = level;
-        int[][] mapData = getLevel(level);
+    public static void load(int id) {
+        File file = new File("maps/" + id + ".txt");
 
-        if(mapData == null)
+        Path path = Paths.get(file.getAbsolutePath());
+        if(!Files.exists(path))
+            return;
+            
+        String str = "";
+        try {
+            str = Files.readString(path);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        load(Utils.stringToData(str));
+    }
+
+    public static void load(int[][] data) {
+        if(data == null)
             return;
 
-        if(mapData.length == 0 || mapData[0].length == 0)
+        if(data.length == 0 || data[0].length == 0)
             return;
 
-        data = mapData;
         cols = data[0].length;
         rows = data.length;
         tiles = new Tile[rows][cols];
@@ -43,10 +59,6 @@ public class Tilemap {
                     emptyTiles.add(new Position(col, row));
             }
         }
-    }
-
-    private static int[][] getLevel(int level) {
-        return Level.get(level);
     }
 
     public static int getCols() {

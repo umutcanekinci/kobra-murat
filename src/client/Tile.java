@@ -19,7 +19,7 @@ public class Tile extends Object{
     }};
 
     Tile(int id, int row, int column, BufferedImage image) {
-        super(new Position(column, row));
+        super(new Position(row, column));
         isSpawnPoint = id == SPAWN_POINT;
         super.setImage(image);
         isCollidable = COLLIDABLE_IDS.contains(id);

@@ -15,18 +15,33 @@ import common.Spritesheet;
 import common.SpritesheetBuilder;
 
 public class Player implements Serializable {
-
-    public ArrayList<SnakePart> parts = new ArrayList<>();
-    public int tailIndex = 0;
-    public int length;
-
+    
     private static final File SPRITESHEET_FILE = new File("images/snake.png");
-    private static Spritesheet spritesheet;
     private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
-    private AffineTransformOp headTransform;
+    private static Spritesheet spritesheet;
+    
     private Direction direction = DEFAULT_DIRECTION;
-    private static final int DEFAULT_LENGTH = 6;
-    private final Position spawnPoint = new Position();
+    private ArrayList<SnakePart> parts = new ArrayList<>();
+    private int tailIndex = 0;
+
+    private int length;
+    private AffineTransformOp headTransform;
+    private final int defaultLength;
+    private final Position spawnPoint;
+
+    Player(int defaultLength, Position spawnPoint) {
+        this.defaultLength = defaultLength;
+        this.spawnPoint = spawnPoint;
+        reset();
+    }
+
+    public int getTailIndex() {
+        return tailIndex;
+    }
+
+    public void setTailIndex(int tailIndex) {
+        this.tailIndex = tailIndex;
+    }
 
     public String toString() {
         String info =   "Length: " + length + "\n" +
@@ -43,19 +58,15 @@ public class Player implements Serializable {
     }
 
     public int getScore() {
-        return Utils.getScore(length, DEFAULT_LENGTH);
-    }
-
-    public void setSpawnPoint() {
-        spawnPoint.setLocation(Tilemap.getSpawnPoint());
+        return Utils.getScore(length, defaultLength);
     }
 
     public void reset() {
-        setLength(DEFAULT_LENGTH);
+        setLength(defaultLength);
         resetParts();
-        setPosition(spawnPoint);
+        setPosition(new Position(spawnPoint));
         resetDirection();
-        OfflinePlayerController.enableRotation();
+        //OfflinePlayerController.enableRotation();
         updateHead();
         rotateHeadTransform();
     }

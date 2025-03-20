@@ -11,7 +11,11 @@ public class Camera {
     private static int width, height;
     private static int mapWidth, mapHeight;
 
-    public Camera(int width, int height, int mapWidth, int mapHeight) {
+    public static String getInfo() {
+        return "Camera: " + x + ", " + y + " - " + width + ", " + height + " - " + mapWidth + ", " + mapHeight;
+    }
+
+    public static void init(int width, int height, int mapWidth, int mapHeight) {
         Camera.width = width;
         Camera.height = height;
         Camera.mapWidth = mapWidth;
@@ -19,6 +23,7 @@ public class Camera {
     }
 
     public static void focus(Position position) {
+        position = position.getScreenPosition();
         x = position.x - width / 2;
         y = position.y - height / 2;
 
@@ -37,8 +42,6 @@ public class Camera {
             return renderer;
 
         renderer.translate(-x, -y);
-        Tilemap.draw(renderer, observer);
-        renderer.translate(x, y);
 
         return renderer;
     }

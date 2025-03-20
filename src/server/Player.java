@@ -14,10 +14,11 @@ public class Player implements Serializable {
     private Direction direction = DEFAULT_DIRECTION;
     public int tailIndex = 0;
     public int length;
-    public final Position spawnPoint = new Position();
+    public final Position spawnPoint;
     public static final int DEFAULT_LENGTH = 12;
 
-    public Player() {    
+    public Player(Position spawnPoint) {
+        this.spawnPoint = spawnPoint;
         reset();
     }
 
