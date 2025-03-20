@@ -1,7 +1,5 @@
 package common;
 
-import java.awt.Dimension;
-
 public class Level {
 
     /* 0 = empty
@@ -10,9 +8,6 @@ public class Level {
     */
 
     public static final int TILE_SIZE = 64;
-    public static final int ROWS = 14;
-    public static final int COLUMNS = 24;
-    public static final Dimension SIZE = new Dimension(TILE_SIZE * COLUMNS, TILE_SIZE * ROWS);
 
     public static final int[][][] levels = {
         {

@@ -17,6 +17,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
 
     //region ---------------------------------------- Variables ------------------------------------------
 
+    public static Dimension SIZE;
     public static final int FPS = 60;
     public static final double DELTATIME = 1.0 / FPS;
     public static final int DELTATIME_MS = (int) (DELTATIME * 1000);
@@ -36,7 +37,8 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
 
     public Board() {
         super(new GridBagLayout());
-        setPreferredSize(common.Level.SIZE);
+        Tilemap.loadSheet();
+        setFullscreen();
         Player.loadSpritesheet();
         UI.init();
         initServer();
@@ -44,6 +46,11 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
         initLayout();
         initWidgets();
         initTimer();
+    }
+
+    private void setFullscreen() {
+        SIZE = Toolkit.getDefaultToolkit().getScreenSize();
+        setPreferredSize(SIZE);
     }
 
     private void initServer() {
@@ -191,6 +198,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
 
     public static void setMap(int id) {
+
         Tilemap.load(id);
         AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
     }

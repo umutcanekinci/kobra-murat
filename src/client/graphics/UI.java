@@ -8,7 +8,6 @@ import javax.swing.JButton;
 import client.NetPlayer;
 import client.PlayerList;
 import common.Utils;
-import common.Level;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
@@ -20,7 +19,7 @@ public class UI {
     private static final Color BUTTON_BORDER_COLOR = Color.BLACK;
 
     // Fonts
-    private static Rectangle SCORE_RECT;
+    //private static Rectangle SCORE_RECT;
     private static final Font DEFAULT_FONT = new Font("Lato", Font.BOLD, 25);
     
     // Title image file and buffered image
@@ -28,7 +27,7 @@ public class UI {
     private static BufferedImage titleImage;
     
     public static void init() {
-        SCORE_RECT = new Rectangle(0, Level.TILE_SIZE * (Level.ROWS - 1), Level.TILE_SIZE * Level.COLUMNS, Level.TILE_SIZE);
+        //SCORE_RECT = new Rectangle(0, Level.TILE_SIZE * (Level.ROWS - 1), Level.TILE_SIZE * Level.COLUMNS, Level.TILE_SIZE);
         titleImage = Utils.loadImage(TITLE_IMAGE);
     }
 
@@ -72,8 +71,8 @@ public class UI {
         }
         
         g.setFont(DEFAULT_FONT);
-        String text = "Score: " + score;
-        Utils.drawText(g, text, Color.GREEN, SCORE_RECT, true);
+        //String text = "Score: " + score;
+        //Utils.drawText(g, text, Color.GREEN, SCORE_RECT, true);
     }
 
     public static void drawPlayerBoard(Graphics2D g, int x, int y, int width) {

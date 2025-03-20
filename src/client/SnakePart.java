@@ -1,26 +1,20 @@
 package client;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-
+import common.Position;
 import common.Direction;
+import common.Object;
 
 public class SnakePart extends Object {
 
-    public static final Point HIDDEN_POSITION = new Point(-1, -1);
+    public static final Position HIDDEN_POSITION = new Position(-1, -1);
     Direction direction;
 
     public SnakePart() {
         super(HIDDEN_POSITION);
     }
 
-    public SnakePart(Point point) {
+    public SnakePart(Position point) {
         super(point);
-    }
-
-    public SnakePart(Point point, BufferedImage image) {
-        this(point);
-        setImage(image);
     }
 
     public void reset() {
@@ -37,7 +31,7 @@ public class SnakePart extends Object {
         return direction;
     }
 
-    public boolean isHidden(Point point) {
+    public boolean isHidden(Position point) {
         return point.equals(HIDDEN_POSITION);
     }
 

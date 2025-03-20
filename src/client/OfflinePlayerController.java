@@ -1,9 +1,9 @@
 package client;
 
-import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
+import common.Position;
 import common.Direction;
 import common.Utils;
 import common.packet.SetMapPacket;
@@ -56,7 +56,7 @@ public class OfflinePlayerController {
         displacement = 0;
         enableRotation();
         
-        Point position = player.getNextPosition();
+        Position position = player.getNextPosition();
         if(doesCollide(position)) {
             player.reset();
             return;
@@ -65,15 +65,15 @@ public class OfflinePlayerController {
         PacketHandler.handle(new StepPacket(player.getId(), player.getDirection()));
     }
 
-    private static boolean doesCollide(Point position) {
+    private static boolean doesCollide(Position position) {
         Boolean doesHitSelf = player.doesCollide(position) && !player.isPointOnTail(position);
         if(doesHitSelf || Tilemap.doesCollide(position))
             return true;
         return false;
     }
 
-    private static void collectApples(Point position) {
-        ArrayList<Point> collectedApples = AppleManager.getCollecteds(position);
+    private static void collectApples(Position position) {
+        ArrayList<Position> collectedApples = AppleManager.getCollecteds(position);
 
         if(collectedApples.isEmpty())
             return;

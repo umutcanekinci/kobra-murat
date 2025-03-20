@@ -1,12 +1,12 @@
 package common.packet.apple;
 
-import java.awt.Point;
+import common.Position;
 import common.packet.Packet;
 
 public class EatApplePacket extends Packet{
-    public Point position;
+    public Position position;
 
-    public EatApplePacket(int id, Point apple) {
+    public EatApplePacket(int id, Position apple) {
         super(id);
         position = apple;
     }

@@ -1,25 +1,20 @@
-package client;
+package editor;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 
+import common.Position;
+import common.Level;
 import common.Spritesheet;
 import common.SpritesheetBuilder;
 import common.Utils;
-import common.Position;
 
 public class Tilemap {
-    
+
     private static Spritesheet TILE_SPRITESHEET;
     private static Tile[][] tiles;
-    private static ArrayList<Position> emptyTiles;
     private static int cols, rows;
-    private static final Position spawnPoint = new Position(0, 0);
     private static int currentLevel;
 
     public static void loadSheet() {
@@ -30,22 +25,22 @@ public class Tilemap {
         return tiles != null;
     }
 
-
-    public static void load(int id) {
-        File file = new File("maps/" + id + ".txt");
-
-        Path path = Paths.get(file.getAbsolutePath());
-        if(!Files.exists(path))
-            return;
-
-        String str = "";
-        try {
-            str = Files.readString(path);
-        } catch (Exception e) {
-            e.printStackTrace();
+    public static void newMap(int rows, int cols) {
+        currentLevel = -1;
+        int[][] data = new int[rows][cols];
+        for(int row = 0; row < rows; row++) {
+            for(int col = 0; col < cols; col++) {
+                data[row][col] = -1;
+            }
         }
-        
-        load(Utils.stringToData(str));
+        load(data);
+    }
+
+    public static void load(int level) {
+        currentLevel = level;
+        int[][] data = Level.get(level);
+
+        load(data);
     }
 
     public static void load(int[][] data) {
@@ -67,6 +62,17 @@ public class Tilemap {
         }
     }
 
+    public static int[][] getData() {
+        if(tiles == null)
+            return null;
+
+        int[][] data = new int[rows][cols];
+        for(int row = 0; row < rows; row++) {
+            for(int col = 0; col < cols; col++)
+                data[row][col] = tiles[row][col].getId();
+        }
+        return data;
+    }
 
     public static int getCols() {
         return cols;
@@ -74,10 +80,6 @@ public class Tilemap {
 
     public static int getRows() {
         return rows;
-    }
-
-    public static Position getSpawnPoint() {
-        return spawnPoint;
     }
 
     public static Tile getTile(Position position) {
@@ -100,6 +102,24 @@ public class Tilemap {
         return false;
     }
 
+    public static void changeTile(Position tile, int tileId) {
+        if(tile == null)
+            return;
+
+        int row = tile.y;
+        int col = tile.x;
+
+        if(row < 0 || row >= rows || col < 0 || col >= cols)
+            return;
+
+        if(tiles[row][col] == null) {
+            tiles[row][col] = new Tile(tileId, row, col, TILE_SPRITESHEET.getSprite(tileId));
+            return;
+        }
+
+        tiles[row][col].setId(tileId, TILE_SPRITESHEET.getSprite(tileId));
+    }
+
     public static void draw(Graphics2D renderer, ImageObserver observer) {
         if(tiles == null)
             return;
@@ -108,8 +128,12 @@ public class Tilemap {
             return;
         
         for (Tile[] row : tiles) {
-            for (Tile tile : row)
+            for (Tile tile : row) {
+                if(tile == null)
+                    continue;
+
                 tile.draw(renderer, observer);
+            }
         }
     }
 
@@ -121,26 +145,17 @@ public class Tilemap {
             return;
 
         for (Tile[] row : tiles) {
-            for (Tile tile : row) 
+            for (Tile tile : row) {
+                if(tile == null)
+                    continue;
+
                 tile.drawCollider(renderer);
+            }
         }
     }
 
-    public static Position getRandomEmptyPoint() {
-        Position point = new Position();
-        do {
-            point.setLocation((int) (Math.random() * cols), (int) (Math.random() * rows));
-        } while (Tilemap.getTile(point).isCollidable());
-        return point;
-    }
-
-    public static ArrayList<Position> getEmptyTiles() {
-        return emptyTiles;
-    }
-
     public static String getInfo() {
-        return "Level " + currentLevel + " (" + cols + "x" + rows + ")" + "\n" +
-        "Spawn Position: [" + spawnPoint.x + ", " + spawnPoint.y + "]";
+        return "Level " + currentLevel + " (" + cols + "x" + rows + ")" + "\n";
     }
 
 }

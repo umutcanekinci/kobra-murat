@@ -8,9 +8,11 @@ import java.awt.image.ImageObserver;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
+import common.Position;
 import common.Utils;
 import common.Direction;
-import common.Level;
+import common.Spritesheet;
+import common.SpritesheetBuilder;
 
 public class Player implements Serializable {
 
@@ -24,7 +26,7 @@ public class Player implements Serializable {
     private AffineTransformOp headTransform;
     private Direction direction = DEFAULT_DIRECTION;
     private static final int DEFAULT_LENGTH = 6;
-    private final Point spawnPoint = new Point();
+    private final Position spawnPoint = new Position();
 
     public String toString() {
         String info =   "Length: " + length + "\n" +
@@ -58,13 +60,13 @@ public class Player implements Serializable {
         rotateHeadTransform();
     }
     
-    public ArrayList<Point> getParts() {
-        ArrayList<Point> points = new ArrayList<>();
+    public ArrayList<Position> getParts() {
+        ArrayList<Position> points = new ArrayList<>();
         parts.forEach(part -> points.add(part.getPosition()));
         return points;
     }
 
-    public void setPosition(Point position) {
+    public void setPosition(Position position) {
         if(position == null)
             return;
         
@@ -93,11 +95,11 @@ public class Player implements Serializable {
         this.direction = direction;
     }
 
-    public Point getNextPosition() {
+    public Position getNextPosition() {
         return Utils.clampPosition(Utils.moveTowards(getHead().getPosition(), direction));
     }
 
-    public void stepTo(Point position) {
+    public void stepTo(Position position) {
         SnakePart head = getHead();
         
         tailIndex = (tailIndex + 1) % length;
@@ -136,7 +138,7 @@ public class Player implements Serializable {
         getHead().setImage(spritesheet.getSprite(4));
     }
 
-    public boolean doesCollide(Point point) {
+    public boolean doesCollide(Position point) {
         for(SnakePart part : parts) {
             if(part.doesCollide(point))
                 return true;
@@ -144,7 +146,7 @@ public class Player implements Serializable {
         return false;
     }
 
-    public boolean isPointOnTail(Point point) {
+    public boolean isPointOnTail(Position point) {
         return getTail().doesCollide(point);
     }
 
@@ -153,7 +155,7 @@ public class Player implements Serializable {
     }
 
     public void setLength(int amount) {
-        if(amount > Level.COLUMNS * Level.ROWS)
+        if(amount > Tilemap.getRows() * Tilemap.getCols())
             return;
 
         if(amount < 1)
@@ -193,11 +195,11 @@ public class Player implements Serializable {
         direction = DEFAULT_DIRECTION;
     }
 
-    public Point getPosition() {
+    public Position getPosition() {
         return getHead().getPosition();
     }
 
-    public void setParts(ArrayList<Point> parts) {
+    public void setParts(ArrayList<Position> parts) {
         this.parts.clear();
         parts.forEach(part -> this.parts.add(new SnakePart(part)));
         length = parts.size();

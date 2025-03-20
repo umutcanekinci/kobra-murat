@@ -1,18 +1,18 @@
 package common.packet.apple;
 
-import java.awt.Point;
+import common.Position;
 import java.io.Serializable;
 
 import client.Apple;
 
 public class SpawnApplePacket implements Serializable {
-    public Point position;
+    public Position position;
 
     public SpawnApplePacket(Apple apple) {
         this(apple.getPosition());
     }
 
-    public SpawnApplePacket(Point position) {
+    public SpawnApplePacket(Position position) {
         this.position = position;
     }
 

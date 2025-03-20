@@ -1,8 +1,8 @@
 package server;
 
-import java.awt.*;
 import java.util.ArrayList;
 
+import common.Position;
 import common.Connection;
 import common.Level;
 import common.packet.SetMapPacket;
@@ -12,9 +12,9 @@ public class Tilemap {
     static int currentLevel;
     private static int[][] data;
     private static Tile[][] tiles;
-    private static ArrayList<Point> emptyTiles;
+    private static ArrayList<Position> emptyTiles;
     private static int cols, rows;
-    private static final Point spawnPoint = new Point(0, 0);
+    private static final Position spawnPoint = new Position(0, 0);
 
     public static void load(int level) {
         currentLevel = level;
@@ -40,7 +40,7 @@ public class Tilemap {
                     spawnPoint.setLocation(col, row);
 
                 if(data[row][col] == 0)
-                    emptyTiles.add(new Point(col, row));
+                    emptyTiles.add(new Position(col, row));
             }
         }
     }
@@ -57,11 +57,11 @@ public class Tilemap {
         return rows;
     }
 
-    public static Point getSpawnPoint() {
+    public static Position getSpawnPoint() {
         return spawnPoint;
     }
 
-    public static boolean doesCollide(Point position) {
+    public static boolean doesCollide(Position position) {
         for(Tile[] row : tiles) {
             for(Tile tile : row) {
                 if(tile.doesCollide(position))
@@ -71,7 +71,7 @@ public class Tilemap {
         return false;
     }
 
-    public static Tile getTile(Point position) {
+    public static Tile getTile(Position position) {
         int row = position.y;
         int col = position.x;
         if(row < 0 || row >= rows || col < 0 || col >= cols)
@@ -82,14 +82,14 @@ public class Tilemap {
 
     public static String getInfo() {
         return "Level " + currentLevel + " (" + cols + "x" + rows + ")" + "\n" +
-        "Spawn Point: [" + spawnPoint.x + ", " + spawnPoint.y + "]";
+        "Spawn Position: [" + spawnPoint.x + ", " + spawnPoint.y + "]";
     }
 
     public static void sendLevel(Connection connection) {
         connection.sendData(new SetMapPacket(Tilemap.currentLevel));
     }
 
-    public static ArrayList<Point> getEmptyTiles() {
+    public static ArrayList<Position> getEmptyTiles() {
         return emptyTiles;
     }    
 

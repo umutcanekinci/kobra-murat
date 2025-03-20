@@ -1,19 +1,18 @@
 package server;
 
-import java.awt.*;
-
 import common.Direction;
+import common.Position;
 
-public class SnakePart extends Point {
+public class SnakePart extends Position {
 
-    public static final Point HIDDEN_POSITION = new Point(-1, -1);
+    public static final Position HIDDEN_POSITION = new Position(-1, -1);
     Direction direction;
 
     public SnakePart() {
         super(HIDDEN_POSITION);
     }
 
-    public SnakePart(Point point) {
+    public SnakePart(Position point) {
         super(point);
     }
 
@@ -30,12 +29,7 @@ public class SnakePart extends Point {
         return direction;
     }
 
-    public boolean isHidden(Point point) {
+    public boolean isHidden(Position point) {
         return point.equals(HIDDEN_POSITION);
     }
-
-    public String toString() {
-        return "[" + x + ", " + y + "]";
-    }
-
 }

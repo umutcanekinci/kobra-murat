@@ -1,14 +1,14 @@
 package common.packet.player;
-import java.awt.Point;
 import java.util.ArrayList;
 
 import common.Direction;
 import common.packet.Packet;
+import common.Position;
 
 public class UpdateTransformPacket extends Packet {
 
     public final int tailIndex;
-    public final ArrayList<Point> parts = new ArrayList<>();
+    public final ArrayList<Position> parts = new ArrayList<>();
     public final Direction direction;
  
     @Override
@@ -20,7 +20,7 @@ public class UpdateTransformPacket extends Packet {
     }
 
 
-    public UpdateTransformPacket(int id, ArrayList<Point> parts, Direction direction, int tailIndex) {
+    public UpdateTransformPacket(int id, ArrayList<Position> parts, Direction direction, int tailIndex) {
         super(id);
         this.tailIndex = tailIndex;
         this.parts.addAll(parts);

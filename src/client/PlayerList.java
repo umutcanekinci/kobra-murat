@@ -1,10 +1,10 @@
 package client;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import common.Position;
 import common.packet.player.AddPacket;
 import common.packet.player.RemovePacket;
 import common.packet.player.RotatePacket;
@@ -65,8 +65,8 @@ public class PlayerList {
         return players.size();
     }
 
-    public static ArrayList<Point> getSnakeParts() {
-        ArrayList<Point> parts = new ArrayList<>();
+    public static ArrayList<Position> getSnakeParts() {
+        ArrayList<Position> parts = new ArrayList<>();
         for (NetPlayer player : players.values()) {
             parts.addAll(player.getParts());
         }
@@ -123,7 +123,7 @@ public class PlayerList {
         player.setDirection(packet.direction);
     }
 
-    public static boolean doesCollide(Point position) {
+    public static boolean doesCollide(Position position) {
         for (NetPlayer player : players.values()) {
             if (player.doesCollide(position)) {
                 return true;
@@ -132,7 +132,7 @@ public class PlayerList {
         return false;
     }
 
-    public static boolean growIfCollide(Point position) {
+    public static boolean growIfCollide(Position position) {
         for (NetPlayer player : players.values()) {
             if (player.doesCollide(position)) {
                 player.grow(1);

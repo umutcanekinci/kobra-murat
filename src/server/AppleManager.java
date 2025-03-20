@@ -1,11 +1,11 @@
 package server;
 
-import java.awt.Point;
 import java.util.ArrayList;
 
 import common.Connection;
 import common.Utils;
 import common.packet.apple.SpawnApplePacket;
+import common.Position;
 
 class AppleManager {
     /*
@@ -15,8 +15,8 @@ class AppleManager {
      */
 
     private static final int APPLE_COUNT = 5;
-    private static ArrayList<Point> apples = new ArrayList<>();
-    private static ArrayList<Point> emptyTiles;
+    private static ArrayList<Position> apples = new ArrayList<>();
+    private static ArrayList<Position> emptyTiles;
 
     public static String getInfo() {
         String str = "APPLES (" + apples.size() + ")\n";
@@ -25,18 +25,18 @@ class AppleManager {
             return str + "No apples.\n";
         }
 
-        for (Point apple : apples) {
-            str += "[" + apple.x + ", " + apple.y + "]\n";
+        for (Position apple : apples) {
+            str += apple;
         }
 
         return str;
     }
 
-    public static void setEmptyTiles(ArrayList<Point> emptyTiles) {
+    public static void setEmptyTiles(ArrayList<Position> emptyTiles) {
         AppleManager.emptyTiles = emptyTiles;
     }
 
-    public static void addApple(Point position) {
+    public static void addApple(Position position) {
         apples.add(position);
     }
 
@@ -47,7 +47,7 @@ class AppleManager {
         }
     }
 
-    public static Point spawn() {
+    public static Position spawn() {
         /*
          * Instead of getting a random point and checking if it collides with the snake or an apple,
          * we can get the arraylist of empty points and get a random point from there.
@@ -58,21 +58,21 @@ class AppleManager {
         if(emptyTiles == null)
             return null;
         
-        ArrayList<Point> spawnableTiles = new ArrayList<>(emptyTiles);
+        ArrayList<Position> spawnableTiles = new ArrayList<>(emptyTiles);
         spawnableTiles.removeAll(PlayerList.getSnakeParts()); 
 
         if(spawnableTiles.isEmpty())
             return null;
         
-        Point position = Utils.getRandomPointFrom(spawnableTiles);
+        Position position = Utils.getRandomPointFrom(spawnableTiles);
         addApple(position);
         emptyTiles.remove(position);
         return position;
     }
 
-    public static ArrayList<Point> getCollecteds(NetPlayer player) {
-        ArrayList<Point> collectedApples = new ArrayList<>();
-        for (Point apple : apples) {
+    public static ArrayList<Position> getCollecteds(NetPlayer player) {
+        ArrayList<Position> collectedApples = new ArrayList<>();
+        for (Position apple : apples) {
             //if(PlayerList.growIfCollide(apple.getPosition()))
             if(player.doesCollide(apple))
                 collectedApples.add(apple);
@@ -80,7 +80,7 @@ class AppleManager {
         return collectedApples;
     }
 
-    public static void removeAll(ArrayList<Point> applesToRemove) {
+    public static void removeAll(ArrayList<Position> applesToRemove) {
         apples.removeAll(applesToRemove);
     }
 

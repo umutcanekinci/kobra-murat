@@ -1,49 +1,39 @@
-package client;
+package editor;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.util.ArrayList;
 
-import common.Object;
 import common.Position;
+import common.Object;
 
 public class Tile extends Object{
 
-    public final boolean isCollidable;
-    private static final ArrayList<Integer> COLLIDABLE_IDS = new ArrayList<>() {{
-        add(1);
-    }};
+    private int id;
 
     Tile(int id, int row, int column, BufferedImage image) {
         super(new Position(column, row));
         super.setImage(image);
-        isCollidable = COLLIDABLE_IDS.contains(id);
+        this.id = id;
     }
 
-    @Override
-    public boolean doesCollide(Position point) {
-        return isCollidable && super.doesCollide(point);
+    public void setId(int id, BufferedImage image) {
+        this.id = id;
+        super.setImage(image);
+    }
+
+    public int getId() {
+        return id;
     }
 
     @Override
     public void draw(Graphics2D renderer, ImageObserver observer) {
-        if(!isCollidable)
-            return;
-
         super.draw(renderer, observer);
     }   
 
     @Override
     public void drawCollider(Graphics2D renderer) {
-        if(!isCollidable)
-            return;
-
         super.drawCollider(renderer, Color.RED);
-    }
-
-    public boolean isCollidable() {
-        return isCollidable;
     }
 
 }

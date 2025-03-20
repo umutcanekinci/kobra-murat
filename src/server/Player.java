@@ -1,12 +1,11 @@
 package server;
 
-import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 
 import common.Utils;
 import common.Direction;
-import common.Level;
+import common.Position;
 
 public class Player implements Serializable {
 
@@ -15,7 +14,7 @@ public class Player implements Serializable {
     private Direction direction = DEFAULT_DIRECTION;
     public int tailIndex = 0;
     public int length;
-    public final Point spawnPoint = new Point();
+    public final Position spawnPoint = new Position();
     public static final int DEFAULT_LENGTH = 12;
 
     public Player() {    
@@ -39,14 +38,14 @@ public class Player implements Serializable {
         setPosition(spawnPoint);
     }
 
-    private void setPosition(Point position) {
+    private void setPosition(Position position) {
         tailIndex = 0;
         resetParts();
         getHead().setLocation(position);
     }
 
-    public ArrayList<Point> getParts() {
-        ArrayList<Point> points = new ArrayList<>();
+    public ArrayList<Position> getParts() {
+        ArrayList<Position> points = new ArrayList<>();
         parts.forEach(part -> points.add(part));
         return points;
     }
@@ -73,7 +72,7 @@ public class Player implements Serializable {
     public void step() {
         SnakePart head = getHead();
         
-        Point position = Utils.clampPosition(Utils.moveTowards(head, direction));
+        Position position = Utils.clampPosition(Utils.moveTowards(head, direction));
 
         //if((doesCollide(position) && !isPointOnTail(position)) || Tilemap.doesCollide(position))
         //    return;
@@ -84,7 +83,7 @@ public class Player implements Serializable {
         newHead.setLocation(position);
     }
 
-    public boolean doesCollide(Point point) {
+    public boolean doesCollide(Position point) {
         for(SnakePart part : parts) {
             if(part.equals(point))
                 return true;
@@ -92,7 +91,7 @@ public class Player implements Serializable {
         return false;
     }
 
-    public boolean isPointOnTail(Point point) {
+    public boolean isPointOnTail(Position point) {
         return getTail().equals(point);
     }
 
@@ -101,7 +100,7 @@ public class Player implements Serializable {
     }
 
     public void setLength(int amount) {
-        if(amount > Level.COLUMNS * Level.ROWS)
+        if(amount > Tilemap.getRows() * Tilemap.getCols())
             return;
 
         if(amount < 1)
@@ -140,11 +139,11 @@ public class Player implements Serializable {
         direction = DEFAULT_DIRECTION;
     }
 
-    public Point getPosition() {
+    public Position getPosition() {
         return getHead();
     }
 
-    public void setParts(ArrayList<Point> parts) {
+    public void setParts(ArrayList<Position> parts) {
         this.parts.clear();
         parts.forEach(part -> this.parts.add(new SnakePart(part)));
     }

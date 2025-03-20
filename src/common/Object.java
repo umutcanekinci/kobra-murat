@@ -1,31 +1,30 @@
-package client;
+package common;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
 
 public class Object extends Image {
 
-    private Point position;
+    private Position position;
 
-    public Object(Point position) {
+    public Object(Position position) {
         super();
         this.position = position;
     }
 
-    public Object(Point position, File imageFile) {
+    public Object(Position position, File imageFile) {
         super(imageFile);
         this.position = position;
     }
 
-    public Point getPosition() {
+    public Position getPosition() {
         return position;
     }
 
-    public void setPosition(Point position) {
+    public void setPosition(Position position) {
         this.position = position;
     }
 
@@ -37,7 +36,7 @@ public class Object extends Image {
         super.set(image);
     }
 
-    public boolean doesCollide(Point position) {
+    public boolean doesCollide(Position position) {
         if(this.position == null)
             return false;
 
@@ -58,7 +57,7 @@ public class Object extends Image {
 
     @Override
     public String toString() {
-        return "[" + position.x + ", " + position.y + "]";
+        return position.toString();
     }
 
 }

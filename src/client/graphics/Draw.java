@@ -9,10 +9,10 @@ import java.awt.image.ImageObserver;
 import javax.swing.JPanel;
 
 import client.AppleManager;
+import client.Board;
 import client.DebugLog;
 import client.Tilemap;
 import client.PlayerList;
-import common.Level;
 
 public class Draw {
 
@@ -78,7 +78,7 @@ public class Draw {
         if(isGameStarted)
             return;
 
-        UI.drawTitle(g, Level.SIZE.width, 100, null);
+        UI.drawTitle(g, Board.SIZE.width, 100, null);
     }
 
     private static  void colliders(Graphics2D g, boolean isGameStarted, boolean debugMode) {
@@ -94,7 +94,7 @@ public class Draw {
         if(!isGameStarted)
             return;
 
-        UI.drawPlayerBoard(g, Level.SIZE.width - 200, 0, 200);
+        UI.drawPlayerBoard(g, Board.SIZE.width - 200, 0, 200);
     }
 
     private static  void debug(Graphics2D g, boolean debugMode) {

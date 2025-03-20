@@ -1,8 +1,8 @@
 package server;
 
-import java.awt.Point;
 import java.util.ArrayList;
 
+import common.Position;
 import common.Connection;
 import common.packet.apple.EatApplePacket;
 import common.packet.apple.SpawnApplePacket;
@@ -51,7 +51,7 @@ public class NetPlayer extends Player{
     }
 
     private void collectApples() {
-        ArrayList<Point> collectedApples = AppleManager.getCollecteds(this);
+        ArrayList<Position> collectedApples = AppleManager.getCollecteds(this);
 
         if(collectedApples.isEmpty())
             return;

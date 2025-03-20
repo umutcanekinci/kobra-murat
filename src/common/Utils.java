@@ -2,7 +2,9 @@ package common;
 
 import javax.imageio.ImageIO;
 
+import client.Board;
 import client.MoveKey;
+import client.Tilemap;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -65,7 +67,7 @@ public final class Utils {
         for (String line : text.split("\n")) {
             g.drawString(line, pos[0], pos[1] += g.getFontMetrics().getHeight());
 
-            if(pos[1] > common.Level.SIZE.height - 20) {
+            if(pos[1] > Board.SIZE.height - 20) {
                 pos[0] += bounds.width;
                 pos[1] = bounds.y + g.getFontMetrics().getHeight();
             }
@@ -88,37 +90,38 @@ public final class Utils {
         }
     }
 
-
     
-    public static Point moveTowards(Point position, Direction direction) {
-        return new Point(position.x + direction.getX(), position.y + direction.getY());
+    public static Position moveTowards(Position position, Direction direction) {
+        return new Position(position.x + direction.getX(), position.y + direction.getY());
     }
 
-    public static Point clampPosition(Point position) {
-        int x = (position.x + common.Level.COLUMNS) % common.Level.COLUMNS;
-        int y = (position.y + common.Level.ROWS) % common.Level.ROWS;
-        return new Point(x, y);
+    public static Position clampPosition(Position position) {
+        int cols = Tilemap.getCols();
+        int rows = Tilemap.getRows();
+
+        int x = (position.x + cols) % cols;
+        int y = (position.y + rows) % rows;
+        return new Position(x, y);
     }
 
-    
 
     public static int[] calculateTextSize(Graphics2D g, String text) {
         int width = calculateTextWidth(g, text) + 20;
         int height = calculateTextHeight(g, text) + 20;
         
-        if(height >= common.Level.SIZE.height)
-            width = width * (height / common.Level.SIZE.height + 1) + 20;
+        if(height >= Board.SIZE.height)
+            width = width * (height / Board.SIZE.height + 1) + 20;
 
-        return new int[]{Math.clamp(width + 20, 0, common.Level.SIZE.width), Math.clamp(height + 20, 0, common.Level.SIZE.height)};
+        return new int[]{Math.clamp(width + 20, 0, Board.SIZE.width), Math.clamp(height + 20, 0, Board.SIZE.height)};
     }
 
     public static int calculateTextWidth(Graphics2D g, String text) {
         int width = 0;
         for (String line : text.split("\n")) {
             int lineWidth = g.getFontMetrics().stringWidth(line);
-            if (lineWidth > width) {
+            if (lineWidth > width)
                 width = lineWidth;
-            }
+
         }
         return width;
     }
@@ -131,19 +134,52 @@ public final class Utils {
         return (int) (Math.random() * (max - min + 1) + min);
     }
 
-    public static Point getRandomPoint(int maxX, int maxY) {
-        return new Point(getRandomInt(0, maxX - 1), getRandomInt(0, maxY - 1));
+    public static Position getRandomPoint(int maxX, int maxY) {
+        return new Position(getRandomInt(0, maxX - 1), getRandomInt(0, maxY - 1));
     }
 
-    public static Point getRandomMapPoint(int rows, int cols) {
+    public static Position getRandomMapPoint(int rows, int cols) {
         return getRandomPoint(cols, rows);
     }
 
-    public static Point getRandomPointFrom(ArrayList<Point> points) {
+    public static Position getRandomPointFrom(ArrayList<Position> points) {
         return points.get(getRandomInt(0, points.size() - 1));
     }
+    
+    public static String dataToString(int[][] data) {
+        if(data == null)
+            return "";
 
-    public static int calculateFps(long lastTime, long currentTime) {
-        return (int) (1000 / (currentTime - lastTime));
+        StringBuilder str = new StringBuilder();
+        for (int i = 0; i < data.length; i++) {
+            int[] row = data[i];
+            for (int j = 0; j < row.length; j++) {
+                str.append(row[j]);
+
+                if(j != row.length - 1)
+                    str.append(" ");
+            }
+            if(i != data.length - 1)
+                str.append("\n");
+        }
+        return str.toString();
+    }
+
+    public static int[][] stringToData(String str) {
+        String[] lines = str.split("\n");
+        int[][] data = new int[lines.length][lines[0].length()];
+
+        for(int i=0; i<lines.length; i++) {
+            String[] tiles = lines[i].split(" ");
+
+            for(int j=0; j<tiles.length; j++) {
+                try {
+                    data[i][j] = Integer.parseInt(tiles[j]);
+                } catch (NumberFormatException ex) {
+                    data[i][j] = -1; // or any default value you prefer
+                }
+            }
+        }
+        return data;
     }
 }

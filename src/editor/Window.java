@@ -1,19 +1,21 @@
-package client;
+package editor;
+
 import javax.swing.*;
 
 public class Window extends JFrame {
 
-    public static final String TITLE = "Kobra Murat";
+    public static final String TITLE = "Kobra Murat Level Editor";
 
     public Window() {
 
         super(TITLE);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //setExtendedState(JFrame.MAXIMIZED_BOTH); 
         setUndecorated(true);
+        
         Board board = new Board();
         add(board);
         addKeyListener(board);
+        addMouseListener(board);
 
         lock();
         pack();

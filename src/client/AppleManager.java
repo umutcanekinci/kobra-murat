@@ -1,17 +1,17 @@
 package client;
 
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 
 import common.Utils;
+import common.Position;
 
 public class AppleManager {
 
     private static final int APPLE_COUNT = 5;
     private static final ArrayList<Apple> apples = new ArrayList<>();
-    private static ArrayList<Point> emptyTiles;
+    private static ArrayList<Position> emptyTiles;
 
     public static String getInfo() {
         StringBuilder str = new StringBuilder("APPLES (" + apples.size() + ")\n");
@@ -24,11 +24,11 @@ public class AppleManager {
         return str.toString();
     }
 
-    public static void setEmptyTiles(ArrayList<Point> emptyTiles) {
+    public static void setEmptyTiles(ArrayList<Position> emptyTiles) {
         AppleManager.emptyTiles = emptyTiles;
     }
 
-    public static void add(Point position) {
+    public static void add(Position position) {
         apples.add(new Apple(position));
     }
 
@@ -50,20 +50,20 @@ public class AppleManager {
         if(emptyTiles == null)
             return false;
         
-        ArrayList<Point> spawnableTiles = new ArrayList<>(emptyTiles);
+        ArrayList<Position> spawnableTiles = new ArrayList<>(emptyTiles);
         spawnableTiles.removeAll(PlayerList.getSnakeParts()); 
 
         if(spawnableTiles.isEmpty())
             return false;
         
-        Point position = Utils.getRandomPointFrom(spawnableTiles);
+        Position position = Utils.getRandomPointFrom(spawnableTiles);
         add(position);
         emptyTiles.remove(position);
         return true;
     }
 
-    public static ArrayList<Point> getCollecteds(Point position) {
-        ArrayList<Point> collectedApples = new ArrayList<>();
+    public static ArrayList<Position> getCollecteds(Position position) {
+        ArrayList<Position> collectedApples = new ArrayList<>();
         for (Apple apple : apples) {
             if(apple.doesCollide(position))
                 collectedApples.add(apple.getPosition());
@@ -83,7 +83,7 @@ public class AppleManager {
         apples.forEach(apple -> apple.drawCollider(g));
     }
 
-    public static void remove(Point position) {
+    public static void remove(Position position) {
         apples.removeIf(apple -> apple.getPosition().equals(position));
     }
 

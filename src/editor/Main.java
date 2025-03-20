@@ -1,4 +1,4 @@
-import client.Window;
+package editor;
 
 public class Main {
 

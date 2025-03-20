@@ -1,4 +1,4 @@
-package client;
+package common;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -19,6 +19,9 @@ public class Spritesheet {
     }
 
     public BufferedImage getSprite(int frame) {
+        if(frame < 0 || frame >= sprites.size())
+            return null;
+
         if(frame < 0 || frame >= sprites.size())
             return null;
             
