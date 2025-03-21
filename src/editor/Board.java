@@ -8,9 +8,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -24,16 +21,18 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
 
     //region ---------------------------------------- Variables ------------------------------------------
 
-    public static Dimension SIZE;
-    public static final int FPS = 60;
-    public static final double DELTATIME = 1.0 / FPS;
-    public static final int DELTATIME_MS = (int) (DELTATIME * 1000);
-    private static int DRAW_MODE = 0;
-    private static boolean doesMouseHold = false;
+    private static final int FPS = 60;
+    private static final double DELTATIME = 1.0 / FPS;
+    private static final int DELTATIME_MS = (int) (DELTATIME * 1000);
+    private static final File MAP_FOLDER = new File(System.getProperty("user.dir") + "/maps");
+    private static final String SAVE_FILE = "map.txt";
+    private static final ArrayList<JButton> buttons = new ArrayList<>();
 
+    private static Dimension SIZE;
+    private static boolean doesMouseHold = false;
     private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
     private static boolean isDrawing = false;
-    private static final ArrayList<JButton> buttons = new ArrayList<>();
+    private static int DRAW_MODE = 0;
 
     //endregion
 
@@ -67,26 +66,30 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
     }
 
     private void onNewButtonClick() {
-        Tilemap.newMap(50, 70);
+        Tilemap.newMap(17, 30);
         hideWidgets();
         isDrawing = true;
     }
 
     private void onOpenButtonClick() {
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("TEXT FILES", "txt", "text");
-        fileChooser.setFileFilter(filter);
-        fileChooser.setCurrentDirectory(new File(System.getProperty("user.dir")));
-        fileChooser.showOpenDialog(this);
-
-        File file = fileChooser.getSelectedFile();
-        if(file == null)
+        int[][] data = getMapData();
+        if(data == null)
             return;
+        
+        Tilemap.load(data);
+        hideWidgets();
+        isDrawing = true;
+    }
 
-        Path path = Paths.get(file.getAbsolutePath());
+    private int[][] getMapData() {
+        String uri = chooseFile(false);
+        if(uri.isEmpty())
+            return null;
+            
+        Path path = Paths.get(uri);
         if(!Files.exists(path))
-            return;
-
+            return null;
+        
         String str = "";
         try {
             str = Files.readString(path);
@@ -94,9 +97,36 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
             e.printStackTrace();
         }
         
-        Tilemap.load(Utils.stringToData(str));
-        hideWidgets();
-        isDrawing = true;
+        if(str.isEmpty())
+            return null;
+        
+        return Utils.stringToData(str);
+    }
+
+    private String chooseFile(boolean isFolder) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setAcceptAllFileFilterUsed(false); // disable the "All files" option. https://stackoverflow.com/questions/10083447/selecting-folder-destination-in-java
+        chooser.setCurrentDirectory(MAP_FOLDER);
+
+        if(isFolder) {
+            chooser.setDialogTitle("Klasör Seç");
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        }
+        else {
+            chooser.setDialogTitle("Harita Seç");
+            chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("TEXT FILES", "txt", "text");
+            chooser.setFileFilter(filter);
+        }
+
+        if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+            return "";
+
+        File file = chooser.getSelectedFile();
+        if(file == null)
+            return "";
+
+        return file.getAbsolutePath();
     }
 
     private void addButton(String text, ActionListener listener) {
@@ -132,10 +162,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
     //region ---------------------------------------- EVENT METHODS ---------------------------------------
 
     @Override
-    public void mouseClicked(MouseEvent e) {
-        if(e.getButton() == MouseEvent.BUTTON3)
-            DRAW_MODE = DRAW_MODE == -1 ? 0 : -1;
-    }
+    public void mouseClicked(MouseEvent e) {}
 
     @Override
     public void mousePressed(MouseEvent e) {
@@ -178,20 +205,39 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
             exit();
     }
 
-    private static void keyPressedGame(KeyEvent e) {
+    private void keyPressedGame(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE: {
                 openMenu();
-        
-                List<String> lines = Arrays.asList(Utils.dataToString(Tilemap.getData()).split("\n"));
-                Path file = Paths.get("save.txt");
-                try {
-                    Files.write(file, lines, StandardCharsets.UTF_8);
-                } catch (Exception ex) {
-                    ex.printStackTrace();   
-                }
-                //Files.write(file, lines, StandardCharsets.UTF_8, StandardOpenOption.APPEND);
+                break;
             }
+            case KeyEvent.VK_S: {
+                saveMap();
+                break;
+            }
+            case KeyEvent.VK_D: {
+                DRAW_MODE = -1;
+                break;
+            }
+            case KeyEvent.VK_2: {
+                DRAW_MODE = -2;
+                break;
+            }
+            case KeyEvent.VK_0: {
+                DRAW_MODE = 0;
+                break;
+            }
+
+        }
+    }
+
+    private void saveMap() {
+        int[][] data = Tilemap.getData();
+        String str = Utils.dataToString(data);
+        try {
+            Files.write(Paths.get(chooseFile(true) + "/" + SAVE_FILE), str.getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
     
@@ -223,8 +269,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
 
     private void paintTile() {
         Position mouseTile = new Position(MouseInfo.getPointerInfo().getLocation());
-        //mouseTile = SwingUtilities.convertPoint(null, mouseTile, this);
-        mouseTile = new Position(mouseTile.x / Level.TILE_SIZE, mouseTile.y / Level.TILE_SIZE);
+        mouseTile = new Position(mouseTile.y / Level.TILE_SIZE, mouseTile.x / Level.TILE_SIZE);
 
         Tilemap.changeTile(mouseTile, DRAW_MODE);
     }
@@ -239,19 +284,18 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
         
         if(isDrawing) {
             Tilemap.draw(g2d, this);
-            //Tilemap.drawColliders(g2d);
             drawGrid(g2d);
         }
     }
 
     private void drawGrid(Graphics2D g) {
         g.setColor(Color.GRAY);
-        for(int i=0; i<SIZE.width; i+=Level.TILE_SIZE) {
+        
+        for(int i=0; i<SIZE.width; i+=Level.TILE_SIZE)
             g.drawLine(i, 0, i, SIZE.height);
-        }
-        for(int i=0; i<SIZE.height; i+=Level.TILE_SIZE) {
+
+        for(int i=0; i<SIZE.height; i+=Level.TILE_SIZE)
             g.drawLine(0, i, SIZE.width, i);
-        }
     }
     
 }

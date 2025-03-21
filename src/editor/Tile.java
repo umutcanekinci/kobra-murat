@@ -12,7 +12,7 @@ public class Tile extends Object{
     private int id;
 
     Tile(int id, int row, int column, BufferedImage image) {
-        super(new Position(column, row));
+        super(new Position(row, column));
         super.setImage(image);
         this.id = id;
     }
@@ -30,10 +30,4 @@ public class Tile extends Object{
     public void draw(Graphics2D renderer, ImageObserver observer) {
         super.draw(renderer, observer);
     }   
-
-    @Override
-    public void drawCollider(Graphics2D renderer) {
-        super.drawCollider(renderer, Color.RED);
-    }
-
 }

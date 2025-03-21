@@ -20,7 +20,7 @@ public class OfflinePlayerController {
 
     private static final int DEFAULT_LENGTH = 3;
     private static NetPlayer player;
-    private static final int speed = 10; // tiles/second
+    private static final int speed = 5; // tiles/second
     private static double displacement = 0;
     private static boolean canRotate = true;
 

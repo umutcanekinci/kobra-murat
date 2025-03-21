@@ -14,14 +14,12 @@ public class Tilemap {
     private static Spritesheet TILE_SPRITESHEET;
     private static Tile[][] tiles;
     private static int cols, rows;
-    private static int currentLevel;
 
     public static void loadSheet() {
         TILE_SPRITESHEET = new SpritesheetBuilder().withColumns(1).withRows(1).withSpriteCount(1).withSheet(Utils.loadImage(new File("images/wall.png"))).build();
     }
 
     public static void newMap(int rows, int cols) {
-        currentLevel = -1;
         int[][] data = new int[rows][cols];
         for(int row = 0; row < rows; row++) {
             for(int col = 0; col < cols; col++) {
@@ -94,26 +92,4 @@ public class Tilemap {
             }
         }
     }
-
-    public static void drawColliders(Graphics2D renderer) {
-        if(tiles == null)
-            return;
-
-        if(renderer == null)
-            return;
-
-        for (Tile[] row : tiles) {
-            for (Tile tile : row) {
-                if(tile == null)
-                    continue;
-
-                tile.drawCollider(renderer);
-            }
-        }
-    }
-
-    public static String getInfo() {
-        return "Level " + currentLevel + " (" + cols + "x" + rows + ")" + "\n";
-    }
-
 }
