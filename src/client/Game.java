@@ -34,12 +34,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     public Game() {
         super(new GridBagLayout());
-        System.out.println(Direction.LEFT.getAngle());
-        System.out.println(Direction.UP.getAngle());
-        System.out.println(Direction.RIGHT.getAngle());
-        System.out.println(Direction.DOWN.getAngle());
 
-        
         Tilemap.loadSheet();
         Player.loadSpritesheet();
 

@@ -19,9 +19,7 @@ public class OfflinePlayerController {
      * It manages the game loop and the game state like collision detection, apple managment.
      */
 
-    private static final int DEFAULT_LENGTH = 3;
     private static NetPlayer player;
-    private static final int speed = 5; // tiles/second
     private static double displacement = 0;
     private static boolean canRotate = true;
 
@@ -33,7 +31,7 @@ public class OfflinePlayerController {
         AppleManager.clear();
         PacketHandler.handle(new SetMapPacket(1));
         AppleManager.spawnAll();
-        PacketHandler.handle(new AddPacket(0, DEFAULT_LENGTH, Tilemap.getSpawnPoint()));
+        PacketHandler.handle(new AddPacket(0, Constants.DEFAULT_LENGTH, Tilemap.getSpawnPoint()));
         PacketHandler.handle(new IdPacket(0));
     }
 
@@ -50,7 +48,7 @@ public class OfflinePlayerController {
     }
 
     private static void move() {
-        displacement += speed * Constants.DELTATIME;
+        displacement += player.getSpeed() * Constants.DELTATIME;
 
         if(displacement < 1)
             return;
@@ -63,8 +61,8 @@ public class OfflinePlayerController {
             player.reset();
             return;
         }
-        collectApples(position);
         PacketHandler.handle(new StepPacket(player));
+        collectApples(position);
     }
 
     private static boolean doesCollide(Position position) {

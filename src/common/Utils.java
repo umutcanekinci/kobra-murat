@@ -3,7 +3,6 @@ package common;
 import javax.imageio.ImageIO;
 
 import client.MoveKey;
-import client.Tilemap;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -99,10 +98,7 @@ public final class Utils {
         return new Position(position.x + direction.getX(), position.y + direction.getY());
     }
 
-    public static Position clampPosition(Position position) {
-        int cols = Tilemap.getCols();
-        int rows = Tilemap.getRows();
-
+    public static Position clampPosition(Position position, int cols, int rows) {
         int x = (position.x + cols) % cols;
         int y = (position.y + rows) % rows;
         return new Position(x, y);
@@ -171,19 +167,23 @@ public final class Utils {
 
     public static int[][] stringToData(String str) {
         String[] lines = str.split("\n");
-        int[][] data = new int[lines.length][lines[0].length()];
+        int[][] data = new int[lines.length][lines[0].split(" ").length];
 
         for(int i=0; i<lines.length; i++) {
             String[] tiles = lines[i].split(" ");
-
+            
             for(int j=0; j<tiles.length; j++) {
                 try {
                     data[i][j] = Integer.parseInt(tiles[j]);
                 } catch (NumberFormatException ex) {
-                    data[i][j] = -1; // or any default value you prefer
+                    continue;
                 }
             }
         }
         return data;
+    }
+
+    public static int calculateSpeed(int length) {
+        return Math.max(10, 20 - length);
     }
 }

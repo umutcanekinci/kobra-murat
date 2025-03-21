@@ -70,6 +70,8 @@ public class Tilemap {
 
         if(data.length == 0 || data[0].length == 0)
             return;
+        
+        
 
         cols = data[0].length;
         rows = data.length;

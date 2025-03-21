@@ -7,6 +7,7 @@ import java.io.File;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
+import common.Constants;
 import common.Position;
 import common.Utils;
 import common.Direction;
@@ -14,15 +15,15 @@ import common.Spritesheet;
 import common.SpritesheetBuilder;
 
 public class Player implements Serializable {
-    
+
     private static final File SPRITESHEET_FILE = new File("images/snake.png");
-    private static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
     private static Spritesheet spritesheet;
     
-    private Direction direction = DEFAULT_DIRECTION;
+    private Direction direction = Constants.DEFAULT_DIRECTION;
     private ArrayList<SnakePart> parts = new ArrayList<>();
     private int tailIndex = 0;
 
+    private int speed;
     private int length;
     private final int defaultLength;
     private final Position spawnPoint;
@@ -35,6 +36,10 @@ public class Player implements Serializable {
 
     public int getTailIndex() {
         return tailIndex;
+    }
+
+    public int getSpeed() {
+        return speed;
     }
 
     public void setTailIndex(int tailIndex) {
@@ -56,6 +61,11 @@ public class Player implements Serializable {
         resetDirection();
         //OfflinePlayerController.enableRotation();
         updateHead();
+        updateSpeed();
+    }
+
+    private void updateSpeed() {
+        speed = Utils.calculateSpeed(length);
     }
     
     public ArrayList<Position> getParts() {
@@ -94,7 +104,7 @@ public class Player implements Serializable {
     }
 
     public Position getNextPosition() {
-        return Utils.clampPosition(Utils.moveTowards(getHead().getPosition(), direction));
+        return Utils.clampPosition(Utils.moveTowards(getHead().getPosition(), direction), Tilemap.getCols(), Tilemap.getRows());
     }
 
     public void stepTo(Position position) {
@@ -122,14 +132,6 @@ public class Player implements Serializable {
         SnakePart head = getHead();
         head.setDirection(direction);
         head.setImage(getHeadFrame());
-    }
-
-    public boolean doesCollide(Position point) {
-        for(SnakePart part : parts) {
-            if(part.doesCollide(point))
-                return true;
-        }
-        return false;
     }
 
     public boolean isPointOnTail(Position point) {
@@ -163,6 +165,7 @@ public class Player implements Serializable {
             parts.add(tailIndex, new SnakePart()); // locating the new part to the head position, also it is tailIndex so it will become new head after move.
         }
         length += amount;
+        updateSpeed();
     }
 
     public void shrink(int amount) {
@@ -178,7 +181,7 @@ public class Player implements Serializable {
     }
 
     public void resetDirection() {
-        direction = DEFAULT_DIRECTION;
+        direction = Constants.DEFAULT_DIRECTION;
     }
 
     public Position getPosition() {
@@ -189,6 +192,14 @@ public class Player implements Serializable {
         this.parts.clear();
         parts.forEach(part -> this.parts.add(new SnakePart(part)));
         length = parts.size();
+    }
+    
+    public boolean doesCollide(Position point) {
+        for(SnakePart part : parts) {
+            if(part.doesCollide(point))
+                return true;
+        }
+        return false;
     }
 
     public void drawCollider(Graphics2D g) {

@@ -46,7 +46,7 @@ public class PlayerList {
             return;
         
         player.setDirection(packet.direction);
-        player.step();
+        player.stepTo(player.getNextPosition());
     }
 
     public static void clear() {

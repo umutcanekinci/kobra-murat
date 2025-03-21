@@ -190,6 +190,9 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if(e.getKeyCode() == KeyEvent.VK_S)
+            saveMap();
+        
         if(!isDrawing) 
             keyPressedMenu(e);
         else 
@@ -205,10 +208,6 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
         switch (e.getKeyCode()) {
             case KeyEvent.VK_ESCAPE: {
                 openMenu();
-                break;
-            }
-            case KeyEvent.VK_S: {
-                saveMap();
                 break;
             }
             case KeyEvent.VK_D: {

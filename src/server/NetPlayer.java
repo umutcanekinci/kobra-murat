@@ -11,7 +11,6 @@ import common.packet.StepPacket;
 
 public class NetPlayer extends Player{
 
-    private static final int speed = 3; // tiles/second
     private static double displacement = 0;
     private Connection connection;
     private final int id;
@@ -31,12 +30,21 @@ public class NetPlayer extends Player{
     }
 
     public void move() {
-        displacement += speed * Constants.DELTATIME;
+        displacement += getSpeed() * Constants.DELTATIME;
 
         if(displacement < 1)
             return;
 
         displacement = 0;
+        //enableRotation();
+
+        Position position = getNextPosition();
+        
+        Boolean doesHitSelf = doesCollide(position) && !isPointOnTail(position);
+        if(doesHitSelf || Tilemap.doesCollide(position)) {
+            reset();
+            return;
+        }
 
         StepPacket packet = new StepPacket(id, getDirection());
         PlayerList.playerStep(packet);
@@ -62,6 +70,8 @@ public class NetPlayer extends Player{
 
         connection.close();
     }
+
+    
 
     public String toString() {
         String info = 
