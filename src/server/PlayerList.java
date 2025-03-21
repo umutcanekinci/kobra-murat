@@ -21,20 +21,6 @@ public class PlayerList {
      */
     public static final HashMap<Integer, NetPlayer> players = new HashMap<>();
 
-    public static String getInfo() {
-        String info = "PLAYERS (" + players.size() + ")\n";
-
-        if(players.isEmpty()) {
-            info += "No players.\n";
-            return info;
-        }
-
-        for (NetPlayer player: players.values()) {
-            info += player + "\n";
-        }
-        return info;
-    }
-
     public static int size() {
         return players.size();
     }
@@ -85,6 +71,15 @@ public class PlayerList {
         players.values().forEach((player) -> player.send(packet));
     }
 
- 
+    public static String getInfo() {
+        StringBuilder str = new StringBuilder("PLAYERS (" + players.size() + ")\n");
+
+        if(players.isEmpty())
+            str.append("No players\n");
+        else
+            players.values().forEach((player) -> str.append(player).append("\n"));
+
+        return str.toString();
+    }
 
 }

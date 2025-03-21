@@ -2,6 +2,7 @@ package server;
 
 import java.util.ArrayList;
 
+import common.Constants;
 import common.Position;
 import common.Connection;
 import common.packet.EatApplePacket;
@@ -14,13 +15,6 @@ public class NetPlayer extends Player{
     private static double displacement = 0;
     private Connection connection;
     private final int id;
-
-    public String toString() {
-        String info = 
-        "Player " + id + "\n" +
-        super.toString();
-        return info;
-    }
 
     public NetPlayer(Connection connection, int id, Position spawnPoint) {
         super(spawnPoint);
@@ -37,7 +31,7 @@ public class NetPlayer extends Player{
     }
 
     public void move() {
-        displacement += speed * GameManager.DELTATIME;
+        displacement += speed * Constants.DELTATIME;
 
         if(displacement < 1)
             return;
@@ -67,6 +61,13 @@ public class NetPlayer extends Player{
             return;
 
         connection.close();
+    }
+
+    public String toString() {
+        String info = 
+        "Player " + id + "\n" +
+        super.toString();
+        return info;
     }
 
 }

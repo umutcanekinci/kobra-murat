@@ -33,13 +33,6 @@ public class Server {
 
     //region ------------------------------------ Constructors ------------------------------------
 
-    public static String getInfo() {
-        return "SERVER: " + state + "\n" +
-        "(IP: " + ip + " PORT: " + port + ")\n" +
-        Tilemap.getInfo() + "\n\n" +
-        PlayerList.getInfo();
-    }
-
     public static void setListener(ServerListener listener) {
         Server.listener = listener;
     }
@@ -47,7 +40,7 @@ public class Server {
     public static void init(int port) {
         setIp(Utils.getLocalIp());
         setPort(port);
-        setLevel(0);
+        setLevel(1);
         initApples();  
     }
 
@@ -136,7 +129,7 @@ public class Server {
         int id = PlayerList.size();
         
         Connection newConnection = new Connection(socket, true); // Create new connection and add to list
-        Tilemap.sendLevel(newConnection); // Send current level to new player // Send current level to new player
+        Tilemap.sendMap(newConnection); // Send current level to new player // Send current level to new player
         AppleManager.sendAllTo(newConnection);
         PlayerList.sendToAll(new AddPacket(id, DEFAULT_LENGTH, Tilemap.getSpawnPoint())); // Send new player to all clients
         PlayerList.addPlayer(newConnection, id); // Add player to list
@@ -175,6 +168,13 @@ public class Server {
 
     public static void removeConnection(int id) {
         PlayerList.players.remove(id);
+    }
+
+    public static String getInfo() {
+        return "SERVER: " + state + "\n" +
+        "(IP: " + ip + " PORT: " + port + ")\n" +
+        Tilemap.getInfo() + "\n\n" +
+        PlayerList.getInfo();
     }
 
     //endregion

@@ -2,23 +2,20 @@ package server;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.Timer;
+
+import common.Constants;
 
 public class GameManager implements ActionListener {
 
     /* This class will manage the movements of players with a main update loop. */
-
-    public static final int FPS = 60;
-    public static final double DELTATIME = 1.0 / FPS;
-    public static final int DELTATIME_MS = (int) (DELTATIME * 1000);
 
     public void start() {
         initTimer();
     }
 
     private void initTimer() {
-        new Timer(DELTATIME_MS, this).start();
+        new Timer(Constants.DELTATIME_MS, this).start();
     }
 
     @Override

@@ -2,22 +2,14 @@ package editor;
 
 import java.awt.*;
 import java.awt.image.ImageObserver;
-import java.io.File;
 
 import common.Position;
 import common.Spritesheet;
-import common.SpritesheetBuilder;
-import common.Utils;
-
 public class Tilemap {
 
     private static Spritesheet TILE_SPRITESHEET;
     private static Tile[][] tiles;
     private static int cols, rows;
-
-    public static void loadSheet() {
-        TILE_SPRITESHEET = new SpritesheetBuilder().withColumns(1).withRows(1).withSpriteCount(1).withSheet(Utils.loadImage(new File("images/wall.png"))).build();
-    }
 
     public static void newMap(int rows, int cols) {
         int[][] data = new int[rows][cols];

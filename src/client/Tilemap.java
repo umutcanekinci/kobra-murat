@@ -24,11 +24,11 @@ public class Tilemap {
     private static int currentLevel;
 
     public static int getWidth() {
-        return cols * common.Level.TILE_SIZE;
+        return cols * common.Constants.TILE_SIZE;
     }
 
     public static int getHeight() {
-        return rows * common.Level.TILE_SIZE;
+        return rows * common.Constants.TILE_SIZE;
     }
 
     public static void loadSheet() {

@@ -13,13 +13,14 @@ import common.Connection;
 
 public class Tilemap {
 
-    static int currentLevel;
+    private static int currentLevel;
     private static Tile[][] tiles;
     private static ArrayList<Position> emptyTiles;
     private static int cols, rows;
     private static final Position spawnPoint = new Position(0, 0);
 
     public static void load(int id) {
+        currentLevel = id;
         File file = new File("maps/" + id + ".txt");
 
         Path path = Paths.get(file.getAbsolutePath());
@@ -50,13 +51,14 @@ public class Tilemap {
     
         for(int row = 0; row < rows; row++) {
             for(int col = 0; col < cols; col++) {
-                tiles[row][col] = new Tile(data[row][col], row, col);
+                Tile tile = new Tile(data[row][col], row, col);
+                tiles[row][col] = tile;
 
-                if(data[row][col] == 2)
-                    spawnPoint.setLocation(col, row);
+                if(tile.isSpawnPoint())
+                    spawnPoint.setLocation(tile);
 
-                if(data[row][col] == 0)
-                    emptyTiles.add(new Position(col, row));
+                if(!tile.isCollidable())
+                    emptyTiles.add(new Position(tile));
             }
         }
     }
@@ -92,12 +94,7 @@ public class Tilemap {
         return tiles[row][col];
     }
 
-    public static String getInfo() {
-        return "Level " + currentLevel + " (" + cols + "x" + rows + ")" + "\n" +
-        "Spawn Position: [" + spawnPoint.x + ", " + spawnPoint.y + "]";
-    }
-
-    public static void sendLevel(Connection connection) {
+    public static void sendMap(Connection connection) {
         connection.sendData(new SetMapPacket(Tilemap.currentLevel));
     }
 
@@ -105,4 +102,8 @@ public class Tilemap {
         return emptyTiles;
     }    
 
+    public static String getInfo() {
+        return "Level " + currentLevel + " (" + cols + "x" + rows + ")" + "\n" +
+        "Spawn Position: " + spawnPoint + "\n";
+    }
 }

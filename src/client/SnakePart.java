@@ -3,14 +3,14 @@ package client;
 import common.Position;
 import common.Direction;
 import common.Object;
+import common.Constants;
 
 public class SnakePart extends Object {
 
-    private static final Position HIDDEN_POSITION = new Position(-1, -1);
     private Direction direction;
 
     public SnakePart() {
-        super(HIDDEN_POSITION);
+        super(Constants.HIDDEN_POSITION);
     }
 
     public SnakePart(Position point) {
@@ -18,7 +18,7 @@ public class SnakePart extends Object {
     }
 
     public void reset() {
-        setPosition(HIDDEN_POSITION);
+        setPosition(Constants.HIDDEN_POSITION);
         setImage(null);
         setDirection(null);
     }
@@ -32,7 +32,7 @@ public class SnakePart extends Object {
     }
 
     public boolean isHidden(Position point) {
-        return point.equals(HIDDEN_POSITION);
+        return point.equals(Constants.HIDDEN_POSITION);
     }
 
 }

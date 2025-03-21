@@ -5,24 +5,21 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import javax.swing.*;
 
-import client.graphics.Draw;
-import client.graphics.UI;
+import common.Constants;
 import common.Direction;
 import common.Utils;
 import common.packet.RotatePacket;
+
+import client.graphics.Draw;
+import client.graphics.UI;
 import server.Server;
 import server.ServerListener;
 
 public class Game extends JPanel implements ActionListener, KeyListener, ServerListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
-
-    public static Dimension SIZE;
-    public static final int FPS = 60;
-    public static final double DELTATIME = 1.0 / FPS;
     public static final boolean isHostInLocal = true;
     
-    private static final int DELTATIME_MS = (int) (DELTATIME * 1000);
     private static final int PORT = 7777;
     private static final String HOST_IP = "192.168.1.7";
     private static final ArrayList<JButton> buttons = new ArrayList<>();
@@ -56,8 +53,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     private void setFullscreen() {
-        SIZE = Toolkit.getDefaultToolkit().getScreenSize();
-        setPreferredSize(SIZE);
+        setPreferredSize(Constants.SIZE);
     }
 
     private void initServer() {
@@ -197,7 +193,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     //endregion
 
     private void initTimer() {
-        new Timer(DELTATIME_MS, this).start();
+        new Timer(Constants.DELTATIME_MS, this).start();
     }
 
     //endregion

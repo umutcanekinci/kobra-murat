@@ -10,7 +10,7 @@ public class Tile extends Object{
     private int id;
 
     Tile(int id, int row, int column, BufferedImage image) {
-        super(new Position(row, column));
+        super(new Position(column, row));
         super.setImage(image);
         this.id = id;
     }

@@ -4,6 +4,7 @@ import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import common.Position;
+import common.Constants;
 import common.Direction;
 import common.Utils;
 import common.packet.AddPacket;
@@ -49,7 +50,7 @@ public class OfflinePlayerController {
     }
 
     private static void move() {
-        displacement += speed * Game.DELTATIME;
+        displacement += speed * Constants.DELTATIME;
 
         if(displacement < 1)
             return;

@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.Font;
 
+import common.Constants;
 import common.Utils;
 import server.Server;
 
@@ -25,7 +26,7 @@ public class DebugLog {
 
     private static String getText() {
         return  "DEBUG MODE ON - Press F2 to toggle\n\n" +
-                "FPS: " + Game.FPS + "\n" +
+                "FPS: " + Constants.FPS + "\n" +
                 "Connect to Local Mode: " + Game.isHostInLocal + "\n\n" +      
                 Client.getInfo() + "\n" +
                 Tilemap.getInfo() + "\n\n" +

@@ -12,7 +12,7 @@ public class Position extends Point {
         super();
     }
 
-    public Position(int row, int column) {
+    public Position(int column, int row) {
         super(column, row);
     }
 
@@ -25,7 +25,7 @@ public class Position extends Point {
     }
 
     public Position getScreenPosition() {
-        return new Position(y * common.Level.TILE_SIZE, x * common.Level.TILE_SIZE);
+        return new Position(x * common.Constants.TILE_SIZE, y * common.Constants.TILE_SIZE);
     }
 
     @Override

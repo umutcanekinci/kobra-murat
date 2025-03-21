@@ -4,11 +4,11 @@ import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.Color;
 import java.awt.image.ImageObserver;
-
 import javax.swing.JPanel;
 
+import common.Constants;
+
 import client.AppleManager;
-import client.Game;
 import client.DebugLog;
 import client.Tilemap;
 import client.PlayerList;
@@ -76,7 +76,7 @@ public class Draw {
         if(isGameStarted)
             return;
 
-        UI.drawTitle(g, Game.SIZE.width, 100, null);
+        UI.drawTitle(g, Constants.SIZE.width, 100, null);
     }
 
     private static  void colliders(Graphics2D g, boolean isGameStarted, boolean debugMode) {
@@ -92,7 +92,7 @@ public class Draw {
         if(!isGameStarted)
             return;
 
-        UI.drawPlayerBoard(g, Game.SIZE.width - 200, 0, 200);
+        UI.drawPlayerBoard(g, Constants.SIZE.width - 200, 0, 200);
     }
 
     private static  void debug(Graphics2D g, boolean debugMode) {

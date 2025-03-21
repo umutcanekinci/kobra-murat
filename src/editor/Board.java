@@ -11,19 +11,16 @@ import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-import client.graphics.UI;
-
+import common.Constants;
 import common.Position;
-import common.Level;
 import common.Utils;
+
+import client.graphics.UI;
 
 public class Board extends JPanel implements ActionListener, KeyListener, MouseListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
 
-    private static final int FPS = 60;
-    private static final double DELTATIME = 1.0 / FPS;
-    private static final int DELTATIME_MS = (int) (DELTATIME * 1000);
     private static final File MAP_FOLDER = new File(System.getProperty("user.dir") + "/maps");
     private static final String SAVE_FILE = "map.txt";
     private static final ArrayList<JButton> buttons = new ArrayList<>();
@@ -41,7 +38,6 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
     public Board() {
         super(new GridBagLayout());
         setFullscreen();
-        Tilemap.loadSheet();
         UI.init();
         initLayout();
         initWidgets();
@@ -154,7 +150,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
     //endregion
 
     private void initTimer() {
-        new Timer(DELTATIME_MS, this).start();
+        new Timer(Constants.DELTATIME_MS, this).start();
     }
 
     //endregion
@@ -269,7 +265,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
 
     private void paintTile() {
         Position mouseTile = new Position(MouseInfo.getPointerInfo().getLocation());
-        mouseTile = new Position(mouseTile.y / Level.TILE_SIZE, mouseTile.x / Level.TILE_SIZE);
+        mouseTile = new Position(mouseTile.x / Constants.TILE_SIZE, mouseTile.y / Constants.TILE_SIZE);
 
         Tilemap.changeTile(mouseTile, DRAW_MODE);
     }
@@ -280,21 +276,23 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
         setBackground(Color.BLACK);
 
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        UI.init();
         
         if(isDrawing) {
             Tilemap.draw(g2d, this);
             drawGrid(g2d);
         }
+        else
+            UI.drawTitle(g2d, Constants.SIZE.width, 100, null);
     }
 
     private void drawGrid(Graphics2D g) {
         g.setColor(Color.GRAY);
         
-        for(int i=0; i<SIZE.width; i+=Level.TILE_SIZE)
+        for(int i=0; i<SIZE.width; i+=Constants.TILE_SIZE)
             g.drawLine(i, 0, i, SIZE.height);
 
-        for(int i=0; i<SIZE.height; i+=Level.TILE_SIZE)
+        for(int i=0; i<SIZE.height; i+=Constants.TILE_SIZE)
             g.drawLine(0, i, SIZE.width, i);
     }
     

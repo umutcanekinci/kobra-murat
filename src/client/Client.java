@@ -28,11 +28,6 @@ public class Client {
 
     //region ----------------------------------- Constructors -----------------------------------
 
-    public static String getInfo() {
-        return  "CLIENT: " + state + "\n" + 
-                "(HOST: " + host + " PORT: " + port + ")\n";
-    }
-
     private static void setState(State state) {
         Client.state = state;
         switch (state) {
@@ -94,6 +89,11 @@ public class Client {
     public static void close() {
         connection.close();
         setState(State.CLOSED);
+    }
+
+    public static String getInfo() {
+        return  "CLIENT: " + state + "\n" + 
+                "(HOST: " + host + " PORT: " + port + ")\n";
     }
 
     //endregion

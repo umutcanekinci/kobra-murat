@@ -49,20 +49,6 @@ public class PlayerList {
         return players.get(id);
     }
 
-    public static String getInfo() {
-        String info = "PLAYERS (" + players.size() + ") \n";
-
-        if(players.isEmpty()) {
-            info += "No players.\n";
-            return info;
-        }
-
-        for (NetPlayer player: players.values()) {
-            info += player + "\n";
-        }
-        return info;
-    }
-
     public static ArrayList<NetPlayer> getPlayers() {
         return new ArrayList<>(players.values());
     }
@@ -157,6 +143,17 @@ public class PlayerList {
             return;
 
         players.values().forEach(p -> p.drawCollider(g));
+    }
+
+    public static String getInfo() {
+        StringBuilder str = new StringBuilder("PLAYERS (" + players.size() + ")\n");
+
+        if(players.isEmpty())
+            str.append("No players\n");
+        else
+            players.values().forEach(player -> str.append(player).append("\n"));
+
+        return str.toString();
     }
 
 }

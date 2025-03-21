@@ -38,8 +38,8 @@ public class Image {
 
         g.drawImage(
                 image,
-                position.x * Level.TILE_SIZE,
-                position.y * Level.TILE_SIZE,
+                position.x * Constants.TILE_SIZE,
+                position.y * Constants.TILE_SIZE,
                 observer
         );
     }
@@ -51,10 +51,10 @@ public class Image {
 
     public void drawBorder(Graphics2D g, Point position) {
         g.drawRect(
-                position.x * Level.TILE_SIZE,
-                position.y * Level.TILE_SIZE,
-                Level.TILE_SIZE,
-                Level.TILE_SIZE
+                position.x * Constants.TILE_SIZE,
+                position.y * Constants.TILE_SIZE,
+                Constants.TILE_SIZE,
+                Constants.TILE_SIZE
         );
     }
 

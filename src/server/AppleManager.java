@@ -18,20 +18,6 @@ class AppleManager {
     private static ArrayList<Position> apples = new ArrayList<>();
     private static ArrayList<Position> emptyTiles;
 
-    public static String getInfo() {
-        String str = "APPLES (" + apples.size() + ")\n";
-
-        if(apples.isEmpty()) {
-            return str + "No apples.\n";
-        }
-
-        for (Position apple : apples) {
-            str += apple;
-        }
-
-        return str;
-    }
-
     public static void setEmptyTiles(ArrayList<Position> emptyTiles) {
         AppleManager.emptyTiles = emptyTiles;
     }
@@ -86,6 +72,17 @@ class AppleManager {
 
     public static void sendAllTo(Connection connection) {
         apples.forEach((apple) -> connection.sendData(new SpawnApplePacket(apple)));
+    }
+
+    public static String getInfo() {
+        StringBuilder str = new StringBuilder("APPLES (" + apples.size() + ")\n");
+
+        if(apples.isEmpty()) 
+            return str.append("No apples.\n").toString();
+
+        apples.forEach(apple -> str.append(apple).append("\n"));
+
+        return str.toString();
     }
 
 }

@@ -2,14 +2,14 @@ package server;
 
 import common.Direction;
 import common.Position;
+import common.Constants;
 
 public class SnakePart extends Position {
 
-    public static final Position HIDDEN_POSITION = new Position(-1, -1);
     Direction direction;
 
     public SnakePart() {
-        super(HIDDEN_POSITION);
+        super(Constants.HIDDEN_POSITION);
     }
 
     public SnakePart(Position point) {
@@ -17,7 +17,7 @@ public class SnakePart extends Position {
     }
 
     public void reset() {
-        setLocation(HIDDEN_POSITION);
+        setLocation(Constants.HIDDEN_POSITION);
         setDirection(null);
     }
 
@@ -30,6 +30,6 @@ public class SnakePart extends Position {
     }
 
     public boolean isHidden(Position point) {
-        return point.equals(HIDDEN_POSITION);
+        return point.equals(Constants.HIDDEN_POSITION);
     }
 }

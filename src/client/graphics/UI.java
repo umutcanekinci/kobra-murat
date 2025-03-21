@@ -27,7 +27,7 @@ public class UI {
     private static BufferedImage titleImage;
     
     public static void init() {
-        //SCORE_RECT = new Rectangle(0, Level.TILE_SIZE * (Level.ROWS - 1), Level.TILE_SIZE * Level.COLUMNS, Level.TILE_SIZE);
+        //SCORE_RECT = new Rectangle(0, Constants.TILE_SIZE * (Level.ROWS - 1), Constants.TILE_SIZE * Level.COLUMNS, Constants.TILE_SIZE);
         titleImage = Utils.loadImage(TITLE_IMAGE);
     }
 

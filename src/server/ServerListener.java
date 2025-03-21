@@ -1,7 +1,5 @@
 package server;
 
 public interface ServerListener {
-
-    void onServerStateChange(Server.State state);
-    
+    void onServerStateChange(Server.State state);   
 }
