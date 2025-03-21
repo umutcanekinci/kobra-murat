@@ -4,9 +4,9 @@ import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.io.File;
+import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
-import common.Corner;
 import common.Position;
 import common.Utils;
 import common.Direction;
@@ -56,16 +56,6 @@ public class Player implements Serializable {
         resetDirection();
         //OfflinePlayerController.enableRotation();
         updateHead();
-        rotateHead();
-    }
-
-    public void rotateHead() {
-        SnakePart head = getHead();
-        
-        if (head == null || head.getImage() == null)
-            return;
-
-        head.setImage(Utils.getRotatedImage(head.getImage(), direction.getAngle()));
     }
     
     public ArrayList<Position> getParts() {
@@ -109,43 +99,29 @@ public class Player implements Serializable {
 
     public void stepTo(Position position) {
         SnakePart head = getHead();
-        
+        head.setImage(getFrame(head.getDirection(), direction));
+
         tailIndex = (tailIndex + 1) % length;
 
         SnakePart newHead = getHead();
         newHead.setPosition(position);
 
-        head.setImage(spritesheet.getSprite(getFrame(head.getDirection(), direction)));
-
         updateHead();
-        rotateHead();
     }
     
-    private int getFrame(Direction dir, Direction newDir){
-        if(dir == newDir){
-            if(dir == Direction.UP || dir == Direction.DOWN)
-                return 3; // same as 5
-            else if(dir == Direction.RIGHT || dir == Direction.LEFT)
-                return 1; // same as 7
-        }
-        else { // Corner
-            /*if(newDir == Direction.UP && dir == Direction.RIGHT || newDir == Direction.LEFT && dir == Direction.DOWN)
-                return 8;
-            else if(newDir == Direction.RIGHT && dir == Direction.DOWN || newDir == Direction.UP && dir == Direction.LEFT)
-                return 6;
-            else if(newDir == Direction.DOWN && dir == Direction.LEFT || newDir == Direction.RIGHT && dir == Direction.UP)
-                return 0;
-            else if(newDir == Direction.LEFT && dir == Direction.UP || newDir == Direction.DOWN && dir == Direction.RIGHT)
-                return 2;
-            */
-            
-        }
-        return -1;
+    private BufferedImage getFrame(Direction dir, Direction newDir){
+        int frame = dir == newDir ? 1 : 0;
+        return Utils.getRotatedImage(spritesheet.getSprite(frame), newDir.getAngle(dir));
     }
 
-    public void updateHead() {
-        getHead().setDirection(direction);
-        getHead().setImage(spritesheet.getSprite(4));
+    private BufferedImage getHeadFrame() {
+        return Utils.getRotatedImage(spritesheet.getSprite(4), direction.getAngle());
+    }
+
+    private void updateHead() {
+        SnakePart head = getHead();
+        head.setDirection(direction);
+        head.setImage(getHeadFrame());
     }
 
     public boolean doesCollide(Position point) {

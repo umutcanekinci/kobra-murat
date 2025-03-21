@@ -101,7 +101,6 @@ public class PlayerList {
         player.setDirection(packet.direction);
         player.setParts(packet.parts);
         player.setTailIndex(packet.tailIndex);
-        player.rotateHead();
     }
 
     public static void playerStep(StepPacket packet) {

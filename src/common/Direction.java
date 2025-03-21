@@ -31,6 +31,18 @@ public enum Direction {
         return other.x == -x && other.y == -y;
     }
 
+    public int getAngle(Direction other) {
+        if(other == Direction.UP && this == Direction.RIGHT || other == Direction.LEFT && this == Direction.DOWN)
+            return 0;
+        else if(other == Direction.RIGHT && this == Direction.DOWN || other == Direction.UP && this == Direction.LEFT)
+            return 90;
+        else if(other == Direction.DOWN && this == Direction.LEFT || other == Direction.RIGHT && this == Direction.UP)
+            return 180;
+        else if(other == Direction.LEFT && this == Direction.UP || other == Direction.DOWN && this == Direction.RIGHT)
+            return -90;
+        return getAngle();
+    }
+
     public int getAngle() {
         return (int) Math.toDegrees(Math.atan2(y, x));
     }
