@@ -11,7 +11,7 @@ public class Window extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         //setExtendedState(JFrame.MAXIMIZED_BOTH); 
         setUndecorated(true);
-        Board board = new Board();
+        Game board = new Game();
         add(board);
         addKeyListener(board);
 

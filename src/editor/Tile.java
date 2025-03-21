@@ -1,8 +1,6 @@
 package editor;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 
 import common.Position;
 import common.Object;
@@ -25,9 +23,4 @@ public class Tile extends Object{
     public int getId() {
         return id;
     }
-
-    @Override
-    public void draw(Graphics2D renderer, ImageObserver observer) {
-        super.draw(renderer, observer);
-    }   
 }

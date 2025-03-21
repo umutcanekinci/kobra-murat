@@ -9,31 +9,33 @@ import client.graphics.Draw;
 import client.graphics.UI;
 import common.Direction;
 import common.Utils;
-import common.packet.player.RotatePacket;
+import common.packet.RotatePacket;
 import server.Server;
 import server.ServerListener;
 
-public class Board extends JPanel implements ActionListener, KeyListener, ServerListener {
+public class Game extends JPanel implements ActionListener, KeyListener, ServerListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
 
     public static Dimension SIZE;
     public static final int FPS = 60;
     public static final double DELTATIME = 1.0 / FPS;
-    public static final int DELTATIME_MS = (int) (DELTATIME * 1000);
-    public static final int PORT = 7777;
-    public static final String HOST_IP = "192.168.1.7";
     public static final boolean isHostInLocal = true;
+    
+    private static final int DELTATIME_MS = (int) (DELTATIME * 1000);
+    private static final int PORT = 7777;
+    private static final String HOST_IP = "192.168.1.7";
+    private static final ArrayList<JButton> buttons = new ArrayList<>();
+
     private static boolean debugMode = false;
     private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
     private static boolean isGameStarted = false;
-    private static final ArrayList<JButton> buttons = new ArrayList<>();
-
+    
     //endregion
 
     //region ---------------------------------------- INIT METHODS ----------------------------------------
 
-    public Board() {
+    public Game() {
         super(new GridBagLayout());
         Tilemap.loadSheet();
         Player.loadSpritesheet();
@@ -194,16 +196,6 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
 
     //endregion
 
-    //region ---------------------------------------- EVENT METHODS ---------------------------------------
-
-    public static void setMap(int id) {
-        Tilemap.load(id);
-        AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
-        Camera.init(SIZE.width, SIZE.height, Tilemap.getWidth(), Tilemap.getHeight());
-    }
-
-    //endregion
-
     //region ---------------------------------------- INPUT METHODS ---------------------------------------
 
     @Override
@@ -287,7 +279,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, Server
     public void paintComponent(Graphics g) {
         super.paintComponent(g); // Clear the screen
         Graphics2D g2d = (Graphics2D) g;
-        Camera.draw(g2d, this); // Set the camera
+        //Camera.draw(g2d, this); // Set the camera
         Draw.all(g2d, this, isGameStarted, debugMode, this); // Draw everything
     }
 

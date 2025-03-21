@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import common.Connection;
 import common.Utils;
-import common.packet.apple.SpawnApplePacket;
+import common.packet.SpawnApplePacket;
 import common.Position;
 
 class AppleManager {

@@ -2,7 +2,6 @@ package client;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 
 import common.Object;
@@ -29,14 +28,6 @@ public class Tile extends Object{
     public boolean doesCollide(Position point) {
         return isCollidable && super.doesCollide(point);
     }
-
-    @Override
-    public void draw(Graphics2D renderer, ImageObserver observer) {
-        if(!isCollidable)
-            return;
-
-        super.draw(renderer, observer);
-    }   
 
     @Override
     public void drawCollider(Graphics2D renderer) {

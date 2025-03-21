@@ -1,7 +1,6 @@
-package common.packet.player;
+package common.packet;
 
 import common.Position;
-import common.packet.Packet;
 
 public class AddPacket extends Packet {
 
@@ -24,10 +23,6 @@ public class AddPacket extends Packet {
 
     @Override
     public String toString() {
-        return "AddPacket{" +
-                "id=" + id +
-                ", length=" + length +
-                ", spawnPoint=" + spawnPoint +
-                '}';
+        return super.toString() + "{length=" + length + ", spawnPoint=" + spawnPoint + '}';
     }
 }

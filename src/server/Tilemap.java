@@ -8,8 +8,8 @@ import java.util.ArrayList;
 
 import common.Position;
 import common.Utils;
+import common.packet.basic.SetMapPacket;
 import common.Connection;
-import common.packet.SetMapPacket;
 
 public class Tilemap {
 

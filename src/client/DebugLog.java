@@ -25,9 +25,8 @@ public class DebugLog {
 
     private static String getText() {
         return  "DEBUG MODE ON - Press F2 to toggle\n\n" +
-                "FPS: " + Board.FPS + "\n" +
-                "Connect to Local Mode: " + Board.isHostInLocal + "\n\n" +    
-                Camera.getInfo() + "\n" +    
+                "FPS: " + Game.FPS + "\n" +
+                "Connect to Local Mode: " + Game.isHostInLocal + "\n\n" +      
                 Client.getInfo() + "\n" +
                 Tilemap.getInfo() + "\n\n" +
                 PlayerList.getInfo() + "\n" +

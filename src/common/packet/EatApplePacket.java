@@ -1,17 +1,20 @@
-package common.packet.apple;
+package common.packet;
 
 import common.Position;
-import common.packet.Packet;
 
 public class EatApplePacket extends Packet{
-    public Position position;
+    private Position position;
 
     public EatApplePacket(int id, Position apple) {
         super(id);
         position = apple;
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
     public String toString() {
-        return "EatApplePacket[" + id + "]: " + "(" + position.x + ", " + position.y + ")";
+        return super.toString() + ": " + position;
     }
 }

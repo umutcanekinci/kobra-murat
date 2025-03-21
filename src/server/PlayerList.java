@@ -4,10 +4,10 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import common.packet.player.AddPacket;
-import common.packet.player.DisconnectPacket;
-import common.packet.player.StepPacket;
-import common.packet.player.UpdateTransformPacket;
+import common.packet.AddPacket;
+import common.packet.StepPacket;
+import common.packet.UpdateTransformPacket;
+import common.packet.basic.DisconnectPacket;
 import common.Connection;
 
 public class PlayerList {
@@ -45,16 +45,16 @@ public class PlayerList {
     }
 
     public static void removePlayer(DisconnectPacket packet) {
-        NetPlayer player = players.get(packet.id);
+        NetPlayer player = players.get(packet.getId());
         
         if(player == null)
             return;
             
-        players.remove(packet.id);
+        players.remove(packet.getId());
     }
 
     public static void playerStep(StepPacket packet) {
-        NetPlayer player = players.get(packet.id);
+        NetPlayer player = players.get(packet.getId());
         
         if(player == null)
             return;

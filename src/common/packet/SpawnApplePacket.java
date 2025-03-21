@@ -1,4 +1,4 @@
-package common.packet.apple;
+package common.packet;
 
 import common.Position;
 import java.io.Serializable;
@@ -6,7 +6,7 @@ import java.io.Serializable;
 import client.Apple;
 
 public class SpawnApplePacket implements Serializable {
-    public Position position;
+    private Position position;
 
     public SpawnApplePacket(Apple apple) {
         this(apple.getPosition());
@@ -16,10 +16,12 @@ public class SpawnApplePacket implements Serializable {
         this.position = position;
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
     @Override
     public String toString() {
-        return "SpawnApplePacket{" +
-                "position= [" + position.x + ", " + position.y + ']' +
-                '}';
+        return super.toString() + "{" + "position= " + position + '}';
     }
 }

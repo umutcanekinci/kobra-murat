@@ -2,9 +2,10 @@ package server;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import common.packet.player.DisconnectPacket;
-import common.packet.player.RemovePacket;
-import common.packet.player.RotatePacket;
+
+import common.packet.RotatePacket;
+import common.packet.basic.DisconnectPacket;
+import common.packet.basic.RemovePacket;
 import common.Connection;
 
 public class PacketHandler {
@@ -17,12 +18,12 @@ public class PacketHandler {
             case DisconnectPacket disconnectPacket -> {
                 PlayerList.removePlayer(disconnectPacket);
                 Server.closeConnection(connection);
-                Server.removeConnection(disconnectPacket.id);
-                PlayerList.sendToAll(new RemovePacket(disconnectPacket.id));
+                Server.removeConnection(disconnectPacket.getId());
+                PlayerList.sendToAll(new RemovePacket(disconnectPacket.getId()));
             }
             
             case RotatePacket rotatePacket -> {
-                PlayerList.players.get(rotatePacket.id).setDirection(rotatePacket.direction);
+                PlayerList.players.get(rotatePacket.getId()).setDirection(rotatePacket.direction);
                 PlayerList.sendToAll(packet);
             }
 

@@ -13,17 +13,6 @@ public class AppleManager {
     private static final ArrayList<Apple> apples = new ArrayList<>();
     private static ArrayList<Position> emptyTiles;
 
-    public static String getInfo() {
-        StringBuilder str = new StringBuilder("APPLES (" + apples.size() + ")\n");
-
-        if(apples.isEmpty()) 
-            return str.append("No apples.\n").toString();
-
-        apples.forEach(apple -> str.append(apple).append("\n"));
-
-        return str.toString();
-    }
-
     public static void setEmptyTiles(ArrayList<Position> emptyTiles) {
         AppleManager.emptyTiles = emptyTiles;
     }
@@ -85,6 +74,17 @@ public class AppleManager {
 
     public static void remove(Position position) {
         apples.removeIf(apple -> apple.doesCollide(position));
+    }
+
+    public static String getInfo() {
+        StringBuilder str = new StringBuilder("APPLES (" + apples.size() + ")\n");
+
+        if(apples.isEmpty()) 
+            return str.append("No apples.\n").toString();
+
+        apples.forEach(apple -> str.append(apple).append("\n"));
+
+        return str.toString();
     }
 
 }

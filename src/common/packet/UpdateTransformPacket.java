@@ -1,8 +1,7 @@
-package common.packet.player;
+package common.packet;
 import java.util.ArrayList;
 
 import common.Direction;
-import common.packet.Packet;
 import common.Position;
 
 public class UpdateTransformPacket extends Packet {
@@ -11,15 +10,6 @@ public class UpdateTransformPacket extends Packet {
     public final ArrayList<Position> parts = new ArrayList<>();
     public final Direction direction;
  
-    @Override
-    public String toString() {
-        return "PlayerTransformPacket{" +
-                "id=" + id +
-                ", direction=" + direction +
-                '}';
-    }
-
-
     public UpdateTransformPacket(int id, ArrayList<Position> parts, Direction direction, int tailIndex) {
         super(id);
         this.tailIndex = tailIndex;
@@ -33,5 +23,10 @@ public class UpdateTransformPacket extends Packet {
 
     public UpdateTransformPacket(server.NetPlayer player) {
         this(player.getId(), player.getParts(), player.getDirection(), player.tailIndex);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "{" + "direction=" + direction + '}';
     }
 }

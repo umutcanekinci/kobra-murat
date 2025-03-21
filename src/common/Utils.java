@@ -2,7 +2,7 @@ package common;
 
 import javax.imageio.ImageIO;
 
-import client.Board;
+import client.Game;
 import client.MoveKey;
 import client.Tilemap;
 
@@ -67,11 +67,16 @@ public final class Utils {
         for (String line : text.split("\n")) {
             g.drawString(line, pos[0], pos[1] += g.getFontMetrics().getHeight());
 
-            if(pos[1] > Board.SIZE.height - 20) {
+            if(pos[1] > Game.SIZE.height - 20) {
                 pos[0] += bounds.width;
                 pos[1] = bounds.y + g.getFontMetrics().getHeight();
             }
         }
+    }
+
+    public static BufferedImage getRotatedImage(BufferedImage image, double angle) {
+        AffineTransformOp op = getRotatedTransform(image, angle);
+        return op.filter(image, null);
     }
 
     public static AffineTransformOp getRotatedTransform(BufferedImage image, double angle) {
@@ -109,10 +114,10 @@ public final class Utils {
         int width = calculateTextWidth(g, text) + 20;
         int height = calculateTextHeight(g, text) + 20;
         
-        if(height >= Board.SIZE.height)
-            width = width * (height / Board.SIZE.height + 1) + 20;
+        if(height >= Game.SIZE.height)
+            width = width * (height / Game.SIZE.height + 1) + 20;
 
-        return new int[]{Math.clamp(width + 20, 0, Board.SIZE.width), Math.clamp(height + 20, 0, Board.SIZE.height)};
+        return new int[]{Math.clamp(width + 20, 0, Game.SIZE.width), Math.clamp(height + 20, 0, Game.SIZE.height)};
     }
 
     public static int calculateTextWidth(Graphics2D g, String text) {

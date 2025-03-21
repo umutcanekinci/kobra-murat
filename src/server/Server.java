@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import common.packet.ServerClosedPacket;
-import common.packet.player.AddPacket;
-import common.packet.player.IdPacket;
+import common.packet.AddPacket;
+import common.packet.basic.IdPacket;
+import common.packet.basic.ServerClosedPacket;
 import common.Connection;
 import common.Utils;
 

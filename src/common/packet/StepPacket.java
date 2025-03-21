@@ -1,6 +1,5 @@
-package common.packet.player;
+package common.packet;
 import common.Direction;
-import common.packet.Packet;
 
 public class StepPacket extends Packet {
 
@@ -10,14 +9,6 @@ public class StepPacket extends Packet {
      */
 
     public final Direction direction;
-
-    @Override
-    public String toString() {
-        return "StepPacket{" +
-                "id=" + id +
-                ", direction=" + direction +
-                '}';
-    }
 
     public StepPacket(int id, Direction direction) {
         super(id);
@@ -32,4 +23,8 @@ public class StepPacket extends Packet {
         this(player.getId(), player.getDirection());
     }
 
+    @Override
+    public String toString() {
+        return super.toString() + "{" + "direction=" + direction + '}';
+    }
 }

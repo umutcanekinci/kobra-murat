@@ -5,9 +5,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.io.File;
 import java.awt.image.ImageObserver;
-import java.awt.image.AffineTransformOp;
-import java.awt.image.BufferedImage;
 
+import common.Corner;
 import common.Position;
 import common.Utils;
 import common.Direction;
@@ -25,7 +24,6 @@ public class Player implements Serializable {
     private int tailIndex = 0;
 
     private int length;
-    private AffineTransformOp headTransform;
     private final int defaultLength;
     private final Position spawnPoint;
 
@@ -43,16 +41,6 @@ public class Player implements Serializable {
         this.tailIndex = tailIndex;
     }
 
-    public String toString() {
-        String info =   "Length: " + length + "\n" +
-                        "Direction: " + getDirection().name() + "\n";
-        
-        for(SnakePart part : parts)
-            info += part + (isHead(part) ? " (Head)" : "") + "\n";
-
-        return info;
-    }
-
     public static void loadSpritesheet() {
         spritesheet = new SpritesheetBuilder().withColumns(3).withRows(3).withSpriteCount(9).withSheet(Utils.loadImage(SPRITESHEET_FILE)).build();
     }
@@ -68,7 +56,16 @@ public class Player implements Serializable {
         resetDirection();
         //OfflinePlayerController.enableRotation();
         updateHead();
-        rotateHeadTransform();
+        rotateHead();
+    }
+
+    public void rotateHead() {
+        SnakePart head = getHead();
+        
+        if (head == null || head.getImage() == null)
+            return;
+
+        head.setImage(Utils.getRotatedImage(head.getImage(), direction.getAngle()));
     }
     
     public ArrayList<Position> getParts() {
@@ -121,7 +118,7 @@ public class Player implements Serializable {
         head.setImage(spritesheet.getSprite(getFrame(head.getDirection(), direction)));
 
         updateHead();
-        rotateHeadTransform();
+        rotateHead();
     }
     
     private int getFrame(Direction dir, Direction newDir){
@@ -131,8 +128,8 @@ public class Player implements Serializable {
             else if(dir == Direction.RIGHT || dir == Direction.LEFT)
                 return 1; // same as 7
         }
-        else {
-            if(newDir == Direction.UP && dir == Direction.RIGHT || newDir == Direction.LEFT && dir == Direction.DOWN)
+        else { // Corner
+            /*if(newDir == Direction.UP && dir == Direction.RIGHT || newDir == Direction.LEFT && dir == Direction.DOWN)
                 return 8;
             else if(newDir == Direction.RIGHT && dir == Direction.DOWN || newDir == Direction.UP && dir == Direction.LEFT)
                 return 6;
@@ -140,6 +137,8 @@ public class Player implements Serializable {
                 return 0;
             else if(newDir == Direction.LEFT && dir == Direction.UP || newDir == Direction.DOWN && dir == Direction.RIGHT)
                 return 2;
+            */
+            
         }
         return -1;
     }
@@ -166,7 +165,6 @@ public class Player implements Serializable {
     }
 
     public void setLength(int amount) {
-        
         if(amount > Tilemap.getRows() * Tilemap.getCols())
             return;
 
@@ -219,10 +217,12 @@ public class Player implements Serializable {
 
     public void drawCollider(Graphics2D g) {
         parts.forEach(part -> part.drawCollider(g, Color.RED));
+        
         SnakePart head = getHead();
         if(head == null)
             return;
         head.drawCollider(g, Color.GREEN);
+
         SnakePart tail = getTail();
         if(tail == null)
             return;
@@ -230,23 +230,15 @@ public class Player implements Serializable {
     }
 
     public void draw(Graphics2D g, ImageObserver observer) {
-        for(SnakePart part : parts) {
-            part.draw(g, observer);
-        }
+        parts.forEach(part -> part.draw(g, observer));
     }
 
-    public void rotateHeadTransform() {
-        SnakePart head = getHead();
-        
-        if (head == null)
-            return;
+    public String toString() {
+        StringBuilder str = new StringBuilder(
+                        "Length: "    + length                + "\n" +
+                        "Direction: " + getDirection().name() + "\n");
+        parts.forEach(part -> str.append(part).append(isHead(part) ? " (Head)" : "").append("\n"));
 
-        BufferedImage headImage = head.getImage();
-
-        if (headImage == null)
-            return;
-
-        headTransform = Utils.getRotatedTransform(headImage, direction.getAngle());
-        head.setImage(headTransform.filter(head.getImage(), null));
+        return str.toString();
     }
 }

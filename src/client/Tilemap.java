@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import common.Spritesheet;
 import common.SpritesheetBuilder;
 import common.Utils;
+import common.packet.basic.SetMapPacket;
 import common.Position;
 
 public class Tilemap {
@@ -36,6 +37,14 @@ public class Tilemap {
 
     public static boolean isReady() {
         return tiles != null;
+    }
+
+    public static void load(SetMapPacket packet) {
+        if(packet == null)
+            return;
+
+        currentLevel = packet.getId();
+        load(currentLevel);
     }
 
     public static void load(int id) {

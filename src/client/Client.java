@@ -7,7 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import common.Connection;
-import common.packet.player.DisconnectPacket;
+import common.packet.basic.DisconnectPacket;
 
 public class Client {
     
@@ -36,8 +36,8 @@ public class Client {
     private static void setState(State state) {
         Client.state = state;
         switch (state) {
-            case CLOSED -> Board.onClientDisconnected();
-            case CONNECTED -> Board.onClientConnected();
+            case CLOSED -> Game.onClientDisconnected();
+            case CONNECTED -> Game.onClientConnected();
         }
     }
 

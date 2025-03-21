@@ -4,16 +4,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.lang.Object;
 
-import common.packet.ServerClosedPacket;
-import common.packet.SetMapPacket;
-import common.packet.apple.EatApplePacket;
-import common.packet.apple.SpawnApplePacket;
-import common.packet.player.AddPacket;
-import common.packet.player.IdPacket;
-import common.packet.player.RemovePacket;
-import common.packet.player.RotatePacket;
-import common.packet.player.StepPacket;
-import common.packet.player.UpdateTransformPacket;
+import common.packet.AddPacket;
+import common.packet.EatApplePacket;
+import common.packet.RotatePacket;
+import common.packet.SpawnApplePacket;
+import common.packet.StepPacket;
+import common.packet.UpdateTransformPacket;
+import common.packet.basic.IdPacket;
+import common.packet.basic.RemovePacket;
+import common.packet.basic.ServerClosedPacket;
+import common.packet.basic.SetMapPacket;
 
 public class PacketHandler {
 
@@ -24,14 +24,14 @@ public class PacketHandler {
 
         switch (packet) {
             case IdPacket idPacket -> {
-                PlayerList.setId(idPacket.id);
-                //player.setSpawnPoint();
-                
+                PlayerList.setId(idPacket);
             }
     
-            case SetMapPacket setMapPacket ->
-                Board.setMap(setMapPacket.id);
-
+            case SetMapPacket setMapPacket -> {
+                Tilemap.load(setMapPacket);
+                AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
+            }
+                
             case AddPacket addPacket ->
                 PlayerList.addPlayer(addPacket);
             
@@ -41,12 +41,12 @@ public class PacketHandler {
 
 
             case EatApplePacket eatApplePacket -> {
-                AppleManager.remove(eatApplePacket.position);
-                PlayerList.grow(eatApplePacket.id, 1);
+                AppleManager.remove(eatApplePacket.getPosition());
+                PlayerList.grow(eatApplePacket.getId(), 1);
             }
 
             case SpawnApplePacket spawnApplePacket ->
-                AppleManager.add(spawnApplePacket.position);
+                AppleManager.add(spawnApplePacket.getPosition());
                 
             case RotatePacket rotatePacket ->
                 PlayerList.rotatePlayer(rotatePacket);
@@ -59,7 +59,7 @@ public class PacketHandler {
                 
             case ServerClosedPacket serverClosedPacket -> {
                 Client.close();
-                Board.openMenu();
+                Game.openMenu();
             }
 
             default ->

@@ -5,11 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import common.Position;
-import common.packet.player.AddPacket;
-import common.packet.player.RemovePacket;
-import common.packet.player.RotatePacket;
-import common.packet.player.StepPacket;
-import common.packet.player.UpdateTransformPacket;
+import common.packet.AddPacket;
+import common.packet.RotatePacket;
+import common.packet.StepPacket;
+import common.packet.UpdateTransformPacket;
+import common.packet.basic.IdPacket;
+import common.packet.basic.RemovePacket;
 
 public class PlayerList {
 
@@ -25,6 +26,10 @@ public class PlayerList {
 
     public static int getId() {
         return id;
+    }
+
+    public static void setId(IdPacket packet) {
+        setId(packet.getId());
     }
 
     public static void setId(int id) {
@@ -75,37 +80,37 @@ public class PlayerList {
     }
 
     public static void addPlayer(AddPacket packet) {
-        if (PlayerList.players.containsKey(packet.id))
+        if (PlayerList.players.containsKey(packet.getId()))
             return;
 
-        players.put(packet.id, new NetPlayer(packet));
+        players.put(packet.getId(), new NetPlayer(packet));
     }
 
 
     public static void removePlayer(RemovePacket packet) {
-        NetPlayer player = players.get(packet.id);
+        NetPlayer player = players.get(packet.getId());
         if(player == null)
             return;
-        players.remove(packet.id);
+        players.remove(packet.getId());
     }
 
     public static void updatePlayerTransform(UpdateTransformPacket packet) {
-        NetPlayer player = players.get(packet.id);
+        NetPlayer player = players.get(packet.getId());
         if(player == null)
             return;
         player.setDirection(packet.direction);
         player.setParts(packet.parts);
         player.setTailIndex(packet.tailIndex);
-        player.rotateHeadTransform();
+        player.rotateHead();
     }
 
     public static void playerStep(StepPacket packet) {
-        NetPlayer player = players.get(packet.id);
+        NetPlayer player = players.get(packet.getId());
         if(player == null)
             return;
         
-        if(player.isCurrentPlayer())
-            Camera.focus(player.getHead().getPosition());
+        //if(player.isCurrentPlayer())
+            //Camera.focus(player.getHead().getPosition());
 
         player.setDirection(packet.direction);
         player.stepTo(player.getNextPosition());
@@ -116,7 +121,7 @@ public class PlayerList {
     }
 
     public static void rotatePlayer(RotatePacket packet) {
-        NetPlayer player = players.get(packet.id);
+        NetPlayer player = players.get(packet.getId());
         if(player == null)
             return;
         player.setDirection(packet.direction);

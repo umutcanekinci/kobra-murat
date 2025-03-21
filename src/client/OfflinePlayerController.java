@@ -6,11 +6,11 @@ import java.util.ArrayList;
 import common.Position;
 import common.Direction;
 import common.Utils;
-import common.packet.SetMapPacket;
-import common.packet.apple.EatApplePacket;
-import common.packet.player.AddPacket;
-import common.packet.player.IdPacket;
-import common.packet.player.StepPacket;
+import common.packet.AddPacket;
+import common.packet.EatApplePacket;
+import common.packet.StepPacket;
+import common.packet.basic.IdPacket;
+import common.packet.basic.SetMapPacket;
 
 public class OfflinePlayerController {    
     /*
@@ -30,7 +30,7 @@ public class OfflinePlayerController {
 
         PlayerList.clear();
         AppleManager.clear();
-        PacketHandler.handle(new SetMapPacket(0));
+        PacketHandler.handle(new SetMapPacket(1));
         AppleManager.spawnAll();
         PacketHandler.handle(new AddPacket(0, DEFAULT_LENGTH, Tilemap.getSpawnPoint()));
         PacketHandler.handle(new IdPacket(0));
@@ -49,7 +49,7 @@ public class OfflinePlayerController {
     }
 
     private static void move() {
-        displacement += speed * Board.DELTATIME;
+        displacement += speed * Game.DELTATIME;
 
         if(displacement < 1)
             return;
@@ -63,7 +63,7 @@ public class OfflinePlayerController {
             return;
         }
         collectApples(position);
-        PacketHandler.handle(new StepPacket(player.getId(), player.getDirection()));
+        PacketHandler.handle(new StepPacket(player));
     }
 
     private static boolean doesCollide(Position position) {

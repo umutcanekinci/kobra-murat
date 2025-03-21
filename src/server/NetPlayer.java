@@ -4,9 +4,9 @@ import java.util.ArrayList;
 
 import common.Position;
 import common.Connection;
-import common.packet.apple.EatApplePacket;
-import common.packet.apple.SpawnApplePacket;
-import common.packet.player.StepPacket;
+import common.packet.EatApplePacket;
+import common.packet.SpawnApplePacket;
+import common.packet.StepPacket;
 
 public class NetPlayer extends Player{
 

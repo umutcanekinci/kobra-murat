@@ -6,8 +6,8 @@ import common.Object;
 
 public class SnakePart extends Object {
 
-    public static final Position HIDDEN_POSITION = new Position(-1, -1);
-    Direction direction;
+    private static final Position HIDDEN_POSITION = new Position(-1, -1);
+    private Direction direction;
 
     public SnakePart() {
         super(HIDDEN_POSITION);
