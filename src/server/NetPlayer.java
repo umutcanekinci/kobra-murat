@@ -7,6 +7,7 @@ import common.Position;
 import common.Connection;
 import common.packet.EatApplePacket;
 import common.packet.SpawnApplePacket;
+import common.packet.SpawnPacket;
 import common.packet.StepPacket;
 
 public class NetPlayer extends Player{
@@ -15,8 +16,8 @@ public class NetPlayer extends Player{
     private Connection connection;
     private final int id;
 
-    public NetPlayer(Connection connection, int id, Position spawnPoint) {
-        super(spawnPoint);
+    public NetPlayer(Connection connection, int id) {
+        super();
         this.connection = connection;
         this.id = id;
     }
@@ -42,7 +43,9 @@ public class NetPlayer extends Player{
         
         Boolean doesHitSelf = doesCollide(position) && !isPointOnTail(position);
         if(doesHitSelf || Tilemap.doesCollide(position)) {
-            reset();
+            SpawnPacket packet = new SpawnPacket(id, Tilemap.getSpawnPoint());
+            PlayerList.spawnPlayer(packet);
+            PlayerList.sendToAll(packet);
             return;
         }
 

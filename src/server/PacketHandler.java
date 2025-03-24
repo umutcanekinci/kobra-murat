@@ -4,8 +4,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import common.packet.RotatePacket;
+import common.packet.SpawnPacket;
 import common.packet.basic.DisconnectPacket;
 import common.packet.basic.RemovePacket;
+import common.packet.basic.StartPacket;
 import common.Connection;
 
 public class PacketHandler {
@@ -15,6 +17,12 @@ public class PacketHandler {
         LOGGER.log(Level.INFO, packet + "\n");
         
         switch (packet) {
+            case StartPacket startPacket -> {
+                SpawnPacket spawnPacket = new SpawnPacket(startPacket.getId(), Tilemap.getSpawnPoint());
+                PlayerList.spawnPlayer(spawnPacket);
+                PlayerList.sendToAll(spawnPacket);
+            }
+
             case DisconnectPacket disconnectPacket -> {
                 PlayerList.removePlayer(disconnectPacket);
                 Server.closeConnection(connection);

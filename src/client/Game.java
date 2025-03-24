@@ -9,7 +9,7 @@ import common.Constants;
 import common.Direction;
 import common.Utils;
 import common.packet.RotatePacket;
-
+import common.packet.basic.StartPacket;
 import client.graphics.Draw;
 import client.graphics.UI;
 import server.Server;
@@ -68,7 +68,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     private void initWidgets() {
-        addButton("Başla", e -> startGame());
+        addButton("Başla", e -> sendStart());
         addButton("Bağlan", e -> onConnectButtonClick());
         addButton("Sunucu Aç", e -> onHostButtonClick());
         addButton("Çıkış", e -> exit());
@@ -83,10 +83,20 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     //region ---------------------------------------- BUTTON METHODS ----------------------------------------
 
-    private static void startGame() {        
+    private static void sendStart() {   
+        if(Client.isConnected())
+            sendStartPacket();
+        else
+            OfflinePlayerController.init();
+    }
+
+    public static void start() {
         isGameStarted = true;
-        OfflinePlayerController.init();
         hideWidgets();
+    }
+
+    private static void sendStartPacket() {
+        Client.sendData(new StartPacket(PlayerList.getId()));
     }
 
     private static void hideWidgets() {

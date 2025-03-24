@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import common.packet.AddPacket;
+import common.packet.SpawnPacket;
 import common.packet.StepPacket;
 import common.packet.UpdateTransformPacket;
 import common.packet.basic.DisconnectPacket;
@@ -25,9 +26,14 @@ public class PlayerList {
         return players.size();
     }
 
-    public static void addPlayer(Connection connection, int id) {
-        NetPlayer player = new NetPlayer(connection, id, Tilemap.getSpawnPoint());
+    public static void addPlayer(Connection connection, int id, ) {
+        NetPlayer player = new NetPlayer(connection, id);
         players.put(id, player);
+    }
+
+    public static void spawnPlayer(SpawnPacket packet) {
+        NetPlayer player = players.get(packet.getId());
+        player.spawn(packet.getSpawnPoint());
     }
 
     public static void removePlayer(DisconnectPacket packet) {
@@ -63,7 +69,7 @@ public class PlayerList {
     }
 
     public static void sendAllTo(Connection connection) {
-        players.forEach((key, value) -> connection.sendData(new AddPacket(key, value.length, Tilemap.getSpawnPoint())));
+        players.forEach((key, value) -> connection.sendData(new AddPacket(key, value.length)));
         players.forEach((key, value) -> connection.sendData(new UpdateTransformPacket(value)));
     }
 

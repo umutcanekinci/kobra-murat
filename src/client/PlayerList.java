@@ -4,13 +4,8 @@ import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import common.Direction;
 import common.Position;
-import common.packet.AddPacket;
-import common.packet.RotatePacket;
-import common.packet.StepPacket;
-import common.packet.UpdateTransformPacket;
-import common.packet.basic.IdPacket;
-import common.packet.basic.RemovePacket;
 
 public class PlayerList {
 
@@ -28,21 +23,11 @@ public class PlayerList {
         return id;
     }
 
-    public static void setId(IdPacket packet) {
-        setId(packet.getId());
-    }
-
     public static void setId(int id) {
         PlayerList.id = id;
+
         if(!Client.isConnected())
             OfflinePlayerController.setPlayer(getCurrentPlayer());
-    }
-
-    public static void grow(int id, int amount) {
-        NetPlayer player = players.get(id);
-        if(player == null)
-            return;
-        player.grow(amount);
     }
 
     public static NetPlayer getCurrentPlayer() {
@@ -65,66 +50,76 @@ public class PlayerList {
         return parts;
     }
 
-    public static void addPlayer(AddPacket packet) {
-        if (PlayerList.players.containsKey(packet.getId()))
-            return;
-
-        players.put(packet.getId(), new NetPlayer(packet));
+    public static void clear() {
+        players.clear();
     }
 
+    //region Single Player Methods
 
-    public static void removePlayer(RemovePacket packet) {
-        NetPlayer player = players.get(packet.getId());
+    public static void add(int id, int defaultLength) {
+        if (PlayerList.players.containsKey(id))
+            return;
+
+        players.put(id, new NetPlayer(id, defaultLength));
+    }
+
+    public static void spawn(int id, Position spawnPoint) {
+        NetPlayer player = players.get(id);
         if(player == null)
             return;
-        players.remove(packet.getId());
+
+        player.spawn(spawnPoint);
     }
 
-    public static void updatePlayerTransform(UpdateTransformPacket packet) {
-        NetPlayer player = players.get(packet.getId());
+    public static void updateTransform(int id, Direction direction, ArrayList<Position> parts, int tailIndex) {
+        NetPlayer player = players.get(id);
         if(player == null)
             return;
-        player.setDirection(packet.direction);
-        player.setParts(packet.parts);
-        player.setTailIndex(packet.tailIndex);
+        player.setDirection(direction);
+        player.setParts(parts);
+        player.setTailIndex(tailIndex);
     }
 
-    public static void playerStep(StepPacket packet) {
-        NetPlayer player = players.get(packet.getId());
+    public static void step(int id, Direction direction) {
+        NetPlayer player = players.get(id);
         if(player == null)
             return;
         
         //if(player.isCurrentPlayer())
             //Camera.focus(player.getHead().getPosition());
 
-        player.setDirection(packet.direction);
+        player.setDirection(direction);
         player.stepTo(player.getNextPosition());
     }
 
-    public static void clear() {
-        players.clear();
-    }
-
-    public static void rotatePlayer(RotatePacket packet) {
-        NetPlayer player = players.get(packet.getId());
+    public static void rotate(int id, Direction direction) {
+        NetPlayer player = players.get(id);
         if(player == null)
             return;
-        player.setDirection(packet.direction);
+            
+        player.setDirection(direction);
     }
+
+    public static void grow(int id, int amount) {
+        NetPlayer player = players.get(id);
+        if(player == null)
+            return;
+
+        player.grow(amount);
+    }
+
+    public static void remove(int id) {
+        NetPlayer player = players.get(id);
+        if(player == null)
+            return;
+        players.remove(id);
+    }
+
+    //endregion
 
     public static boolean doesCollide(Position position) {
         for (NetPlayer player : players.values()) {
             if (player.doesCollide(position)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean growIfCollide(Position position) {
-        for (NetPlayer player : players.values()) {
-            if (player.doesCollide(position)) {
-                player.grow(1);
                 return true;
             }
         }

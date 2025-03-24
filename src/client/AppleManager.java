@@ -21,6 +21,10 @@ public class AppleManager {
         apples.add(new Apple(position));
     }
 
+    public static void addAll(ArrayList<Position> positions) {
+        positions.forEach(AppleManager::add);
+    }
+
     public static void spawnAll() {
         while(apples.size() < APPLE_COUNT) {
             if(!spawn())

@@ -8,6 +8,8 @@ import common.packet.AddPacket;
 import common.packet.EatApplePacket;
 import common.packet.RotatePacket;
 import common.packet.SpawnApplePacket;
+import common.packet.SpawnApplesPacket;
+import common.packet.SpawnPacket;
 import common.packet.StepPacket;
 import common.packet.UpdateTransformPacket;
 import common.packet.basic.IdPacket;
@@ -23,9 +25,8 @@ public class PacketHandler {
         LOGGER.log(Level.INFO, packet + "\n");
 
         switch (packet) {
-            case IdPacket idPacket -> {
-                PlayerList.setId(idPacket);
-            }
+            case IdPacket idPacket ->
+                PlayerList.setId(idPacket.getId());
     
             case SetMapPacket setMapPacket -> {
                 Tilemap.load(setMapPacket);
@@ -33,11 +34,16 @@ public class PacketHandler {
             }
                 
             case AddPacket addPacket ->
-                PlayerList.addPlayer(addPacket);
+                PlayerList.add(addPacket.getId(), addPacket.getLength());
             
                 
+            case SpawnPacket spawnPacket -> {
+                PlayerList.spawn(spawnPacket.getId(), spawnPacket.getSpawnPoint());
+                Game.start();
+            }
+
             case UpdateTransformPacket playerTransformPacket ->
-                PlayerList.updatePlayerTransform(playerTransformPacket);
+                PlayerList.updateTransform(playerTransformPacket.getId(), playerTransformPacket.getDirection(), playerTransformPacket.getParts(), playerTransformPacket.getTailIndex());
 
 
             case EatApplePacket eatApplePacket -> {
@@ -45,17 +51,22 @@ public class PacketHandler {
                 PlayerList.grow(eatApplePacket.getId(), 1);
             }
 
+            case SpawnApplesPacket spawnApplesPacket -> {
+                AppleManager.clear();
+                AppleManager.addAll(spawnApplesPacket.getPositions());
+            }
+
             case SpawnApplePacket spawnApplePacket ->
                 AppleManager.add(spawnApplePacket.getPosition());
                 
             case RotatePacket rotatePacket ->
-                PlayerList.rotatePlayer(rotatePacket);
+                PlayerList.rotate(rotatePacket.getId(), rotatePacket.getDirection());
 
             case StepPacket stepPacket ->
-                PlayerList.playerStep(stepPacket);
+                PlayerList.step(stepPacket.getId(), stepPacket.getDirection());
                 
             case RemovePacket removePacket ->
-                PlayerList.removePlayer(removePacket);
+                PlayerList.remove(removePacket.getId());
                 
             case ServerClosedPacket serverClosedPacket -> {
                 Client.close();

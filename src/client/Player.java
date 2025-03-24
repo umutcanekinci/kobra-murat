@@ -26,12 +26,9 @@ public class Player implements Serializable {
     private int speed;
     private int length;
     private final int defaultLength;
-    private final Position spawnPoint;
 
-    Player(int defaultLength, Position spawnPoint) {
+    Player(int defaultLength) {
         this.defaultLength = defaultLength;
-        this.spawnPoint = spawnPoint;
-        reset();
     }
 
     public int getTailIndex() {
@@ -54,7 +51,8 @@ public class Player implements Serializable {
         return Utils.getScore(length, defaultLength);
     }
 
-    public void reset() {
+    public void spawn(Position spawnPoint) {
+        System.out.println("Spawning player at " + spawnPoint + " with length " + defaultLength);
         setLength(defaultLength);
         resetParts();
         setPosition(new Position(spawnPoint));

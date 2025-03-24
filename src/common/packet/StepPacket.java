@@ -23,6 +23,10 @@ public class StepPacket extends Packet {
         this(player.getId(), player.getDirection());
     }
 
+    public Direction getDirection() {
+        return direction;
+    }
+
     @Override
     public String toString() {
         return super.toString() + "{" + "direction=" + direction + '}';

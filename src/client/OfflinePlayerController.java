@@ -24,14 +24,11 @@ public class OfflinePlayerController {
     private static boolean canRotate = true;
 
     public static void init() {
-        if(Client.isConnected())
-            return;
-
         PlayerList.clear();
         AppleManager.clear();
         PacketHandler.handle(new SetMapPacket(1));
         AppleManager.spawnAll();
-        PacketHandler.handle(new AddPacket(0, Constants.DEFAULT_LENGTH, Tilemap.getSpawnPoint()));
+        PacketHandler.handle(new AddPacket(0, Constants.DEFAULT_LENGTH));
         PacketHandler.handle(new IdPacket(0));
     }
 
@@ -58,7 +55,7 @@ public class OfflinePlayerController {
         
         Position position = player.getNextPosition();
         if(doesCollide(position)) {
-            player.reset();
+            player.spawn(Tilemap.getSpawnPoint());
             return;
         }
         PacketHandler.handle(new StepPacket(player));

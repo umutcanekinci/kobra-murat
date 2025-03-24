@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import common.Connection;
 import common.Utils;
-import common.packet.SpawnApplePacket;
+import common.packet.SpawnApplesPacket;
 import common.Position;
 
 class AppleManager {
@@ -71,7 +71,8 @@ class AppleManager {
     }
 
     public static void sendAllTo(Connection connection) {
-        apples.forEach((apple) -> connection.sendData(new SpawnApplePacket(apple)));
+        connection.sendData(new SpawnApplesPacket(apples));
+        //apples.forEach((apple) -> connection.sendData(new SpawnApplePacket(apple)));
     }
 
     public static String getInfo() {

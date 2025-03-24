@@ -25,6 +25,18 @@ public class UpdateTransformPacket extends Packet {
         this(player.getId(), player.getParts(), player.getDirection(), player.tailIndex);
     }
 
+    public int getTailIndex() {
+        return tailIndex;
+    }
+
+    public ArrayList<Position> getParts() {
+        return parts;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
     @Override
     public String toString() {
         return super.toString() + "{" + "direction=" + direction + '}';

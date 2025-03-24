@@ -1,18 +1,11 @@
 package client;
 
-import common.Position;
-import common.packet.AddPacket;
-
 public class NetPlayer extends Player{
 
     private final int id;
 
-    public NetPlayer(AddPacket packet) {
-        this(packet.getId(), packet.getLength(), packet.getSpawnPoint());
-    }
-
-    public NetPlayer(int id, int defaultLength, Position spawnPoint) {
-        super(defaultLength, spawnPoint);
+    public NetPlayer(int id, int defaultLength) {
+        super(defaultLength);
         this.id = id;
     }
 

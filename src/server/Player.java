@@ -14,38 +14,23 @@ public class Player implements Serializable {
     private Direction direction = Constants.DEFAULT_DIRECTION;
     public int tailIndex = 0;
     public int length;
-    public final Position spawnPoint;
     private int speed;
 
-    public Player(Position spawnPoint) {
-        this.spawnPoint = spawnPoint;
-        reset();
-    }
+    public Player() {}
 
     public int getSpeed() {
         return speed;
     }
 
-    public void setMap() {
-        spawnPoint.setLocation(Tilemap.getSpawnPoint());
-    }
-
-    public void reset() {
+    public void spawn(Position spawnPoint) {
         setLength(Constants.DEFAULT_LENGTH);
-        goSpawnPosition();
+        setPosition(spawnPoint);
         resetDirection();
         updateSpeed();
     }
 
     private void updateSpeed() {
         speed = Utils.calculateSpeed(length);
-    }
-
-    private void goSpawnPosition() {
-        if(spawnPoint == null)
-            return;
-
-        setPosition(spawnPoint);
     }
 
     private void setPosition(Position position) {

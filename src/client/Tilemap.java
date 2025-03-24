@@ -142,14 +142,6 @@ public class Tilemap {
         }
     }
 
-    public static Position getRandomEmptyPoint() {
-        Position point = new Position();
-        do {
-            point.setLocation((int) (Math.random() * cols), (int) (Math.random() * rows));
-        } while (Tilemap.getTile(point).isCollidable);
-        return point;
-    }
-
     public static Tile getTile(Position position) {
         int row = position.y;
         int col = position.x;

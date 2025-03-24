@@ -93,7 +93,6 @@ public final class Utils {
         }
     }
 
-    
     public static Position moveTowards(Position position, Direction direction) {
         return new Position(position.x + direction.getX(), position.y + direction.getY());
     }
@@ -103,7 +102,6 @@ public final class Utils {
         int y = (position.y + rows) % rows;
         return new Position(x, y);
     }
-
 
     public static int[] calculateTextSize(Graphics2D g, String text) {
         int width = calculateTextWidth(g, text) + 20;
