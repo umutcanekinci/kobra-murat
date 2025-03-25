@@ -2,7 +2,7 @@ package client;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ArrayList;
+import java.util.HashMap;
 import javax.swing.*;
 
 import common.Constants;
@@ -18,15 +18,26 @@ import server.Server;
 public class Game extends JPanel implements ActionListener, KeyListener, ServerListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
-    public static final boolean isHostInLocal = true;
-    
-    private static final int PORT = 7777;
-    private static final String HOST_IP = "192.168.1.7";
-    private static final ArrayList<JButton> buttons = new ArrayList<>();
 
+    private static boolean isStarted = false;
     private static boolean debugMode = false;
     private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
-    private static boolean isStarted = false;
+
+    enum Page {
+        MAIN_MENU,
+        CONNECT,
+        GAME
+    }
+    private static Page page;
+    private static final HashMap<Page, JPanel> pages = new HashMap<>();
+
+    private static final HashMap<Page, Page> backPages = new HashMap<>() {{
+        put(Page.CONNECT, Page.MAIN_MENU);
+        put(Page.GAME, Page.MAIN_MENU);
+    }};
+
+    private static JTextField hostField;
+    private static JTextField portField;
     
     //endregion
 
@@ -41,9 +52,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         setFullscreen();
         UI.init();
         initServer();
-        initClient();
         initLayout();
         initWidgets();
+        openPage(Page.MAIN_MENU);
         initTimer();
     }
 
@@ -52,13 +63,13 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     private void initServer() {
-        Server.init(PORT);
+        Server.init(Constants.PORT);
         Server.setListener(this);
     }
 
     private static void initClient() {
-        Client.setHost(isHostInLocal ? "localhost" : HOST_IP);
-        Client.setPort(PORT);
+        Client.setHost(hostField.getText());
+        Client.setPort(Integer.parseInt(portField.getText()));
     }
 
     private static void initLayout() {
@@ -68,18 +79,60 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     private void initWidgets() {
-        addButton("Başla", e -> sendStart());
-        addButton("Bağlan", e -> onConnectButtonClick());
-        addButton("Sunucu Aç", e -> onHostButtonClick());
-        addButton("Çıkış", e -> exit());
+        initMainMenu();
+        initGame();
+        initConnect();
+        for (Page p : pages.keySet()) {
+            add(pages.get(p), layout);
+            pages.get(p).setBackground(Color.BLACK);
+        }
+
+        //addButton("Başla", e -> sendStart());
+        //addButton("Bağlan", e -> onConnectButtonClick());
+        //addButton("Sunucu Aç", e -> onHostButtonClick());
+        //addButton("Çıkış", e -> exit());
     }
 
-    private void addButton(String text, ActionListener listener) {
+    private void initMainMenu() {
+        JPanel mainMenu = new JPanel(new GridBagLayout());
+        pages.put(Page.MAIN_MENU, mainMenu);
+
+        addButton(mainMenu, "Başla", e -> sendStart());
+        addButton(mainMenu, "Bağlan", e -> openPage(Page.CONNECT));
+        addButton(mainMenu, "Sunucu Aç", e -> onHostButtonClick());
+        addButton(mainMenu, "Çıkış", e -> exit());
+    }
+
+    private void initConnect() {
+        JPanel connect = new JPanel(new GridBagLayout());
+        pages.put(Page.CONNECT, connect);
+
+        addButton(connect, "Geri", e -> onBack());
+        hostField = new JTextField("localhost");
+        hostField.setPreferredSize(new Dimension(200, 60));
+        connect.add(hostField, layout);
+        portField = new JTextField("7777");
+        portField.setPreferredSize(new Dimension(200, 60));
+        connect.add(portField, layout);
+        addButton(connect, "Bağlan", e -> onConnectButtonClick());
+    }
+
+    private void initGame() {
+        JPanel game = new JPanel(new GridBagLayout());
+        pages.put(Page.GAME, game);
+    }
+
+    private static void openPage(Page page) {
+        Game.page = page;
+        pages.forEach((p, panel) -> panel.setVisible(p == page));
+    }
+
+    private void addButton(JPanel panel, String text, ActionListener listener) {
         JButton button = UI.newButton(text);
         button.addActionListener(listener);
-        add(button, layout);
-        buttons.add(button);
+        panel.add(button, layout);
     }
+
 
     //region ---------------------------------------- BUTTON METHODS ----------------------------------------
 
@@ -92,54 +145,33 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     public static void start() {
         isStarted = true;
-        hideWidgets();
+        openPage(Page.GAME);
     }
 
     private static void sendStartPacket() {
         Client.sendData(new StartPacket(PlayerList.getId()));
     }
 
-    private static void hideWidgets() {
-        for (JButton button : buttons) {
-            if(button == null)
-                continue;
-
-            button.setVisible(false);
-        }
-    }
-
     private static void onConnectButtonClick() {
-        disableConnectButton(); // Don't allow to spam clicks, maybe this not needed but just in case
         if(Client.isConnected()) {
             Client.disconnect();
             return;
         }
+        initClient();
         connect();
     }
 
-    private static void disableConnectButton() {
-        buttons.get(1).setEnabled(false);
-    }
-
-    private static void connect() {        
-        if(!Server.isRunning()) // Don't let open server if connected to another server
-            disableHostButton();
-        
+    private static void connect() {
         PlayerList.clear();
         Client.start();
     }
 
     private static void onHostButtonClick() {
-        disableHostButton(); // Don't allow to spam clicks, maybe this not needed but just in case
         if(Server.isRunning()) {
             Server.close();
             return;
         }
         Server.start();
-    }
-
-    private static void disableHostButton() {
-        buttons.get(2).setEnabled(false);
     }
 
     public static void exit() {
@@ -169,29 +201,15 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     public static void onClientConnected() {
-        JButton button = buttons.get(1);
-        button.setText("Bağlantıyı Kes");
-        button.setEnabled(true);
     }
 
     public static void onClientDisconnected() {
-        JButton button = buttons.get(1);
-        button.setText("Bağlan");
-        button.setEnabled(true);
-        buttons.get(2).setEnabled(true);
     }
 
     public static void onServerOpened() {
-        JButton button = buttons.get(2);
-        button.setText("Sunucuyu Kapat");
-        button.setEnabled(true);
     }
 
     public static void onServerClosed() {
-        JButton button = buttons.get(2);
-        button.setText("Sunucu Aç");
-        button.setEnabled(true);
-        buttons.get(1).setEnabled(true);
     }
 
     //endregion
@@ -219,17 +237,20 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
         if(e.getKeyCode() == KeyEvent.VK_F2)
             debugMode = !debugMode;
-
-        if(!isStarted) {
-            keyPressedMenu(e);
+        
+        if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+            onBack();
+            return;
         }
-        else {
+            
+        if(isStarted)
             keyPressedGame(e);
-        }
     }
 
-    private static void keyPressedMenu(KeyEvent e) {
-        if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
+    private static void onBack() {
+        if(page != Page.MAIN_MENU)
+            openPage(backPages.get(page));
+        else
             exit();
     }
 
@@ -261,16 +282,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     public static void openMenu() {
         isStarted = false;
-        showWidgets();
-    }
-
-    private static void showWidgets() {
-        for (JButton button : buttons) {
-            if(button == null)
-                continue;
-
-            button.setVisible(true);
-        }
+        openPage(Page.MAIN_MENU);
     }
 
     //endregion
