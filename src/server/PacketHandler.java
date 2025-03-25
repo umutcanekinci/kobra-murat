@@ -9,6 +9,7 @@ import common.packet.basic.DisconnectPacket;
 import common.packet.basic.RemovePacket;
 import common.packet.basic.StartPacket;
 import common.Connection;
+import common.Constants;
 
 public class PacketHandler {
     
@@ -18,7 +19,7 @@ public class PacketHandler {
         
         switch (packet) {
             case StartPacket startPacket -> {
-                SpawnPacket spawnPacket = new SpawnPacket(startPacket.getId(), Tilemap.getSpawnPoint());
+                SpawnPacket spawnPacket = new SpawnPacket(startPacket.getId(), Tilemap.getSpawnPoint(), Constants.DEFAULT_LENGTH);
                 PlayerList.spawnPlayer(spawnPacket);
                 PlayerList.sendToAll(spawnPacket);
             }

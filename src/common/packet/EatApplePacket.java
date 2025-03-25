@@ -15,6 +15,8 @@ public class EatApplePacket extends Packet{
     }
 
     public String toString() {
-        return super.toString() + ": " + position;
+        return super.toString() + "{" +
+                "position=" + position +
+            '}';
     }
 }

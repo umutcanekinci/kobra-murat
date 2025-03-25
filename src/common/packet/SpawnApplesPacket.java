@@ -14,4 +14,11 @@ public class SpawnApplesPacket extends Packet {
     public ArrayList<Position> getPositions() {
         return positions;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "{" +
+                "count=" + positions.size() +
+            '}';
+    }
 }

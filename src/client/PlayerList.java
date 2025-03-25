@@ -56,19 +56,19 @@ public class PlayerList {
 
     //region Single Player Methods
 
-    public static void add(int id, int defaultLength) {
+    public static void add(int id) {
         if (PlayerList.players.containsKey(id))
             return;
 
-        players.put(id, new NetPlayer(id, defaultLength));
+        players.put(id, new NetPlayer(id));
     }
 
-    public static void spawn(int id, Position spawnPoint) {
+    public static void spawn(int id, Position spawnPoint, int length) {
         NetPlayer player = players.get(id);
         if(player == null)
             return;
 
-        player.spawn(spawnPoint);
+        player.spawn(spawnPoint, length);
     }
 
     public static void updateTransform(int id, Direction direction, ArrayList<Position> parts, int tailIndex) {

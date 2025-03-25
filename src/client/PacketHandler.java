@@ -4,7 +4,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.lang.Object;
 
-import common.packet.AddPacket;
 import common.packet.EatApplePacket;
 import common.packet.RotatePacket;
 import common.packet.SpawnApplePacket;
@@ -12,6 +11,7 @@ import common.packet.SpawnApplesPacket;
 import common.packet.SpawnPacket;
 import common.packet.StepPacket;
 import common.packet.UpdateTransformPacket;
+import common.packet.basic.AddPacket;
 import common.packet.basic.IdPacket;
 import common.packet.basic.RemovePacket;
 import common.packet.basic.ServerClosedPacket;
@@ -34,16 +34,17 @@ public class PacketHandler {
             }
                 
             case AddPacket addPacket ->
-                PlayerList.add(addPacket.getId(), addPacket.getLength());
-            
+                PlayerList.add(addPacket.getId());
                 
             case SpawnPacket spawnPacket -> {
-                PlayerList.spawn(spawnPacket.getId(), spawnPacket.getSpawnPoint());
-                Game.start();
+                PlayerList.spawn(spawnPacket.getId(), spawnPacket.getSpawnPoint(), spawnPacket.getLength());
+                
+                if(!Game.isStarted() && spawnPacket.getId() == PlayerList.getId())
+                    Game.start();
             }
 
-            case UpdateTransformPacket playerTransformPacket ->
-                PlayerList.updateTransform(playerTransformPacket.getId(), playerTransformPacket.getDirection(), playerTransformPacket.getParts(), playerTransformPacket.getTailIndex());
+            case UpdateTransformPacket transformPacket ->
+                PlayerList.updateTransform(transformPacket.getId(), transformPacket.getDirection(), transformPacket.getParts(), transformPacket.getTailIndex());
 
 
             case EatApplePacket eatApplePacket -> {
@@ -52,7 +53,6 @@ public class PacketHandler {
             }
 
             case SpawnApplesPacket spawnApplesPacket -> {
-                AppleManager.clear();
                 AppleManager.addAll(spawnApplesPacket.getPositions());
             }
 

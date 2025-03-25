@@ -4,8 +4,8 @@ public class NetPlayer extends Player{
 
     private final int id;
 
-    public NetPlayer(int id, int defaultLength) {
-        super(defaultLength);
+    public NetPlayer(int id) {
+        super();
         this.id = id;
     }
 

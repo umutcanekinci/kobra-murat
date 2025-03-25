@@ -16,10 +16,22 @@ public class Player implements Serializable {
     public int length;
     private int speed;
 
-    public Player() {}
-
     public int getSpeed() {
         return speed;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public ArrayList<Position> getParts() {
+        ArrayList<Position> points = new ArrayList<>();
+        parts.forEach(part -> points.add(part));
+        return points;
+    }
+
+    public SnakePart getHead() {
+        return parts.get((tailIndex - 1 + length) % length);
     }
 
     public void spawn(Position spawnPoint) {
@@ -37,24 +49,6 @@ public class Player implements Serializable {
         tailIndex = 0;
         resetParts();
         getHead().setLocation(position);
-    }
-
-    public ArrayList<Position> getParts() {
-        ArrayList<Position> points = new ArrayList<>();
-        parts.forEach(part -> points.add(part));
-        return points;
-    }
-
-    public SnakePart getHead() {
-        return parts.get((tailIndex - 1 + length) % length);
-    }
-
-    public boolean isHead(SnakePart part) {
-        return part.equals(getHead());
-    }
-
-    public Direction getDirection() {
-        return direction;
     }
 
     public void setDirection(Direction direction) {
@@ -133,11 +127,7 @@ public class Player implements Serializable {
     public void resetDirection() {
         direction = Constants.DEFAULT_DIRECTION;
     }
-
-    public Position getPosition() {
-        return getHead();
-    }
-
+    
     public String toString() {
         StringBuilder str = new StringBuilder(
                         "Length: "    + length                + "\n" +
@@ -145,6 +135,10 @@ public class Player implements Serializable {
         parts.forEach(part -> str.append(part).append(isHead(part) ? " (Head)" : "").append("\n"));
 
         return str.toString();
+    }
+
+    public boolean isHead(SnakePart part) {
+        return part.equals(getHead());
     }
 
 }

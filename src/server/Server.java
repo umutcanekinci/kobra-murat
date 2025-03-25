@@ -6,11 +6,11 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import common.Constants;
-import common.packet.AddPacket;
+import common.packet.basic.AddPacket;
 import common.packet.basic.IdPacket;
 import common.packet.basic.ServerClosedPacket;
 import common.Connection;
+import common.ServerListener;
 import common.Utils;
 
 public class Server {
@@ -131,7 +131,7 @@ public class Server {
         Connection newConnection = new Connection(socket, true); // Create new connection and add to list
         Tilemap.sendMap(newConnection); // Send current level to new player // Send current level to new player
         AppleManager.sendAllTo(newConnection);
-        PlayerList.sendToAll(new AddPacket(id, Constants.DEFAULT_LENGTH));//, Tilemap.getSpawnPoint())); // Send new player to all clients
+        PlayerList.sendToAll(new AddPacket(id));// Send new player to all clients
         PlayerList.addPlayer(newConnection, id); // Add player to list
         PlayerList.sendAllTo(newConnection); // Send all players to new client including itself
         newConnection.sendData(new IdPacket(id)); // Send id to new player so it can get its own player object from list

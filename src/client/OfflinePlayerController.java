@@ -7,9 +7,10 @@ import common.Position;
 import common.Constants;
 import common.Direction;
 import common.Utils;
-import common.packet.AddPacket;
 import common.packet.EatApplePacket;
+import common.packet.SpawnPacket;
 import common.packet.StepPacket;
+import common.packet.basic.AddPacket;
 import common.packet.basic.IdPacket;
 import common.packet.basic.SetMapPacket;
 
@@ -25,11 +26,11 @@ public class OfflinePlayerController {
 
     public static void init() {
         PlayerList.clear();
-        AppleManager.clear();
         PacketHandler.handle(new SetMapPacket(1));
         AppleManager.spawnAll();
-        PacketHandler.handle(new AddPacket(0, Constants.DEFAULT_LENGTH));
+        PacketHandler.handle(new AddPacket(0));
         PacketHandler.handle(new IdPacket(0));
+        PacketHandler.handle(new SpawnPacket(0, Tilemap.getSpawnPoint(), Constants.DEFAULT_LENGTH));
     }
 
     public static void enableRotation() {
@@ -55,7 +56,7 @@ public class OfflinePlayerController {
         
         Position position = player.getNextPosition();
         if(doesCollide(position)) {
-            player.spawn(Tilemap.getSpawnPoint());
+            player.spawn(Tilemap.getSpawnPoint(), Constants.DEFAULT_LENGTH);
             return;
         }
         PacketHandler.handle(new StepPacket(player));

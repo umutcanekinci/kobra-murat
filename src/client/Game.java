@@ -7,13 +7,13 @@ import javax.swing.*;
 
 import common.Constants;
 import common.Direction;
+import common.ServerListener;
 import common.Utils;
 import common.packet.RotatePacket;
 import common.packet.basic.StartPacket;
 import client.graphics.Draw;
 import client.graphics.UI;
 import server.Server;
-import server.ServerListener;
 
 public class Game extends JPanel implements ActionListener, KeyListener, ServerListener {
 
@@ -26,7 +26,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     private static boolean debugMode = false;
     private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
-    private static boolean isGameStarted = false;
+    private static boolean isStarted = false;
     
     //endregion
 
@@ -91,7 +91,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     public static void start() {
-        isGameStarted = true;
+        isStarted = true;
         hideWidgets();
     }
 
@@ -126,7 +126,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
             disableHostButton();
         
         PlayerList.clear();
-        AppleManager.clear();
         Client.start();
     }
 
@@ -205,6 +204,10 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     //region ---------------------------------------- INPUT METHODS ---------------------------------------
 
+    public static boolean isStarted() {
+        return isStarted;
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {}
 
@@ -217,7 +220,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         if(e.getKeyCode() == KeyEvent.VK_F2)
             debugMode = !debugMode;
 
-        if(!isGameStarted) {
+        if(!isStarted) {
             keyPressedMenu(e);
         }
         else {
@@ -257,7 +260,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     public static void openMenu() {
-        isGameStarted = false;
+        isStarted = false;
         showWidgets();
     }
 
@@ -274,7 +277,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(isGameStarted)
+        if(isStarted)
         {    
             if(!Client.isConnected())
                 OfflinePlayerController.update();
@@ -287,7 +290,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         super.paintComponent(g); // Clear the screen
         Graphics2D g2d = (Graphics2D) g;
         //Camera.draw(g2d, this); // Set the camera
-        Draw.all(g2d, this, isGameStarted, debugMode, this); // Draw everything
+        Draw.all(g2d, this, isStarted, debugMode, this); // Draw everything
     }
 
 }

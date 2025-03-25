@@ -43,7 +43,7 @@ public class NetPlayer extends Player{
         
         Boolean doesHitSelf = doesCollide(position) && !isPointOnTail(position);
         if(doesHitSelf || Tilemap.doesCollide(position)) {
-            SpawnPacket packet = new SpawnPacket(id, Tilemap.getSpawnPoint());
+            SpawnPacket packet = new SpawnPacket(id, Tilemap.getSpawnPoint(), Constants.DEFAULT_LENGTH);
             PlayerList.spawnPlayer(packet);
             PlayerList.sendToAll(packet);
             return;

@@ -39,6 +39,8 @@ public class UpdateTransformPacket extends Packet {
 
     @Override
     public String toString() {
-        return super.toString() + "{" + "direction=" + direction + '}';
+        return super.toString() + "{" + "direction=" + direction + 
+                ", tailIndex=" + tailIndex +
+        '}';
     }
 }

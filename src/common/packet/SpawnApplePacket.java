@@ -17,4 +17,11 @@ public class SpawnApplePacket extends Packet {
     public Position getPosition() {
         return position;
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + "{" +
+                "position=" + position +
+            '}';
+    }
 }

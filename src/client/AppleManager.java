@@ -22,10 +22,12 @@ public class AppleManager {
     }
 
     public static void addAll(ArrayList<Position> positions) {
+        apples.clear();
         positions.forEach(AppleManager::add);
     }
 
     public static void spawnAll() {
+        apples.clear();
         while(apples.size() < APPLE_COUNT) {
             if(!spawn())
                 break;

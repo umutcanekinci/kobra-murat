@@ -4,10 +4,10 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import common.packet.AddPacket;
 import common.packet.SpawnPacket;
 import common.packet.StepPacket;
 import common.packet.UpdateTransformPacket;
+import common.packet.basic.AddPacket;
 import common.packet.basic.DisconnectPacket;
 import common.Connection;
 
@@ -26,7 +26,7 @@ public class PlayerList {
         return players.size();
     }
 
-    public static void addPlayer(Connection connection, int id, ) {
+    public static void addPlayer(Connection connection, int id) {
         NetPlayer player = new NetPlayer(connection, id);
         players.put(id, player);
     }
@@ -69,7 +69,7 @@ public class PlayerList {
     }
 
     public static void sendAllTo(Connection connection) {
-        players.forEach((key, value) -> connection.sendData(new AddPacket(key, value.length)));
+        players.forEach((key, value) -> connection.sendData(new AddPacket(key)));
         players.forEach((key, value) -> connection.sendData(new UpdateTransformPacket(value)));
     }
 
