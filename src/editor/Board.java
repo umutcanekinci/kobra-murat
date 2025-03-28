@@ -14,7 +14,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import common.Constants;
 import common.Position;
 import common.Utils;
-
+import common.graphics.ui.Button;
 import client.graphics.UI;
 
 public class Board extends JPanel implements ActionListener, KeyListener, MouseListener {
@@ -126,8 +126,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
     }
 
     private void addButton(String text, ActionListener listener) {
-        JButton button = UI.newButton(text);
-        button.addActionListener(listener);
+        Button button = new Button(text, listener);
         add(button, layout);
         buttons.add(button);
     }

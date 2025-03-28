@@ -1,4 +1,4 @@
-package common;
+package common.graphics;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -7,11 +7,20 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
 
+import common.Constants;
+import common.Utils;
+
 public class Image {
+
+    public static final BufferedImage MAIN_MENU_BACKGROUND = Utils.loadImage(new File("images/main-menu-background.png"));
+    public static final BufferedImage TITLE                = Utils.loadImage(new File("images/title.png"));
+    
 
     private BufferedImage image;
 
-    public Image() {}
+    public Image() {
+        
+    }
 
     public Image(File imageFile) {
         load(imageFile);

@@ -6,6 +6,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
 
+import common.graphics.Image;
+
 public class Object extends Image {
 
     private Position position;

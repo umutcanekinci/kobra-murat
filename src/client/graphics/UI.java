@@ -1,34 +1,25 @@
 package client.graphics;
-import java.awt.*;
-import java.io.File;
-import javax.swing.BorderFactory;
 
-import javax.swing.JButton;
+import java.awt.image.ImageObserver;
+import java.awt.Font;
+import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Rectangle;
 
+import common.Utils;
+import common.graphics.Image;
 import client.NetPlayer;
 import client.PlayerList;
-import common.Utils;
-
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
 
 public class UI {
-
-    private static final Color BUTTON_COLOR = new Color(84, 148, 20);
-    private static final Color BUTTON_TEXT_COLOR = Color.WHITE;
-    private static final Color BUTTON_BORDER_COLOR = Color.BLACK;
 
     // Fonts
     //private static Rectangle SCORE_RECT;
     private static final Font DEFAULT_FONT = new Font("Lato", Font.BOLD, 25);
-    
-    // Title image file and buffered image
-    private static final File TITLE_IMAGE = new File("images/title.png");
-    private static BufferedImage titleImage;
-    
+        
     public static void init() {
         //SCORE_RECT = new Rectangle(0, Constants.TILE_SIZE * (Level.ROWS - 1), Constants.TILE_SIZE * Level.COLUMNS, Constants.TILE_SIZE);
-        titleImage = Utils.loadImage(TITLE_IMAGE);
     }
 
     public static void initGraphics(Graphics2D g) {
@@ -41,28 +32,12 @@ public class UI {
         g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
     }
 
-    public static JButton newButton(String text) {
-        if(text == null) {
-            return null;
-        }
-        
-        JButton button = new JButton(text);
-        button.setRequestFocusEnabled(false);
-        button.setBackground(BUTTON_COLOR);
-        button.setForeground(BUTTON_TEXT_COLOR);
-        button.setBorder(BorderFactory.createLineBorder(BUTTON_BORDER_COLOR, 2));
-        button.setFont(new Font("Arial", Font.BOLD, 20));
-        button.setPreferredSize(new Dimension(200, 100));
-
-        return button;
-    }
-
     public static void drawTitle(Graphics2D g, int width, int y, ImageObserver observer) {
         if (g == null) {
             return;
         }
         
-        g.drawImage(titleImage, (width - titleImage.getWidth()) / 2, y, observer);
+        g.drawImage(Image.TITLE, (width - Image.TITLE.getWidth()) / 2, y, observer);
     }
 
     public static void drawScore(Graphics2D g, int score) {

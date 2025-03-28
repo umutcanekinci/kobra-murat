@@ -1,7 +1,14 @@
 package client;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.util.HashMap;
 import javax.swing.*;
 
@@ -9,6 +16,8 @@ import common.Constants;
 import common.Direction;
 import common.ServerListener;
 import common.Utils;
+import common.graphics.Image;
+import common.graphics.ui.Button;
 import common.packet.RotatePacket;
 import common.packet.basic.StartPacket;
 import client.graphics.Draw;
@@ -86,21 +95,20 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
             add(pages.get(p), layout);
             pages.get(p).setBackground(Color.BLACK);
         }
-
-        //addButton("Başla", e -> sendStart());
-        //addButton("Bağlan", e -> onConnectButtonClick());
-        //addButton("Sunucu Aç", e -> onHostButtonClick());
-        //addButton("Çıkış", e -> exit());
     }
 
     private void initMainMenu() {
-        JPanel mainMenu = new JPanel(new GridBagLayout());
+        JPanel mainMenu = new JPanel();
         pages.put(Page.MAIN_MENU, mainMenu);
 
+        addImage(mainMenu, Image.MAIN_MENU_BACKGROUND, 0, 0);
+
+        mainMenu.setLayout(new GridBagLayout());
         addButton(mainMenu, "Başla", e -> sendStart());
         addButton(mainMenu, "Bağlan", e -> openPage(Page.CONNECT));
         addButton(mainMenu, "Sunucu Aç", e -> onHostButtonClick());
         addButton(mainMenu, "Çıkış", e -> exit());
+        
     }
 
     private void initConnect() {
@@ -117,6 +125,18 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         addButton(connect, "Bağlan", e -> onConnectButtonClick());
     }
 
+    private void addImage(JPanel panel, BufferedImage image, int x, int y) {
+        JLabel label = new JLabel(new ImageIcon(image));
+        layout.gridx = x;
+        layout.gridy = y;
+        panel.add(label, layout);
+    }
+
+    private void addButton(JPanel panel, String text, ActionListener listener) {
+        Button button = new Button(text, listener);
+        panel.add(button, layout);
+    }
+
     private void initGame() {
         JPanel game = new JPanel(new GridBagLayout());
         pages.put(Page.GAME, game);
@@ -126,13 +146,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         Game.page = page;
         pages.forEach((p, panel) -> panel.setVisible(p == page));
     }
-
-    private void addButton(JPanel panel, String text, ActionListener listener) {
-        JButton button = UI.newButton(text);
-        button.addActionListener(listener);
-        panel.add(button, layout);
-    }
-
 
     //region ---------------------------------------- BUTTON METHODS ----------------------------------------
 
