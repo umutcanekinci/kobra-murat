@@ -132,7 +132,7 @@ public class UI {
         int rightSpace = (int) Constants.SIZE.getWidth() - componentWidth - leftCols * gridWidth;
         int rightColumns = rightSpace / gridWidth;
 
-        int botRows = 10;
+        int botRows = 43 - (components.length - 1) * componentRows;
         int botSpace = botRows * gridHeight;
         int topSpace = (int) Constants.SIZE.getHeight() - componentHeight*components.length - botRows * gridHeight;
         int topRows = topSpace / gridHeight;

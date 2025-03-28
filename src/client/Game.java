@@ -277,7 +277,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         if (currentPanel == null)
             return;
         Draw.all((Graphics2D) g, currentPanel, isStarted, debugMode, currentPanel); // Draw everything
-        
     }
 
 }
