@@ -12,8 +12,9 @@ public class Window extends JFrame {
         //setExtendedState(JFrame.MAXIMIZED_BOTH); 
         setUndecorated(true);
         Game board = new Game();
-        add(board);
+        
         addKeyListener(board);
+        setContentPane(board);
 
         lock();
         pack();

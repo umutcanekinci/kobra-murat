@@ -15,7 +15,6 @@ import common.Constants;
 import common.Position;
 import common.Utils;
 import common.graphics.ui.Button;
-import client.graphics.UI;
 
 public class Board extends JPanel implements ActionListener, KeyListener, MouseListener {
 
@@ -38,7 +37,6 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
     public Board() {
         super(new GridBagLayout());
         setFullscreen();
-        UI.init();
         initLayout();
         initWidgets();
         initTimer();
@@ -274,14 +272,11 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
         setBackground(Color.BLACK);
 
         Graphics2D g2d = (Graphics2D) g;
-        UI.init();
         
         if(isDrawing) {
             Tilemap.draw(g2d, this);
             drawGrid(g2d);
         }
-        else
-            UI.drawTitle(g2d, Constants.SIZE.width, 100, null);
     }
 
     private void drawGrid(Graphics2D g) {

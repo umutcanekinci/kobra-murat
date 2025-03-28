@@ -8,15 +8,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-import common.Spritesheet;
-import common.SpritesheetBuilder;
 import common.Utils;
 import common.packet.basic.SetMapPacket;
+import common.Constants;
 import common.Position;
 
 public class Tilemap {
     
-    private static Spritesheet TILE_SPRITESHEET;
     private static Tile[][] tiles;
     private static ArrayList<Position> emptyTiles;
     private static int cols, rows;
@@ -29,10 +27,6 @@ public class Tilemap {
 
     public static int getHeight() {
         return rows * common.Constants.TILE_SIZE;
-    }
-
-    public static void loadSheet() {
-        TILE_SPRITESHEET = new SpritesheetBuilder().withColumns(1).withRows(1).withSpriteCount(1).withSheet(Utils.loadImage(new File("images/wall.png"))).build();
     }
 
     public static boolean isReady() {
@@ -81,7 +75,7 @@ public class Tilemap {
         for(int row = 0; row < rows; row++) {
             for(int col = 0; col < cols; col++)
             {
-                Tile tile = new Tile(data[row][col], row, col, TILE_SPRITESHEET.getSprite(data[row][col]));
+                Tile tile = new Tile(data[row][col], row, col, Constants.TILESHEET.getSprite(data[row][col]));
                 tiles[row][col] = tile;
 
                 if(tile.isSpawnPoint)

@@ -2,7 +2,8 @@ package common;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.File;
+
+import common.graphics.Image;
 
 public class Constants {
 
@@ -26,6 +27,7 @@ public class Constants {
     public static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
     public static final int DEFAULT_LENGTH = 12;
 
-    public static final Spritesheet TILE_SPRITESHEET = new SpritesheetBuilder().withColumns(1).withRows(1).withSpriteCount(1).withSheet(Utils.loadImage(new File("images/wall.png"))).build();
+    public static final Spritesheet TILESHEET   = new SpritesheetBuilder().withColumns(1).withRows(1).withSpriteCount(1).withSheet(Image.TILESHEET).build();
+    public static final Spritesheet SPRITESHEET = new SpritesheetBuilder().withColumns(3).withRows(3).withSpriteCount(9).withSheet(Image.SPRITESHEET).build();
 
 }

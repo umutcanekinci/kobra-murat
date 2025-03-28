@@ -1,25 +1,58 @@
 package client.graphics;
 
-import java.awt.image.ImageObserver;
 import java.awt.Font;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.HashMap;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+
 import java.awt.Rectangle;
 
+import common.Constants;
 import common.Utils;
-import common.graphics.Image;
+import common.graphics.Panel;
 import client.NetPlayer;
 import client.PlayerList;
 
 public class UI {
 
-    // Fonts
-    //private static Rectangle SCORE_RECT;
     private static final Font DEFAULT_FONT = new Font("Lato", Font.BOLD, 25);
-        
-    public static void init() {
-        //SCORE_RECT = new Rectangle(0, Constants.TILE_SIZE * (Level.ROWS - 1), Constants.TILE_SIZE * Level.COLUMNS, Constants.TILE_SIZE);
+
+    public enum Page {
+        MAIN_MENU,
+        PLAY_MODE, // Singleplayer or Multiplayer
+        CONNECT_MODE, // Server or Client
+        CONNECT, // Connect
+        PAUSE,
+        LOBBY,
+        GAME;
+
+        private static final HashMap<Page, Page> backPages = new HashMap<>() {{
+            put(PLAY_MODE, MAIN_MENU);
+            put(CONNECT_MODE, PLAY_MODE);
+            put(CONNECT, CONNECT_MODE);
+            
+            put(GAME, PAUSE);
+            put(PAUSE, GAME);
+            
+            put(LOBBY, GAME);
+            put(GAME, LOBBY);
+            
+        }};
+
+        Page getBackPage() {
+            return backPages.get(this);
+        }
+    }
+    private static Page currentPage;
+    private static final HashMap<Page, Panel> panels = new HashMap<>();
+
+    public static Page getCurrentPage() {
+        return currentPage;
     }
 
     public static void initGraphics(Graphics2D g) {
@@ -30,24 +63,6 @@ public class UI {
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-    }
-
-    public static void drawTitle(Graphics2D g, int width, int y, ImageObserver observer) {
-        if (g == null) {
-            return;
-        }
-        
-        g.drawImage(Image.TITLE, (width - Image.TITLE.getWidth()) / 2, y, observer);
-    }
-
-    public static void drawScore(Graphics2D g, int score) {
-        if (g == null) {
-            return;
-        }
-        
-        g.setFont(DEFAULT_FONT);
-        //String text = "Score: " + score;
-        //Utils.drawText(g, text, Color.GREEN, SCORE_RECT, true);
     }
 
     public static void drawPlayerBoard(Graphics2D g, int x, int y, int width) {
@@ -73,5 +88,79 @@ public class UI {
         for (NetPlayer player : PlayerList.getPlayers()) {
             Utils.drawText(g, "Player " + player.getId(), Color.WHITE, new Rectangle(x, y + (i + 2) * playerHeight + 10, width, playerHeight), true);
         }
+    }
+
+    public static Panel getCurrentPanel() {
+        return  panels.get(currentPage);
+    }
+
+    public static void addPanel(Page page, Panel panel) {
+        panels.put(page, panel);
+    }
+
+    public static Panel addPanel(Page page, Component[] components) {
+        Panel panel = new Panel();
+        panels.put(page, panel);
+
+        if(components == null || components.length == 0) {
+            return panel;
+        }
+        /*  GRID SIZE
+            WIDTH = 20
+            HEIGHT = 10
+            1920 / 20 = 96 Columns
+            1080 / 10 = 108 Rows
+            
+            BUTTON SIZE
+            WIDTH = 700 = 35 Columns
+            HEIGHT = 170 = 17 Rows
+
+         */
+
+        //panel.add(Box.createHorizontalStrut((int) Constants.SIZE.getWidth()), 0, 0, 2, components.length);   
+        //panel.add(Box.createHorizontalStrut((int) Constants.SIZE.getWidth() / 2), 1, components.length, 1, components.length);
+        //
+
+        int gridWidth = 20; int gridHeight = 10;
+        int totalCols = (int) Constants.SIZE.getWidth() / gridWidth;
+        int componentWidth = 700; int componentHeight = 170;
+        int componentRows = componentHeight / gridHeight; int componentColumns = componentWidth / gridWidth; // 35
+        
+
+        int leftCols = 10;
+        int leftSpace = leftCols * gridWidth;
+        int rightSpace = (int) Constants.SIZE.getWidth() - componentWidth - leftCols * gridWidth;
+        int rightColumns = rightSpace / gridWidth;
+
+        int botRows = 10;
+        int botSpace = botRows * gridHeight;
+        int topSpace = (int) Constants.SIZE.getHeight() - componentHeight*components.length - botRows * gridHeight;
+        int topRows = topSpace / gridHeight;
+
+        panel.add(Box.createVerticalStrut(topSpace)        , 0                        , 0                                      , totalCols       , topRows); // Top space
+        for(int i=0; i<components.length; i++) {
+            panel.add(Box.createHorizontalStrut(leftSpace) , 0                        , topRows + (componentRows)*i                , leftCols        , componentRows);
+            panel.add(components[i]                        , leftCols                   , topRows + (componentRows)*i                , componentColumns, componentRows);
+            panel.add(Box.createHorizontalStrut(rightSpace), leftCols + componentColumns, topRows + (componentRows)*i                , rightColumns    , componentRows);
+        }
+        panel.add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
+        //panel.add(components[0], 0*35, 17*3, 35, 17);
+        
+        return panel;
+    }
+
+    public static void openPage(Page page) {
+        if(page == null)
+            return;
+
+        currentPage = page;
+        panels.forEach((p, panel) -> panel.setVisible(p == page));
+    }
+
+    public static void goBack() {
+        if(currentPage == null)
+            return;
+
+        openPage(currentPage.getBackPage());
     }
 }

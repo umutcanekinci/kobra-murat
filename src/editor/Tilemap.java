@@ -34,7 +34,7 @@ public class Tilemap {
 
         for(int row = 0; row < rows; row++) {
             for(int col = 0; col < cols; col++)
-                tiles[row][col] = new Tile(data[row][col], row, col, Constants.TILE_SPRITESHEET.getSprite(data[row][col]));
+                tiles[row][col] = new Tile(data[row][col], row, col, Constants.TILESHEET.getSprite(data[row][col]));
         }
     }
 
@@ -61,11 +61,11 @@ public class Tilemap {
             return;
 
         if(tiles[row][col] == null) {
-            tiles[row][col] = new Tile(tileId, row, col, Constants.TILE_SPRITESHEET.getSprite(tileId));
+            tiles[row][col] = new Tile(tileId, row, col, Constants.TILESHEET.getSprite(tileId));
             return;
         }
 
-        tiles[row][col].setId(tileId, Constants.TILE_SPRITESHEET.getSprite(tileId));
+        tiles[row][col].setId(tileId, Constants.TILESHEET.getSprite(tileId));
     }
 
     public static void draw(Graphics2D renderer, ImageObserver observer) {

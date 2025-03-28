@@ -3,7 +3,6 @@ package client;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.io.File;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
@@ -11,13 +10,8 @@ import common.Constants;
 import common.Position;
 import common.Utils;
 import common.Direction;
-import common.Spritesheet;
-import common.SpritesheetBuilder;
 
 public class Player implements Serializable {
-
-    private static final File SPRITESHEET_FILE = new File("images/snake.png");
-    private static Spritesheet spritesheet;
     
     private Direction direction = Constants.DEFAULT_DIRECTION;
     private ArrayList<SnakePart> parts = new ArrayList<>();
@@ -36,10 +30,6 @@ public class Player implements Serializable {
 
     public void setTailIndex(int tailIndex) {
         this.tailIndex = tailIndex;
-    }
-
-    public static void loadSpritesheet() {
-        spritesheet = new SpritesheetBuilder().withColumns(3).withRows(3).withSpriteCount(9).withSheet(Utils.loadImage(SPRITESHEET_FILE)).build();
     }
 
     public int getScore() {
@@ -113,11 +103,11 @@ public class Player implements Serializable {
     
     private BufferedImage getFrame(Direction dir, Direction newDir){
         int frame = dir == newDir ? 1 : 0;
-        return Utils.getRotatedImage(spritesheet.getSprite(frame), newDir.getAngle(dir));
+        return Utils.getRotatedImage(Constants.SPRITESHEET.getSprite(frame), newDir.getAngle(dir));
     }
 
     private BufferedImage getHeadFrame() {
-        return Utils.getRotatedImage(spritesheet.getSprite(4), direction.getAngle());
+        return Utils.getRotatedImage(Constants.SPRITESHEET.getSprite(4), direction.getAngle());
     }
 
     private void updateHead() {

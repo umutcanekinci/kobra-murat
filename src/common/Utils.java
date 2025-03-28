@@ -1,33 +1,16 @@
 package common;
 
-import javax.imageio.ImageIO;
-
 import client.MoveKey;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.io.File;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public final class Utils {
-
-    private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
-
-    public static BufferedImage loadImage(File imageFile) {
-        try {
-            return ImageIO.read(imageFile);
-        } catch (IOException exc) {
-            LOGGER.log(Level.SEVERE, "Error opening image file: " + exc.getMessage(), exc);
-            return null;
-        }
-    }
 
     public static int getScore(int length, int defaultLength) {
         return (length - defaultLength) * 100;

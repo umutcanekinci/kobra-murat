@@ -2,7 +2,6 @@ package client.graphics;
 
 import java.awt.Graphics2D;
 import java.awt.Toolkit;
-import java.awt.Color;
 import java.awt.image.ImageObserver;
 import javax.swing.JPanel;
 
@@ -15,9 +14,6 @@ import client.PlayerList;
 
 public class Draw {
 
-    private static final Color MENU_BACKGROUND_COLOR = Color.BLACK;
-    private static final Color BACKGROUND_COLOR = Color.BLACK;
-
     public static void all(Graphics2D g, JPanel panel, boolean isGameStarted, boolean debugMode, ImageObserver observer) {
         /*
          when calling g.drawImage() we can use "this" for the ImageObserver
@@ -27,21 +23,14 @@ public class Draw {
         */
 
         UI.initGraphics(g);
-        background(panel, isGameStarted);
         map(g, isGameStarted, observer);
         apples(g, isGameStarted, observer);
         players(g, isGameStarted, observer);
-        score(g, isGameStarted);
-        mainMenu(g, isGameStarted);
         colliders(g, isGameStarted, debugMode);
         playerBoard(g, isGameStarted);
         debug(g, debugMode);
 
         Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems
-    }
-
-    private static void background(JPanel panel, Boolean isGameStarted) {
-        panel.setBackground(isGameStarted ? BACKGROUND_COLOR : MENU_BACKGROUND_COLOR);
     }
 
     private static void map(Graphics2D g, boolean isGameStarted, ImageObserver observer) {
@@ -63,20 +52,6 @@ public class Draw {
             return;
 
         PlayerList.draw(g, observer);
-    }
-
-    private static void score(Graphics2D g, boolean isGameStarted) {
-        if(!isGameStarted)
-            return;
-
-        //UI.drawScore(g, player == null ? 0 : player.getScore());
-    }
-
-    private static void mainMenu(Graphics2D g, boolean isGameStarted) {
-        if(isGameStarted)
-            return;
-
-        UI.drawTitle(g, Constants.SIZE.width, 100, null);
     }
 
     private static  void colliders(Graphics2D g, boolean isGameStarted, boolean debugMode) {

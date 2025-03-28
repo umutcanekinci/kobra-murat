@@ -3,6 +3,7 @@ package common;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import common.graphics.Image;
 
 public class SpritesheetBuilder {
 
@@ -11,8 +12,8 @@ public class SpritesheetBuilder {
     private int spriteWidth, spriteHeight;
     private int spriteCount;
 
-    public SpritesheetBuilder withSheet(BufferedImage img) {
-        spritesheet = img;
+    public SpritesheetBuilder withSheet(Image img) {
+        spritesheet = img.get();
         return this;
     }
 

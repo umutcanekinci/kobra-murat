@@ -6,16 +6,23 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 import java.io.File;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.imageio.ImageIO;
 
 import common.Constants;
 import common.Utils;
 
 public class Image {
 
-    public static final BufferedImage MAIN_MENU_BACKGROUND = Utils.loadImage(new File("images/main-menu-background.png"));
-    public static final BufferedImage TITLE                = Utils.loadImage(new File("images/title.png"));
-    
+    public static final Image MAIN_MENU_BACKGROUND = new Image(new File("images/main-menu-background.png"));
+    public static final Image TITLE                = new Image(new File("images/title.png"));
+    public static final Image SPRITESHEET          = new Image(new File("images/snake.png"));
+    public static final Image TILESHEET            = new Image(new File("images/wall.png"));
 
+    private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
     private BufferedImage image;
 
     public Image() {
@@ -27,7 +34,17 @@ public class Image {
     }
 
     private void load(File imageFile) {
-        set(Utils.loadImage(imageFile));
+        set(readImageFile(imageFile));
+
+    }
+
+    private static BufferedImage readImageFile(File imageFile) {
+        try {
+            return ImageIO.read(imageFile);
+        } catch (IOException exc) {
+            LOGGER.log(Level.SEVERE, "Error opening image file: " + exc.getMessage(), exc);
+            return null;
+        }
     }
 
     public void set(BufferedImage image) {
@@ -38,19 +55,16 @@ public class Image {
         return image;
     }
 
-    public void draw(Graphics2D g, Point position, ImageObserver observer) {
-        /* with the Point class, note that position.getX() returns a double, but 
-        *  position.x reliably returns an int. https://stackoverflow.com/a/30220114/4655368
-        *  this is also where we translate board grid position into a canvas pixel
-        * position by multiplying by the tile size.
-        */
+    public int getWidth() {
+        return image.getWidth();
+    }
 
-        g.drawImage(
-                image,
-                position.x * Constants.TILE_SIZE,
-                position.y * Constants.TILE_SIZE,
-                observer
-        );
+    public void draw(Graphics2D g, Point position, ImageObserver observer) {
+        draw(g, position.x * Constants.TILE_SIZE, position.y * Constants.TILE_SIZE, observer);
+    }
+
+    public void draw(Graphics2D g, int x, int y, ImageObserver observer) {
+        g.drawImage(image, x, y, observer);
     }
 
     public void drawBorder(Graphics2D g, Color color, Point position) {

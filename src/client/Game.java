@@ -1,69 +1,48 @@
 package client;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.awt.event.*;
-import java.awt.image.BufferedImage;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.util.HashMap;
-import javax.swing.*;
+import java.awt.GridBagLayout;
+import java.awt.event.*;
+import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import common.Constants;
 import common.Direction;
 import common.ServerListener;
 import common.Utils;
 import common.graphics.Image;
-import common.graphics.ui.Button;
+import common.graphics.Panel;
 import common.packet.RotatePacket;
 import common.packet.basic.StartPacket;
 import client.graphics.Draw;
 import client.graphics.UI;
 import server.Server;
+import common.graphics.ui.Button;
+import common.graphics.ui.TextField;
+import client.graphics.UI.Page;
 
 public class Game extends JPanel implements ActionListener, KeyListener, ServerListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
 
-    private static boolean isStarted = false;
-    private static boolean debugMode = false;
-    private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
+    public static boolean isStarted = false;
+    public static boolean debugMode = false;
 
-    enum Page {
-        MAIN_MENU,
-        CONNECT,
-        GAME
-    }
-    private static Page page;
-    private static final HashMap<Page, JPanel> pages = new HashMap<>();
-
-    private static final HashMap<Page, Page> backPages = new HashMap<>() {{
-        put(Page.CONNECT, Page.MAIN_MENU);
-        put(Page.GAME, Page.MAIN_MENU);
-    }};
-
-    private static JTextField hostField;
-    private static JTextField portField;
+    private static TextField hostField = new TextField(Constants.PORT + "");;
+    private static TextField portField = new TextField("localhost");
     
     //endregion
 
     //region ---------------------------------------- INIT METHODS ----------------------------------------
 
     public Game() {
-        super(new GridBagLayout());
-
-        Tilemap.loadSheet();
-        Player.loadSpritesheet();
-
+        super();
         setFullscreen();
-        UI.init();
         initServer();
-        initLayout();
         initWidgets();
-        openPage(Page.MAIN_MENU);
+        UI.openPage(Page.MAIN_MENU);
         initTimer();
     }
 
@@ -81,70 +60,47 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         Client.setPort(Integer.parseInt(portField.getText()));
     }
 
-    private static void initLayout() {
-        layout = new GridBagConstraints();
-        layout.insets = new Insets(0, 10, 5, 0);
-        layout.weighty = 1;
-    }
-
     private void initWidgets() {
-        initMainMenu();
-        initGame();
-        initConnect();
-        for (Page p : pages.keySet()) {
-            add(pages.get(p), layout);
-            pages.get(p).setBackground(Color.BLACK);
-        }
-    }
 
-    private void initMainMenu() {
-        JPanel mainMenu = new JPanel();
-        pages.put(Page.MAIN_MENU, mainMenu);
-
-        addImage(mainMenu, Image.MAIN_MENU_BACKGROUND, 0, 0);
-
-        mainMenu.setLayout(new GridBagLayout());
-        addButton(mainMenu, "Başla", e -> sendStart());
-        addButton(mainMenu, "Bağlan", e -> openPage(Page.CONNECT));
-        addButton(mainMenu, "Sunucu Aç", e -> onHostButtonClick());
-        addButton(mainMenu, "Çıkış", e -> exit());
+        addPanel(Page.MAIN_MENU, new Component[] {
+            new Button("Başla", e -> UI.openPage(Page.PLAY_MODE)),
+            new Button("Çıkış", e -> exit())
+        });
         
+        addPanel(Page.PLAY_MODE, new Component[] {
+            new Button("Tek oyunculu", e -> sendStart()),
+            new Button("Çok oyunculu", e -> UI.openPage(Page.CONNECT_MODE))
+        });
+
+        addPanel(Page.CONNECT_MODE, new Component[] {
+            new Button("Sunucu", e -> onHostButtonClick()),
+            new Button("Bağlan", e -> UI.openPage(Page.CONNECT))
+        });
+
+        
+        hostField = new TextField("localhost");
+        addPanel(Page.CONNECT, new Component[] {
+            hostField, portField, new Button("Bağlan", e -> onConnectButtonClick())
+        });
+
+        addPanel(Page.PAUSE, new Component[] {
+            new Button("Devam et", e -> UI.openPage(Page.GAME)),
+            new Button("Ana menü", e -> UI.openPage(Page.MAIN_MENU)),
+            new Button("Çıkış", e -> exit())
+        });
+
+        addPanel(Page.LOBBY, new Component[] {
+            new Button("Başla", e -> sendStart()),
+            new Button("Ana menü", e -> UI.openPage(Page.MAIN_MENU)),
+            new Button("Çıkış", e -> exit())
+        });
+
+        addPanel(Page.GAME, new Component[] {});
     }
 
-    private void initConnect() {
-        JPanel connect = new JPanel(new GridBagLayout());
-        pages.put(Page.CONNECT, connect);
 
-        addButton(connect, "Geri", e -> onBack());
-        hostField = new JTextField("localhost");
-        hostField.setPreferredSize(new Dimension(200, 60));
-        connect.add(hostField, layout);
-        portField = new JTextField("7777");
-        portField.setPreferredSize(new Dimension(200, 60));
-        connect.add(portField, layout);
-        addButton(connect, "Bağlan", e -> onConnectButtonClick());
-    }
-
-    private void addImage(JPanel panel, BufferedImage image, int x, int y) {
-        JLabel label = new JLabel(new ImageIcon(image));
-        layout.gridx = x;
-        layout.gridy = y;
-        panel.add(label, layout);
-    }
-
-    private void addButton(JPanel panel, String text, ActionListener listener) {
-        Button button = new Button(text, listener);
-        panel.add(button, layout);
-    }
-
-    private void initGame() {
-        JPanel game = new JPanel(new GridBagLayout());
-        pages.put(Page.GAME, game);
-    }
-
-    private static void openPage(Page page) {
-        Game.page = page;
-        pages.forEach((p, panel) -> panel.setVisible(p == page));
+    private void addPanel(Page page, Component[] components) {
+        add(UI.addPanel(page, components));
     }
 
     //region ---------------------------------------- BUTTON METHODS ----------------------------------------
@@ -158,7 +114,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     public static void start() {
         isStarted = true;
-        openPage(Page.GAME);
+        UI.openPage(Page.GAME);
     }
 
     private static void sendStartPacket() {
@@ -220,6 +176,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     public static void onServerOpened() {
+        connect();
     }
 
     public static void onServerClosed() {
@@ -253,7 +210,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE) {
             onBack();
-            return;
         }
             
         if(isStarted)
@@ -261,8 +217,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     private static void onBack() {
-        if(page != Page.MAIN_MENU)
-            openPage(backPages.get(page));
+        if(UI.getCurrentPage() != Page.MAIN_MENU)
+            UI.goBack();
         else
             exit();
     }
@@ -295,7 +251,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     public static void openMenu() {
         isStarted = false;
-        openPage(Page.MAIN_MENU);
+        UI.openPage(Page.MAIN_MENU);
     }
 
     //endregion
@@ -307,15 +263,21 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
             if(!Client.isConnected())
                 OfflinePlayerController.update();
         }
-        repaint(); // Redraw the screen
+        repaint();
     }
 
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(g); // Clear the screen
-        Graphics2D g2d = (Graphics2D) g;
-        //Camera.draw(g2d, this); // Set the camera
-        Draw.all(g2d, this, isStarted, debugMode, this); // Draw everything
+        super.paintComponent(g);
+        
+        if(!isStarted)
+            Image.MAIN_MENU_BACKGROUND.draw((Graphics2D) g, 0, 0, this);
+
+        Panel currentPanel = UI.getCurrentPanel();
+        if (currentPanel == null)
+            return;
+        Draw.all((Graphics2D) g, currentPanel, isStarted, debugMode, currentPanel); // Draw everything
+        
     }
 
 }
