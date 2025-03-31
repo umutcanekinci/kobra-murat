@@ -35,7 +35,6 @@ public class UI {
             
             put(GAME, PAUSE);
             put(PAUSE, GAME);
-            put(LOBBY, GAME);
             
         }};
 
@@ -55,20 +54,12 @@ public class UI {
     }
 
     public static void initGraphics(Graphics2D g) {
-        if (g == null) {
-            return;
-        }
-        
         g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
         g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
     }
 
     public static void drawPlayerBoard(Graphics2D g, int x, int y, int width) {
-        if (g == null) {
-            return;
-        }
-
         int count = PlayerList.getPlayerCount();
         int playerHeight = Utils.calculateTextHeight(g, "") + 15;
         int height = (count + 1) * playerHeight + 90;
@@ -86,6 +77,7 @@ public class UI {
         int i = 0;
         for (NetPlayer player : PlayerList.getPlayers()) {
             Utils.drawText(g, "Player " + player.getId(), Color.WHITE, new Rectangle(x, y + (i + 2) * playerHeight + 10, width, playerHeight), true);
+            i++;
         }
     }
 

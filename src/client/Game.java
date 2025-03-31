@@ -34,8 +34,8 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     private static boolean isStarted = false;
 
-    private static TextField hostField = new TextField(Constants.PORT + "");;
-    private static TextField portField = new TextField("localhost");
+    private static TextField hostField = new TextField("localhost");
+    private static TextField portField = new TextField(Constants.PORT + "");
     
     private static long currentTime = System.nanoTime();
     private static long lastTime = System.nanoTime();
@@ -110,7 +110,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         });
 
         addPanel(Page.PAUSE, new Component[] {
-            new Button("Devam et", e -> UI.openPage(Page.GAME)),
+            new Button("Devam et", e -> start()),
             new Button("Ana menü", e -> UI.openPage(Page.MAIN_MENU)),
         });
 
@@ -206,12 +206,14 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     public static void onClientConnected() {
+        UI.openPage(Page.LOBBY);
     }
 
     public static void onClientDisconnected() {
     }
 
     public static void onServerOpened() {
+        updateClient();
         connect();
     }
 
@@ -228,10 +230,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     //endregion
 
     //region ---------------------------------------- INPUT METHODS ---------------------------------------
-
-    public static boolean isStarted() {
-        return isStarted;
-    }
 
     @Override
     public void keyTyped(KeyEvent e) {}
