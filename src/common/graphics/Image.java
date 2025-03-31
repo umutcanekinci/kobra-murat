@@ -17,16 +17,21 @@ import common.Utils;
 
 public class Image {
 
-    public static final Image MAIN_MENU_BACKGROUND = new Image(new File("images/main-menu-background.png"));
-    public static final Image TITLE                = new Image(new File("images/title.png"));
-    public static final Image SPRITESHEET          = new Image(new File("images/snake.png"));
-    public static final Image TILESHEET            = new Image(new File("images/wall.png"));
+    public static final Image BACKGROUND_IMAGE     = new Image("images/main-menu-background.png");
+    public static final Image TITLE                = new Image("images/title.png");
+    public static final Image SPRITESHEET          = new Image("images/snake.png");
+    public static final Image TILESHEET            = new Image("images/wall.png");
+    public static final Image SPLASH               = new Image("images/splash.png");
 
     private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
     private BufferedImage image;
 
     public Image() {
         
+    }
+
+    public Image(String path) {
+        this(new File(path));
     }
 
     public Image(File imageFile) {
@@ -57,6 +62,10 @@ public class Image {
 
     public int getWidth() {
         return image.getWidth();
+    }
+
+    public int getHeight() {
+        return image.getHeight();
     }
 
     public void draw(Graphics2D g, Point position, ImageObserver observer) {

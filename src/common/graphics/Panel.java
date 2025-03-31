@@ -1,6 +1,5 @@
 package common.graphics;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -18,6 +17,7 @@ public class Panel extends JPanel {
         layout = new GridBagLayout();
         setLayout(layout);
         setOpaque(false);
+        
         initContraints();
     }
 
@@ -25,8 +25,6 @@ public class Panel extends JPanel {
         constraints = new GridBagConstraints();
         constraints.insets = new Insets(50, 0, 0, 0);
         constraints.fill = GridBagConstraints.BOTH;
-        
-        //constraints.fill = GridBagConstraints.HORIZONTAL;
     }
 
     public static void setInsets(int top, int left, int bottom, int right) {
@@ -34,13 +32,11 @@ public class Panel extends JPanel {
     }
 
     public void add(Component comp, int x, int y, int width, int height) {
-        
         constraints.gridx = x;
         constraints.gridy = y;
         
         constraints.gridwidth = width;
         constraints.gridheight = height;
-        constraints.anchor = GridBagConstraints.NORTHWEST;
         layout.setConstraints(comp, constraints);
         super.add(comp, constraints);   
     }
@@ -64,6 +60,7 @@ public class Panel extends JPanel {
             g.drawLine(0, y, getWidth(), y);
         }
         */
+        
         super.paintComponent(g);
     }
 }

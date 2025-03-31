@@ -2,6 +2,10 @@ package client;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import client.graphics.UI;
+import client.graphics.UI.Page;
+
 import java.lang.Object;
 
 import common.packet.EatApplePacket;
@@ -39,7 +43,7 @@ public class PacketHandler {
             case SpawnPacket spawnPacket -> {
                 PlayerList.spawn(spawnPacket.getId(), spawnPacket.getSpawnPoint(), spawnPacket.getLength());
                 
-                if(!Game.isStarted() && spawnPacket.getId() == PlayerList.getId())
+                if(spawnPacket.getId() == PlayerList.getId())
                     Game.start();
             }
 
@@ -70,7 +74,7 @@ public class PacketHandler {
                 
             case ServerClosedPacket serverClosedPacket -> {
                 Client.close();
-                Game.openMenu();
+                UI.openPage(Page.MAIN_MENU);
             }
 
             default ->

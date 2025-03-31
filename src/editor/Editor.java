@@ -11,12 +11,13 @@ import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
+import common.Window;
 import common.Constants;
 import common.Position;
 import common.Utils;
 import common.graphics.ui.Button;
 
-public class Board extends JPanel implements ActionListener, KeyListener, MouseListener {
+public class Editor extends JPanel implements ActionListener, KeyListener, MouseListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
 
@@ -34,7 +35,7 @@ public class Board extends JPanel implements ActionListener, KeyListener, MouseL
 
     //region ---------------------------------------- INIT METHODS ----------------------------------------
 
-    public Board() {
+    public Editor() {
         super(new GridBagLayout());
         setFullscreen();
         initLayout();

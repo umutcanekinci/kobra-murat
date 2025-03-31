@@ -10,15 +10,15 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
 import javax.swing.JButton;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
-public class ButtonGradient extends JButton {
+public class ButtonGradient extends JButton implements MouseListener {
 
     public float getSizeSpeed() {
         return sizeSpeed;
@@ -53,38 +53,8 @@ public class ButtonGradient extends JButton {
         setForeground(Color.WHITE);
         setCursor(new Cursor(Cursor.HAND_CURSOR));
         setBorder(new EmptyBorder(10, 20, 10, 20));
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent me) {
-                mouseOver = true;
-                timer.start();
-                sizeSpeed *= 2f;
-            }
-
-            @Override
-            public void mouseExited(MouseEvent me) {
-                mouseOver = false;
-                timer.start();
-                sizeSpeed /= 2f;
-            }
-
-            @Override
-            public void mousePressed(MouseEvent me) {
-                pressedSize = 0;
-                alphaPressed = 0.5f;
-                pressed = true;
-                pressedLocation = me.getPoint();
-                timerPressed.setDelay(0);
-                timerPressed.start();
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent me) {
-                pressed = false;
-                timerPressed.setDelay(0);
-                timerPressed.start();
-            }
-        });
+        
+        addMouseListener(this);
         
         timer = new Timer(40, new ActionListener() {
             @Override
@@ -92,22 +62,19 @@ public class ButtonGradient extends JButton {
                 if (mouseOver) {
                     if (alpha < 0.6f) {
                         alpha += 0.05f;
-                        repaint();
                     } else {
                         alpha = 0.6f;
                         timer.stop();
-                        repaint();
                     }
                 } else {
                     if (alpha > 0.3f) {
                         alpha -= 0.05f;
-                        repaint();
                     } else {
                         alpha = 0.3f;
                         timer.stop();
-                        repaint();
                     }
                 }
+                repaint();
             }
         });
         timerPressed = new Timer(0, new ActionListener() {
@@ -122,6 +89,37 @@ public class ButtonGradient extends JButton {
                 }
             }
         });
+    }
+    
+    @Override
+    public void mouseEntered(MouseEvent me) {
+        mouseOver = true;
+        timer.start();
+        sizeSpeed *= 2f;
+    }
+
+    @Override
+    public void mouseExited(MouseEvent me) {
+        mouseOver = false;
+        timer.start();
+        sizeSpeed /= 2f;
+    }
+
+    @Override
+    public void mousePressed(MouseEvent me) {
+        pressedSize = 0;
+        alphaPressed = 0.5f;
+        pressed = true;
+        pressedLocation = me.getPoint();
+        timerPressed.setDelay(0);
+        timerPressed.start();
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent me) {
+        pressed = false;
+        timerPressed.setDelay(0);
+        timerPressed.start();
     }
 
     @Override
@@ -171,5 +169,11 @@ public class ButtonGradient extends JButton {
         float x = pressedLocation.x - (pressedSize / 2);
         float y = pressedLocation.y - (pressedSize / 2);
         g2.fillOval((int) x, (int) y, (int) pressedSize, (int) pressedSize);
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'mouseClicked'");
     }
 }

@@ -5,12 +5,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.util.HashMap;
-
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-
 import java.awt.Rectangle;
+import java.util.HashMap;
+import javax.swing.Box;
 
 import common.Constants;
 import common.Utils;
@@ -38,9 +35,7 @@ public class UI {
             
             put(GAME, PAUSE);
             put(PAUSE, GAME);
-            
             put(LOBBY, GAME);
-            put(GAME, LOBBY);
             
         }};
 
@@ -50,6 +45,10 @@ public class UI {
     }
     private static Page currentPage;
     private static final HashMap<Page, Panel> panels = new HashMap<>();
+
+    public static Panel getPanel(Page page) {
+        return panels.get(page);
+    }
 
     public static Page getCurrentPage() {
         return currentPage;
@@ -91,11 +90,7 @@ public class UI {
     }
 
     public static Panel getCurrentPanel() {
-        return  panels.get(currentPage);
-    }
-
-    public static void addPanel(Page page, Panel panel) {
-        panels.put(page, panel);
+        return panels.get(currentPage);
     }
 
     public static Panel addPanel(Page page, Component[] components) {
@@ -126,7 +121,6 @@ public class UI {
         int componentWidth = 700; int componentHeight = 170;
         int componentRows = componentHeight / gridHeight; int componentColumns = componentWidth / gridWidth; // 35
         
-
         int leftCols = 10;
         int leftSpace = leftCols * gridWidth;
         int rightSpace = (int) Constants.SIZE.getWidth() - componentWidth - leftCols * gridWidth;
@@ -145,7 +139,7 @@ public class UI {
         }
         panel.add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
         //panel.add(components[0], 0*35, 17*3, 35, 17);
-        
+        panel.setVisible(false);
         return panel;
     }
 
@@ -157,10 +151,7 @@ public class UI {
         panels.forEach((p, panel) -> panel.setVisible(p == page));
     }
 
-    public static void goBack() {
-        if(currentPage == null)
-            return;
-
+    public static void goBack() {        
         openPage(currentPage.getBackPage());
     }
 }

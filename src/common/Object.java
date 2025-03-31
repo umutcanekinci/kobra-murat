@@ -10,7 +10,12 @@ import common.graphics.Image;
 
 public class Object extends Image {
 
-    private Position position;
+    protected Position position;
+
+    public Object() {
+        super();
+        this.position = new Position();
+    }
 
     public Object(Position position) {
         super();

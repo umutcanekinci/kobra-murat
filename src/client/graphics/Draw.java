@@ -14,7 +14,7 @@ import client.PlayerList;
 
 public class Draw {
 
-    public static void all(Graphics2D g, JPanel panel, boolean isGameStarted, boolean debugMode, ImageObserver observer) {
+    public static void all(Graphics2D g, JPanel panel, boolean isGameStarted, ImageObserver observer) {
         /*
          when calling g.drawImage() we can use "this" for the ImageObserver
          because Component implements the ImageObserver interface, and JPanel
@@ -26,9 +26,9 @@ public class Draw {
         map(g, isGameStarted, observer);
         apples(g, isGameStarted, observer);
         players(g, isGameStarted, observer);
-        colliders(g, isGameStarted, debugMode);
+        colliders(g, isGameStarted);
         playerBoard(g, isGameStarted);
-        debug(g, debugMode);
+        debug(g);
 
         Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems
     }
@@ -54,8 +54,8 @@ public class Draw {
         PlayerList.draw(g, observer);
     }
 
-    private static  void colliders(Graphics2D g, boolean isGameStarted, boolean debugMode) {
-        if(!debugMode || !isGameStarted)
+    private static  void colliders(Graphics2D g, boolean isGameStarted) {
+        if(!DebugLog.isOn() || !isGameStarted)
             return;
 
         PlayerList.drawColliders(g);
@@ -70,10 +70,7 @@ public class Draw {
         UI.drawPlayerBoard(g, Constants.SIZE.width - 200, 0, 200);
     }
 
-    private static  void debug(Graphics2D g, boolean debugMode) {
-        if(!debugMode)
-            return;
-
+    private static  void debug(Graphics2D g) {
         DebugLog.draw(g);
     }
 

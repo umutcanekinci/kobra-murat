@@ -12,6 +12,10 @@ public class Constants {
      * Class specified constants will be in the class itself, but the general ones will be here.
      */
 
+    public static final String TITLE = "Kobra Murat";
+    public static final String EDITOR_TITLE = "Kobra Murat Level Editor";
+    public static final String SERVER_TITLE = "Kobra Murat Server";
+
     public static final int PORT = 7777;
 
     public static final int SPAWN_TILE = -2;    
@@ -29,5 +33,5 @@ public class Constants {
 
     public static final Spritesheet TILESHEET   = new SpritesheetBuilder().withColumns(1).withRows(1).withSpriteCount(1).withSheet(Image.TILESHEET).build();
     public static final Spritesheet SPRITESHEET = new SpritesheetBuilder().withColumns(3).withRows(3).withSpriteCount(9).withSheet(Image.SPRITESHEET).build();
-
+    
 }

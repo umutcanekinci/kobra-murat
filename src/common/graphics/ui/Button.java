@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class Button extends ButtonGradient {
     private static final Color COLOR = new Color(84, 148, 21);
@@ -28,5 +30,13 @@ public class Button extends ButtonGradient {
     public Button(String text, ActionListener listener) {
         this(text);
         addActionListener(listener);
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_SPACE) {
+                    listener.actionPerformed(null);
+                }
+            }
+        });
     }
 }

@@ -3,6 +3,7 @@ package client;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.awt.Font;
 
 import common.Constants;
@@ -11,12 +12,20 @@ import server.Server;
 
 public class DebugLog {
 
+    private static boolean debugMode = false;
     private static final Font FONT = new Font("Lato", Font.BOLD, 20);
     private static final Color COLOR = Color.WHITE;
     private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 150);
     private static final Rectangle RECT = new Rectangle(20, 0, 410, 0);
     
+    public static boolean isOn() {
+        return debugMode;
+    }
+
     public static void draw(Graphics2D g) {
+        if (!debugMode || g == null)
+            return;
+
         g.setFont(FONT);
         String text = getText();
         int[] size = Utils.calculateTextSize(g, text);
@@ -27,6 +36,7 @@ public class DebugLog {
     private static String getText() {
         return  "DEBUG MODE ON - Press F2 to toggle\n\n" +
                 "FPS: " + Constants.FPS + "\n" +   
+                Game.getInfo() + "\n" +
                 Client.getInfo() + "\n" +
                 Tilemap.getInfo() + "\n\n" +
                 PlayerList.getInfo() + "\n" +
@@ -46,4 +56,8 @@ public class DebugLog {
         Utils.drawText(g, text, COLOR, RECT, false);
     }
 
+    static void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_F2)
+            debugMode = !debugMode;
+    }
 }
