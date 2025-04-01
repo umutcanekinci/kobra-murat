@@ -8,17 +8,16 @@ import java.util.logging.Logger;
 import java.util.ArrayList;
 
 import common.Connection;
+import common.ServerListener;
 import common.packet.Packet;
 import common.packet.basic.DisconnectPacket;
+import common.packet.basic.StartPacket;
 
-public class Client {
+public class Client implements UIListener, ServerListener {
     
     //region ----------------------------------- Variables -----------------------------------
     
-    private enum ClientState {
-        CLOSED,
-        CONNECTED
-    }
+    private static Client INSTANCE = null;
     private static ClientState state = ClientState.CLOSED;
     private static String host;
     private static int port;
@@ -31,12 +30,28 @@ public class Client {
 
     //region ----------------------------------- Constructors -----------------------------------
 
-    public void addListener(ClientListener clientListener) {
+    private Client() {}
+
+    public static Client getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new Client();
+        }
+        return INSTANCE;
+    }
+
+    public static void addListener(ClientListener clientListener) {
         if(clientListener == null)
             throw new IllegalArgumentException("ClientListener cannot be null.");
 
         listeners.add(clientListener);
     }
+
+    public void onServerConnected(String ip) {
+        setHost(ip);
+        start();
+    }
+
+    public void onServerClosed() {}
 
     private static void setState(ClientState state) {
         if(state == null)
@@ -69,6 +84,34 @@ public class Client {
     //endregion
 
     //region ----------------------------------- Connection -----------------------------------
+
+    @Override
+    public void onConnectButtonClicked(String host, int port) {
+        if(isConnected())
+            return;
+
+        setHost(host);
+        setPort(port);
+
+        if(host == null || host.isEmpty())
+            throw new IllegalArgumentException("Host cannot be null or empty.");
+
+        if(port <= 0)
+            throw new IllegalArgumentException("Port cannot be less than or equal to 0.");
+
+        start();
+    }
+
+    @Override
+    public void onHostButtonClicked() {}
+
+    @Override
+    public void onStartButtonClicked() {
+        if(isConnected())
+            return;
+
+        sendData(new StartPacket(PlayerList.getId()));
+    }
 
     public static void start() {
         if(isConnected())

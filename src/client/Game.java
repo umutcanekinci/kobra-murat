@@ -1,41 +1,34 @@
 package client;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.*;
-import java.util.ArrayList;
+import java.awt.image.ImageObserver;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
 import common.Constants;
 import common.Direction;
-import common.ServerListener;
 import common.Utils;
 import common.Window;
 import common.graphics.Image;
-import common.graphics.Panel;
 import common.graphics.SplashEffect;
 import common.graphics.SplashListener;
 import common.packet.RotatePacket;
-import common.packet.basic.StartPacket;
-import client.graphics.Draw;
+import java.awt.Toolkit;
+
 import client.graphics.UI;
 import server.Server;
-import common.graphics.ui.Button;
-import common.graphics.ui.TextField;
+
 import client.graphics.UI.Page;
 
-public class Game extends JPanel implements ActionListener, KeyListener, ServerListener, SplashListener {
+public class Game extends JPanel implements ActionListener, KeyListener, SplashListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
 
     private static boolean isStarted = false;
-
-    private static TextField hostField = new TextField("localhost");
-    private static TextField portField = new TextField(Constants.PORT + "");
     
     private static long currentTime = System.nanoTime();
     private static long lastTime = System.nanoTime();
@@ -43,12 +36,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     private static long totalTime = 0;
     private static int currentFps = 0;
     private static Timer timer;
-
-    private static final ArrayList<GameListener> listeners = new ArrayList<>();
-
-    public static void addListener(GameListener listener) {
-        listeners.add(listener);
-    }
 
     //endregion
 
@@ -58,80 +45,23 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         super();
         setDoubleBuffered(true);
         setBackground(Color.BLACK);
-        initSplash();
-        initServer();
-        initWidgets();
-        
-        listeners.forEach(GameListener::onWindowReady);
+        UI.init(this);
+        initListeners();    
         initTimer();
     }
 
-    private void initSplash() {
-        SplashEffect splashEffect = new SplashEffect();
-        SplashEffect.setListener(this);
-        addListener(splashEffect);
-        addMouseListener(splashEffect);
+    private void initListeners() {
+        Server.addListener(UI.getInstance());
+        
+        addMouseListener(SplashEffect.getInstance());
+        SplashEffect.addListener(this);
+        SplashEffect.addListener(UI.getInstance());
+        SplashEffect.start();
     }
 
     @Override
     public void onSplashFinished() {
         setBackground(Constants.BACKGROUND_COLOR);
-        UI.openPage(Page.MAIN_MENU);
-    }
-
-    private void initServer() {
-        Server.addListener(this);
-    }
-
-    private void initWidgets() {
-        addPanel(Page.MAIN_MENU, new Component[] {
-            new Button("Başla", e -> UI.openPage(Page.PLAY_MODE)),
-            new Button("Çıkış", e -> exit())
-        });
-        
-        addPanel(Page.PLAY_MODE, new Component[] {
-            new Button("Tek oyunculu", e -> sendStart()),
-            new Button("Çok oyunculu", e -> UI.openPage(Page.CONNECT_MODE))
-        });
-
-        addPanel(Page.CUSTOMIZE, new Component[] {
-            new Button("Geri", e -> UI.openPage(Page.MAIN_MENU)),
-            new Button("Başla", e -> sendStart())
-        });
-
-        addPanel(Page.CONNECT_MODE, new Component[] {
-            new Button("Sunucu Aç", e -> onHostButtonClick()),
-            new Button("Bağlan", e -> UI.openPage(Page.CONNECT))
-        });
-
-        addPanel(Page.CONNECT, new Component[] {
-            hostField,
-            portField,
-            new Button("Bağlan", e -> onConnectButtonClick())
-        });
-
-        addPanel(Page.PAUSE, new Component[] {
-            new Button("Devam et", e -> start()),
-            new Button("Ana menü", e -> UI.openPage(Page.MAIN_MENU)),
-        });
-
-        Button leaveButton = new Button("Ayrıl", e -> onLeaveButtonClick());
-        addPanel(Page.LOBBY, new Component[] {
-            new Button("Başlat", e -> sendStart()),
-            leaveButton
-        });
-
-        addPanel(Page.GAME, new Component[] {});
-    }
-
-    private void addPanel(Page page, Component[] components) {
-        if(page == null)
-            throw new IllegalArgumentException("Page cannot be null");
-
-        if(components == null)
-            throw new IllegalArgumentException("Components cannot be null");
-        
-        add(UI.addPanel(page, components));
     }
 
     public static void onLeaveButtonClick() {
@@ -143,17 +73,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     //region ---------------------------------------- BUTTON METHODS ----------------------------------------
-
-    private static void sendStart() {   
-        if(Client.isConnected())
-            sendStartPacket();
-        else
-            OfflinePlayerController.init();
-    }
-
-    private static void sendStartPacket() {
-        Client.sendData(new StartPacket(PlayerList.getId()));
-    }
 
     public static void start() {
         if(isStarted)
@@ -167,33 +86,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         isStarted = !value;
     }
 
-    private static void onConnectButtonClick() {
-        if(Client.isConnected()) {
-            Client.disconnect();
-            return;
-        }
-        updateClient();
-        connect();
-    }
-
-    private static void updateClient() {
-        Client.setHost(hostField.getText());
-        Client.setPort(Integer.parseInt(portField.getText()));
-    }
-
-    private static void connect() {
-        PlayerList.clear();
-        Client.start();
-    }
-
-    private static void onHostButtonClick() {
-        if(Server.isRunning()) {
-            Server.close();
-            return;
-        }
-        Server.start();
-    }
-
     public static void exit() {
         disconnect();
         Window.exit();
@@ -205,23 +97,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
             return;
         }
         Client.disconnect();
-    }
-
-    public static void onClientConnected() {
-        UI.openPage(Page.LOBBY);
-    }
-
-    public static void onClientDisconnected() {
-        UI.openPage(Page.MAIN_MENU);
-    }
-
-    public void onServerConnected() {
-        updateClient();
-        connect();
-    }
-
-    public void onServerClosed() {
-        UI.openPage(Page.MAIN_MENU);
     }
 
     //endregion
@@ -328,24 +203,41 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     @Override
     public void paintComponent(Graphics g) {
+        super.paintComponent(g);    
+        draw((Graphics2D) g, UI.getCurrentPanel());
+    }
+
+    public static void draw(Graphics2D g, ImageObserver observer) {
         if(g == null)
             throw new IllegalArgumentException("Graphics cannot be null");
 
-        super.paintComponent(g);
-        Graphics2D g2d = (Graphics2D) g;
-        g2d.scale(Constants.SCALEW, Constants.SCALEH);
-        
+        g.scale(Constants.SCALEW, Constants.SCALEH);
+    
         if(SplashEffect.isPlaying()) {
-            SplashEffect.draw(g2d, this);
+            SplashEffect.draw(g, observer);
             return;
         }
 
-        if(!isStarted)
-            Image.BACKGROUND_IMAGE.draw(g2d, 0, 0, this);
-
-        Panel currentPanel = UI.getCurrentPanel();
-        Draw.all(g2d, currentPanel, isStarted, currentPanel); // Draw everything
+        UI.initGraphics(g);
         
+        if(!isStarted) {
+            Image.BACKGROUND_IMAGE.draw(g, 0, 0, observer);
+        }
+        else {
+            Tilemap.draw(g, observer);
+            AppleManager.draw(g, observer);
+            PlayerList.draw(g, observer);
+            UI.drawPlayerBoard(g);
+            
+            if(DebugLog.isOn())
+                PlayerList.drawColliders(g);
+                Tilemap.drawColliders(g);
+                AppleManager.drawColliders(g);
+
+        }
+
+        DebugLog.draw(g);
+        Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems
         //g.dispose();
     }
 

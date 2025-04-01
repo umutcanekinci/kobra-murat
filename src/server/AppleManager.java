@@ -7,19 +7,31 @@ import common.Utils;
 import common.packet.SpawnApplesPacket;
 import common.Position;
 
-class AppleManager {
+class AppleManager implements TilemapListener {
     /*
      * This class is responsible for managing the apples in the game.
      * It is responsible for spawning apples and keeping track of them as points.
      * This script is seperated from the game.AppleManager class because server does not need to draw the apples.
      */
 
+    private static AppleManager INSTANCE = null;
     private static final int APPLE_COUNT = 5;
     private static ArrayList<Position> apples = new ArrayList<>();
     private static ArrayList<Position> emptyTiles;
 
-    public static void setEmptyTiles(ArrayList<Position> emptyTiles) {
+    private AppleManager() {}
+
+    public static AppleManager getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new AppleManager();
+        }
+
+        return INSTANCE;
+    }
+
+    public void onMapLoaded(ArrayList<Position> emptyTiles) {
         AppleManager.emptyTiles = emptyTiles;
+        spawnAll();
     }
 
     public static void addApple(Position position) {

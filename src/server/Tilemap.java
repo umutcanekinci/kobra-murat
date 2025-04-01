@@ -7,17 +7,56 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import common.Position;
+import common.ServerListener;
 import common.Utils;
 import common.packet.basic.SetMapPacket;
 import common.Connection;
 
-public class Tilemap {
+public class Tilemap implements ServerListener {
 
+    /*
+     * This class is responsible for loading the map from a file and keeping track of the tiles.
+     * It is also responsible for checking if a position collides with a tile.
+     * This class is a singleton because we only need one instance of it.
+     */
+
+    private static Tilemap INSTANCE = null;
     private static int currentLevel;
     private static Tile[][] tiles;
     private static ArrayList<Position> emptyTiles;
     private static int cols, rows;
     private static final Position spawnPoint = new Position(0, 0);
+    private static ArrayList<TilemapListener> listeners = new ArrayList<>();
+
+    public static void addListener(TilemapListener listener) {
+        if(listener == null)
+            throw new IllegalArgumentException("Listener cannot be null");
+        
+        listeners.add(listener);
+    }
+
+    private Tilemap() {}
+
+    public static Tilemap getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new Tilemap();
+        }
+
+        return INSTANCE;
+    }
+
+    @Override
+    public void onServerConnected(String ip) {
+        load(1);
+    }
+
+    @Override
+    public void onServerClosed() {
+        // TODO Auto-generated method stub
+        // This method is called when the server is closed.
+        // We can use this method to save the map to a file if we want to.
+        // But for now, we will just leave it empty.
+    }
 
     public static void load(int id) {
         currentLevel = id;
@@ -61,6 +100,7 @@ public class Tilemap {
                     emptyTiles.add(new Position(tile));
             }
         }
+        listeners.forEach(listener -> listener.onMapLoaded(emptyTiles));
     }
 
     public static int getCols() {
@@ -100,7 +140,7 @@ public class Tilemap {
 
     public static ArrayList<Position> getEmptyTiles() {
         return emptyTiles;
-    }    
+    }
 
     public static String getInfo() {
         return "Level " + currentLevel + " (" + cols + "x" + rows + ")" + "\n" +

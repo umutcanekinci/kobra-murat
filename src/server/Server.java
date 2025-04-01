@@ -3,6 +3,9 @@ package server;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import client.UIListener;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,10 +19,11 @@ import common.ServerListener;
 import common.ServerState;
 import common.Utils;
 
-public class Server {
+public class Server implements UIListener {
 
     //region ------------------------------------ Variables ------------------------------------
     
+    private static Server INSTANCE = null;
     private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
     private static String ip = Utils.getLocalIp();
     private static ServerSocket serverSocket;
@@ -31,6 +35,26 @@ public class Server {
 
     //region ------------------------------------ Constructors ------------------------------------
 
+    private Server() {}
+
+    public static Server getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new Server();
+        }
+        return INSTANCE;
+    }
+
+    @Override
+    public void onConnectButtonClicked(String host, int port) {}
+
+    @Override
+    public void onHostButtonClicked() {
+        start();
+    }
+
+    @Override
+    public void onStartButtonClicked() {}
+
     public static void addListener(ServerListener listener) {
         if(listener == null)
             return;
@@ -38,20 +62,11 @@ public class Server {
         Server.listeners.add(listener);
     }
 
-    private static void setLevel(int level) {
-        Tilemap.load(level);
-        AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
-    }
-
-    private static void initApples() {
-        AppleManager.spawnAll();
-    }
-
     private static void setState(ServerState state) {
         Server.state = state;
     
         if(state == ServerState.CONNECTED)
-            listeners.forEach(listener -> listener.onServerConnected());
+            listeners.forEach(listener -> listener.onServerConnected(ip));
         else if(state == ServerState.CLOSED)
             listeners.forEach(listener -> listener.onServerClosed());
 
@@ -61,6 +76,10 @@ public class Server {
         return state != ServerState.CLOSED;
     }
 
+    public static String getIp() {
+        return ip;
+    }
+
     //endregion
 
     //region ------------------------------------ Methods ------------------------------------
@@ -68,8 +87,8 @@ public class Server {
     //region ------------------------------------ Socket ------------------------------------
 
     public static void start() {
-        setLevel(1);
-        initApples();  
+        addListener(Tilemap.getInstance());
+        Tilemap.addListener(AppleManager.getInstance());
 
         open();
         new Thread() {

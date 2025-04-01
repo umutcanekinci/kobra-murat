@@ -7,7 +7,7 @@ import java.util.HashMap;
 import common.Direction;
 import common.Position;
 
-public class PlayerList {
+public class PlayerList implements ClientListener {
 
     /*
      * This class is used to store the players in the game.
@@ -18,6 +18,19 @@ public class PlayerList {
      */
     private static int id;
     private static final HashMap<Integer, NetPlayer> players = new HashMap<>();
+
+    public void onClientConnected() {
+        clear();
+    }
+
+    public void onClientDisconnected() {
+        clear();
+    }
+
+    public static void clear() {
+        players.clear();
+    }
+
 
     public static int getId() {
         return id;
@@ -60,10 +73,6 @@ public class PlayerList {
             parts.addAll(player.getParts());
         }
         return parts;
-    }
-
-    public static void clear() {
-        players.clear();
     }
 
     //region Single Player Methods

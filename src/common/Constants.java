@@ -30,6 +30,8 @@ public class Constants {
     public static final int DELTATIME_MS = (int) (DELTATIME * 1000);
 
     public static final int TILE_SIZE = 64;
+    public static final int PLAYER_BOARD_WIDTH = 200;
+
     public static final Dimension MAX_SIZE = new Dimension(1920, 1080);
     public static final Dimension SIZE = Toolkit.getDefaultToolkit().getScreenSize();
     public static final double SCALEW = (float) SIZE.width / MAX_SIZE.width;

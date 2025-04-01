@@ -1,6 +1,6 @@
 package common;
 
 public interface ServerListener {
-    void onServerConnected();
+    void onServerConnected(String ip);
     void onServerClosed();
 }

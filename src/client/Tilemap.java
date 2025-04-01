@@ -111,8 +111,8 @@ public class Tilemap {
         return false;
     }
 
-    public static void draw(Graphics2D renderer, ImageObserver observer) {
-        if(renderer == null)
+    public static void draw(Graphics2D g, ImageObserver observer) {
+        if(g == null)
             throw new IllegalArgumentException("Graphics2D cannot be null");
         
         if(tiles == null)
@@ -120,12 +120,12 @@ public class Tilemap {
         
         for (Tile[] row : tiles) {
             for (Tile tile : row)
-                tile.draw(renderer, observer);
+                tile.draw(g, observer);
         }
     }
 
-    public static void drawColliders(Graphics2D renderer) {
-        if(renderer == null)
+    public static void drawColliders(Graphics2D g) {
+        if(g == null)
             throw new IllegalArgumentException("Graphics2D cannot be null");
 
         if(tiles == null)
@@ -133,7 +133,7 @@ public class Tilemap {
 
         for (Tile[] row : tiles) {
             for (Tile tile : row)
-                tile.drawCollider(renderer);
+                tile.drawCollider(g);
         }
     }
 

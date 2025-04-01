@@ -8,16 +8,18 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.ImageObserver;
+import java.util.ArrayList;
 import javax.swing.Timer;
 
-import client.GameListener;
+import client.UIListener;
 
-public class SplashEffect implements GameListener, MouseListener {
+public class SplashEffect implements UIListener, MouseListener {
     
+    private static SplashEffect INSTANCE = null;
     private static boolean isFadingIn;
     private static int alpha;
     private static double scale = 1;
-    private static int SPLASH_TIME = 40;
+    private static final int SPLASH_TIME = 40;
     private static final Timer TIMER = new Timer(SPLASH_TIME, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -37,16 +39,32 @@ public class SplashEffect implements GameListener, MouseListener {
         }
     });
 
-    private static SplashListener listener;
+    private static ArrayList<SplashListener> listeners = new ArrayList<>();
 
-    public static void setListener(SplashListener splashListener) {
-        listener = splashListener;
+    private SplashEffect() {}
+
+    public static SplashEffect getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new SplashEffect();
+        }
+        return INSTANCE;
+    }
+
+    public static void addListener(SplashListener splashListener) {
+        if (splashListener == null)
+            throw new IllegalArgumentException("SplashListener cannot be null.");
+
+        listeners.add(splashListener);
     }
 
     @Override
-    public void onWindowReady() {
-        start();
-    }
+    public void onConnectButtonClicked(String host, int ip) {}
+
+    @Override
+    public void onHostButtonClicked() {}
+
+    @Override
+    public void onStartButtonClicked() {}
 
     public static void start() {
         alpha = 0;
@@ -62,7 +80,7 @@ public class SplashEffect implements GameListener, MouseListener {
         alpha = 0;
         isFadingIn = true;
         TIMER.stop();
-        listener.onSplashFinished();
+        listeners.forEach(SplashListener::onSplashFinished);
     }
 
     public static void draw(Graphics2D g, ImageObserver observer) {

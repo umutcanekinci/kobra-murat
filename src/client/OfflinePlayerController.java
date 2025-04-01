@@ -14,15 +14,25 @@ import common.packet.basic.AddPacket;
 import common.packet.basic.IdPacket;
 import common.packet.basic.SetMapPacket;
 
-public class OfflinePlayerController {    
+public class OfflinePlayerController implements UIListener {    
     /*
      * This class is used to simulate the server when the game is played offline.
      * It manages the game loop and the game state like collision detection, apple managment.
      */
 
+    private static OfflinePlayerController INSTANCE = null;
     private static NetPlayer player;
     private static double displacement = 0;
     private static boolean canRotate = true;
+
+    private OfflinePlayerController() {}
+
+    public static OfflinePlayerController getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new OfflinePlayerController();
+        }
+        return INSTANCE;
+    }
 
     public static void init() {
         PlayerList.clear();
@@ -114,5 +124,19 @@ public class OfflinePlayerController {
 
         player.setDirection(newDirection);
         canRotate = false;
+    }
+
+    @Override
+    public void onConnectButtonClicked(String host, int port) {}
+
+    @Override
+    public void onHostButtonClicked() {}
+
+    @Override
+    public void onStartButtonClicked() {
+        if(Client.isConnected())
+            return;
+        
+        init();
     }
 }

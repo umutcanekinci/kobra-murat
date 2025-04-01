@@ -118,7 +118,6 @@ public class Player implements Serializable {
             throw new IllegalArgumentException("Direction cannot be null");
 
         int frame = dir == newDir ? 1 : 0;
-        System.out.println("Frame: " + frame);
         return Utils.getRotatedImage(Constants.SPRITESHEET.getSprite(frame), newDir.getAngle(dir));
     }
 

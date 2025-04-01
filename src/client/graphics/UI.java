@@ -3,21 +3,35 @@ package client.graphics;
 import java.awt.Font;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Rectangle;
+import java.util.ArrayList;
 import java.util.HashMap;
 import javax.swing.Box;
 
 import common.Constants;
+import common.ServerListener;
 import common.Utils;
 import common.graphics.Panel;
+import common.graphics.SplashEffect;
+import common.graphics.SplashListener;
+import common.graphics.ui.Button;
+import common.graphics.ui.TextField;
+import client.UIListener;
+import client.Game;
 import client.NetPlayer;
+import client.OfflinePlayerController;
 import client.PlayerList;
 
-public class UI {
+public class UI implements ServerListener, UIListener, SplashListener {
 
+    private static UI INSTANCE = null;
     private static final Font DEFAULT_FONT = new Font("Lato", Font.BOLD, 25);
+
+    private static TextField hostField = new TextField("localhost");
+    private static TextField portField = new TextField(Constants.PORT + "");
 
     public enum Page {
         MAIN_MENU,
@@ -46,6 +60,101 @@ public class UI {
     private static Page currentPage;
     private static final HashMap<Page, Panel> panels = new HashMap<>();
 
+    private static final ArrayList<UIListener> listeners = new ArrayList<>();
+
+    public static void addListener(UIListener listener) {
+        listeners.add(listener);
+    }
+
+    private UI() {}
+
+    public static UI getInstance() {
+        if(INSTANCE == null) {
+            INSTANCE = new UI();
+        }
+        return INSTANCE;
+    }
+
+    public static void init(Container container) {
+        initWidgets(container);
+        addListener(OfflinePlayerController.getInstance());
+        addListener(SplashEffect.getInstance());
+    }
+
+    private static void initWidgets(Container container) {
+        add(container, Page.MAIN_MENU, new Component[] {
+            new Button("Başla", e -> UI.openPage(Page.PLAY_MODE)),
+            new Button("Çıkış", e -> Game.exit())
+        });
+        
+        add(container, Page.PLAY_MODE, new Component[] {
+            new Button("Tek oyunculu", e -> listeners.forEach(UIListener::onStartButtonClicked)),
+            new Button("Çok oyunculu", e -> UI.openPage(Page.CONNECT_MODE))
+        });
+
+        add(container, Page.CUSTOMIZE, new Component[] {});
+
+        add(container, Page.CONNECT_MODE, new Component[] {
+            new Button("Sunucu Aç", e -> listeners.forEach(UIListener::onHostButtonClicked)),
+            new Button("Bağlan", e -> UI.openPage(Page.CONNECT))
+        });
+
+        add(container, Page.CONNECT, new Component[] {
+            hostField,
+            portField,
+            new Button("Bağlan", e -> listeners.forEach(listener -> listener.onConnectButtonClicked(hostField.getText(), Integer.parseInt(portField.getText())))),
+        });
+
+        add(container, Page.PAUSE, new Component[] {
+            new Button("Devam et", e -> Game.start()),
+            new Button("Ana menü", e -> UI.openPage(Page.MAIN_MENU)),
+        });
+
+        Button leaveButton = new Button("Ayrıl", e -> Game.onLeaveButtonClick());
+        add(container, Page.LOBBY, new Component[] {
+            new Button("Başlat", e -> listeners.forEach(UIListener::onStartButtonClicked)),
+            leaveButton
+        });
+
+        add(container, Page.GAME, new Component[] {});
+    }
+
+    private static void add(Container container, Page page, Component[] components) {
+        if(page == null)
+            throw new IllegalArgumentException("Page cannot be null");
+
+        if(components == null)
+            throw new IllegalArgumentException("Components cannot be null");
+        
+        container.add(addPanel(page, components));
+    }
+
+    @Override
+    public void onServerConnected(String ip) {
+        UI.openPage(Page.LOBBY);
+    }
+
+    @Override
+    public void onServerClosed() {
+        UI.openPage(Page.CONNECT_MODE);
+    }
+
+    @Override
+    public void onSplashFinished() {
+        UI.openPage(Page.MAIN_MENU);
+    }
+
+    @Override
+    public void onConnectButtonClicked(String host, int ip) {}
+
+    @Override
+    public void onHostButtonClicked() {}
+
+    @Override
+    public void onStartButtonClicked() {
+        UI.openPage(Page.GAME);
+    }
+
     public static Panel getPanel(Page page) {
         return panels.get(page);
     }
@@ -60,13 +169,18 @@ public class UI {
         g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
     }
 
-    public static void drawPlayerBoard(Graphics2D g, int x, int y, int width) {
+    public static void drawPlayerBoard(Graphics2D g) {
+        int width = Constants.PLAYER_BOARD_WIDTH;
+        int x = Constants.MAX_SIZE.width - width;
+        int y = 0;
+
         int count = PlayerList.getPlayerCount();
         int playerHeight = Utils.calculateTextHeight(g, "") + 15;
         int height = (count + 1) * playerHeight + 90;
         
         g.setFont(DEFAULT_FONT);
         g.setColor(Color.BLACK);
+        System.out.println("x: " + x + ", y: " + y + ", width: " + width + ", height: " + height);
         g.fillRect(x, y, width, height);
         g.setColor(Color.WHITE);
         g.drawRect(x, y, width, height);
@@ -86,7 +200,7 @@ public class UI {
         return panels.get(currentPage);
     }
 
-    public static Panel addPanel(Page page, Component[] components) {
+    private static Panel addPanel(Page page, Component[] components) {
         Panel panel = new Panel();
         panels.put(page, panel);
 
@@ -145,5 +259,9 @@ public class UI {
 
     public static void goBack() {        
         openPage(currentPage.getBackPage());
+    }
+
+    public static String getInfo() {
+        return "UI\nCurrent Page: " + currentPage + "\n";
     }
 }

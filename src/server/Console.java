@@ -9,7 +9,7 @@ public class Console implements ServerListener {
         Server.addListener(this);
     }
 
-    public void onServerConnected() {
+    public void onServerConnected(String ip) {
         System.out.println("Server connected");
     }
 

@@ -20,7 +20,7 @@ public class SnakePart extends Object {
     public void reset() {
         setPosition(Constants.HIDDEN_POSITION);
         setImage(null);
-        setDirection(null);
+        setDirection(Constants.DEFAULT_DIRECTION);
     }
 
     public void setDirection(Direction direction) {

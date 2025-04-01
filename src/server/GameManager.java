@@ -13,7 +13,7 @@ public class GameManager implements ActionListener, ServerListener {
     private static Timer timer;
 
     @Override
-    public void onServerConnected() {
+    public void onServerConnected(String ip) {
         start();
     }
 
