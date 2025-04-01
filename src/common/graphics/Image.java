@@ -19,16 +19,15 @@ public class Image {
 
     public static final Image BACKGROUND_IMAGE     = new Image("images/main-menu-background.png");
     public static final Image TITLE                = new Image("images/title.png");
-    public static final Image SPRITESHEET          = new Image("images/snake.png");
+    public static final Image SPRITESHEET          = new Image("images/honored.png");
     public static final Image TILESHEET            = new Image("images/wall.png");
     public static final Image SPLASH               = new Image("images/splash.png");
+    public static final Image APPLE                = new Image("images/apple.png");
 
     private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
     private BufferedImage image;
 
-    public Image() {
-        
-    }
+    public Image() {}
 
     public Image(String path) {
         this(new File(path));
@@ -40,7 +39,7 @@ public class Image {
 
     private void load(File imageFile) {
         set(readImageFile(imageFile));
-
+        //set(image.getScaledInstance(getWidth(), getHeight(), BufferedImage.SCALE_SMOOTH));
     }
 
     private static BufferedImage readImageFile(File imageFile) {

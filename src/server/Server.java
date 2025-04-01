@@ -1,5 +1,6 @@
 package server;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.io.IOException;
@@ -10,7 +11,9 @@ import common.packet.basic.AddPacket;
 import common.packet.basic.IdPacket;
 import common.packet.basic.ServerClosedPacket;
 import common.Connection;
+import common.Constants;
 import common.ServerListener;
+import common.ServerState;
 import common.Utils;
 
 public class Server {
@@ -18,38 +21,21 @@ public class Server {
     //region ------------------------------------ Variables ------------------------------------
     
     private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
-    private static String ip;
-    private static int port;
+    private static String ip = Utils.getLocalIp();
     private static ServerSocket serverSocket;
-    public enum State {
-        CLOSED,
-        CONNECTED,
-        LISTENING,
-    }
-    private static State state = State.CLOSED;
-    private static ServerListener listener;
+
+    private static ServerState state = ServerState.CLOSED;
+    private static ArrayList<ServerListener> listeners = new ArrayList<>();
 
     //endregion
 
     //region ------------------------------------ Constructors ------------------------------------
 
-    public static void setListener(ServerListener listener) {
-        Server.listener = listener;
-    }
-
-    public static void init(int port) {
-        setIp(Utils.getLocalIp());
-        setPort(port);
-        setLevel(1);
-        initApples();  
-    }
-
-    private static void setIp(String ip) {
-        Server.ip = ip;
-    }
-
-    private static void setPort(int port) {
-        Server.port = port;
+    public static void addListener(ServerListener listener) {
+        if(listener == null)
+            return;
+        
+        Server.listeners.add(listener);
     }
 
     private static void setLevel(int level) {
@@ -61,19 +47,18 @@ public class Server {
         AppleManager.spawnAll();
     }
 
-    private static void setState(State state) {
+    private static void setState(ServerState state) {
         Server.state = state;
+    
+        if(state == ServerState.CONNECTED)
+            listeners.forEach(listener -> listener.onServerConnected());
+        else if(state == ServerState.CLOSED)
+            listeners.forEach(listener -> listener.onServerClosed());
 
-        if(listener != null)
-            listener.onServerStateChange(state);
-    }
-
-    public static State getState() {
-        return state;
     }
 
     public static boolean isRunning() {
-        return state != State.CLOSED;
+        return state != ServerState.CLOSED;
     }
 
     //endregion
@@ -83,8 +68,10 @@ public class Server {
     //region ------------------------------------ Socket ------------------------------------
 
     public static void start() {
+        setLevel(1);
+        initApples();  
+
         open();
-        new GameManager().start();
         new Thread() {
             public void run() {
                 while (isRunning())
@@ -95,8 +82,8 @@ public class Server {
 
     private static void open() {
         try {
-            serverSocket = new ServerSocket(port);
-            setState(State.CONNECTED);
+            serverSocket = new ServerSocket(Constants.PORT);
+            setState(ServerState.CONNECTED);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, "Failed to open server socket.\n", e);
             close();
@@ -104,7 +91,7 @@ public class Server {
     }
 
     private static void listen() {
-        setState(State.LISTENING);
+        setState(ServerState.LISTENING);
         if(serverSocket == null || serverSocket.isClosed()) {
             close();
             return;
@@ -142,7 +129,7 @@ public class Server {
             return;
 
         closeConnections();
-        setState(State.CLOSED);
+        setState(ServerState.CLOSED);
     }
 
     private static void closeConnections() {
@@ -172,7 +159,7 @@ public class Server {
 
     public static String getInfo() {
         return "SERVER: " + state + "\n" +
-        "(IP: " + ip + " PORT: " + port + ")\n" +
+        "(IP: " + ip + " PORT: " + Constants.PORT + ")\n" +
         Tilemap.getInfo() + "\n\n" +
         PlayerList.getInfo();
     }

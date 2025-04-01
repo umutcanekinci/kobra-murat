@@ -80,7 +80,11 @@ public class Window extends JFrame {
     }
 
     private void fullScreen() {
+        // System.setProperty("sun.java2d.uiScale.enabled", "true");
+        // System.setProperty("sun.java2d.uiScale ", "2.0");
+
         setUndecorated(true);
+        setPreferredSize(Constants.SIZE);
     }
 
     /*

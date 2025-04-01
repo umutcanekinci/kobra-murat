@@ -35,7 +35,7 @@ public class Tilemap {
 
     public static void load(SetMapPacket packet) {
         if(packet == null)
-            return;
+            throw new IllegalArgumentException("Packet cannot be null");
 
         currentLevel = packet.getId();
         load(currentLevel);
@@ -46,7 +46,7 @@ public class Tilemap {
 
         Path path = Paths.get(file.getAbsolutePath());
         if(!Files.exists(path))
-            return;
+            throw new IllegalArgumentException("File " + file.getAbsolutePath() + " does not exist");
             
         String str = "";
         try {
@@ -60,13 +60,11 @@ public class Tilemap {
 
     public static void load(int[][] data) {
         if(data == null)
-            return;
+            throw new IllegalArgumentException("Data cannot be null");
 
         if(data.length == 0 || data[0].length == 0)
-            return;
+            throw new IllegalArgumentException("Data cannot be empty");
         
-        
-
         cols = data[0].length;
         rows = data.length;
         tiles = new Tile[rows][cols];
@@ -78,10 +76,10 @@ public class Tilemap {
                 Tile tile = new Tile(data[row][col], row, col, Constants.TILESHEET.getSprite(data[row][col]));
                 tiles[row][col] = tile;
 
-                if(tile.isSpawnPoint)
+                if(tile.isSpawnPoint())
                     spawnPoint = tile.getPosition();
 
-                if(!tile.isCollidable)
+                if(!tile.isCollidable())
                     emptyTiles.add(tile.getPosition());
             }
                 
@@ -101,6 +99,9 @@ public class Tilemap {
     }
 
     public static boolean doesCollide(Position position) {
+        if(position == null)
+            throw new IllegalArgumentException("Position cannot be null");
+
         for(Tile[] row : tiles) {
             for(Tile tile : row) {
                 if(tile.doesCollide(position))
@@ -111,10 +112,10 @@ public class Tilemap {
     }
 
     public static void draw(Graphics2D renderer, ImageObserver observer) {
-        if(tiles == null)
-            return;
-
         if(renderer == null)
+            throw new IllegalArgumentException("Graphics2D cannot be null");
+        
+        if(tiles == null)
             return;
         
         for (Tile[] row : tiles) {
@@ -124,10 +125,10 @@ public class Tilemap {
     }
 
     public static void drawColliders(Graphics2D renderer) {
-        if(tiles == null)
-            return;
-
         if(renderer == null)
+            throw new IllegalArgumentException("Graphics2D cannot be null");
+
+        if(tiles == null)
             return;
 
         for (Tile[] row : tiles) {
@@ -137,6 +138,9 @@ public class Tilemap {
     }
 
     public static Tile getTile(Position position) {
+        if(position == null)
+            throw new IllegalArgumentException("Position cannot be null");
+
         int row = position.y;
         int col = position.x;
 

@@ -3,7 +3,6 @@ package client;
 import java.awt.event.KeyEvent;
 
 public enum MoveKey {
-
     LEFT(KeyEvent.VK_LEFT),
     UP(KeyEvent.VK_UP),
     RIGHT(KeyEvent.VK_RIGHT),

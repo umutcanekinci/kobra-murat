@@ -24,7 +24,6 @@ public class Button extends ButtonGradient {
         //setCursor(new Cursor(java.awt.Cursor.HAND_CURSOR));
         //setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 2));
         //setFont(new Font("Arial", Font.BOLD, 20));
-        
     }
 
     public Button(String text, ActionListener listener) {
@@ -33,9 +32,8 @@ public class Button extends ButtonGradient {
         addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
-                if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_SPACE) {
+                if (e.getKeyCode() == KeyEvent.VK_ENTER || e.getKeyCode() == KeyEvent.VK_SPACE)
                     listener.actionPerformed(null);
-                }
             }
         });
     }

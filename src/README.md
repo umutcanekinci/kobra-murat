@@ -27,6 +27,10 @@ Constructors
 Methods: These methods should be grouped by functionality rather than by scope or accessibility. For example, a private class method can be in between two public instance methods. The goal is to make reading and understanding the code easier.
 
 
+BUG Buttons are not scaling correctly. They work fine in just 1080p.
+BUG FPS IS NOT STABLE
+
+
 HELPS
 https://www.reddit.com/r/gamedev/comments/8tdmaa/question_about_server_vs_client/
 https://www.quora.com/Do-games-use-server-side-programming-or-client-side-programming

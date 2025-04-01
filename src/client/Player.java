@@ -37,6 +37,9 @@ public class Player implements Serializable {
     }
 
     public void spawn(Position spawnPoint, int length) {
+        if(spawnPoint == null)
+            throw new IllegalArgumentException("Spawn point cannot be null");
+
         setLength(length);
         resetParts();
         setPosition(new Position(spawnPoint));
@@ -58,7 +61,7 @@ public class Player implements Serializable {
 
     public void setPosition(Position position) {
         if(position == null)
-            return;
+            throw new IllegalArgumentException("Position cannot be null");
             
         getHead().setPosition(position);
     }
@@ -71,6 +74,9 @@ public class Player implements Serializable {
     }
 
     public boolean isHead(SnakePart part) {
+        if(part == null)
+            throw new IllegalArgumentException("Part cannot be null");
+
         return part.getPosition().equals(getHead().getPosition());
     }
 
@@ -79,7 +85,10 @@ public class Player implements Serializable {
     }
 
     public void setDirection(Direction direction) {
-        if(direction != null && direction.isParallel(this.direction))
+        if(direction == null)
+            throw new IllegalArgumentException("Direction cannot be null");
+
+        if(direction.isParallel(this.direction))
             return;
         
         this.direction = direction;
@@ -90,6 +99,9 @@ public class Player implements Serializable {
     }
 
     public void stepTo(Position position) {
+        if(position == null)
+            throw new IllegalArgumentException("Position cannot be null");
+
         SnakePart head = getHead();
         head.setImage(getFrame(head.getDirection(), direction));
 
@@ -101,13 +113,17 @@ public class Player implements Serializable {
         updateHead();
     }
     
-    private BufferedImage getFrame(Direction dir, Direction newDir){
+    private BufferedImage getFrame(Direction dir, Direction newDir) {
+        if(dir == null || newDir == null)
+            throw new IllegalArgumentException("Direction cannot be null");
+
         int frame = dir == newDir ? 1 : 0;
+        System.out.println("Frame: " + frame);
         return Utils.getRotatedImage(Constants.SPRITESHEET.getSprite(frame), newDir.getAngle(dir));
     }
 
     private BufferedImage getHeadFrame() {
-        return Utils.getRotatedImage(Constants.SPRITESHEET.getSprite(4), direction.getAngle());
+        return Utils.getRotatedImage(Constants.SPRITESHEET.getSprite(3), direction.getAngle());
     }
 
     private void updateHead() {
@@ -117,6 +133,9 @@ public class Player implements Serializable {
     }
 
     public boolean isPointOnTail(Position point) {
+        if(point == null)
+            throw new IllegalArgumentException("Point cannot be null");
+
         return getTail().doesCollide(point);
     }
 
@@ -171,12 +190,18 @@ public class Player implements Serializable {
     }
 
     public void setParts(ArrayList<Position> parts) {
+        if(parts == null)
+            throw new IllegalArgumentException("Parts cannot be null");
+
         this.parts.clear();
         parts.forEach(part -> this.parts.add(new SnakePart(part)));
         length = parts.size();
     }
     
     public boolean doesCollide(Position point) {
+        if(point == null)
+            throw new IllegalArgumentException("Point cannot be null");
+
         for(SnakePart part : parts) {
             if(part.doesCollide(point))
                 return true;
@@ -185,6 +210,9 @@ public class Player implements Serializable {
     }
 
     public void drawCollider(Graphics2D g) {
+        if(g == null)
+            throw new IllegalArgumentException("Graphics cannot be null");
+
         parts.forEach(part -> part.drawCollider(g, Color.RED));
         
         SnakePart head = getHead();
@@ -199,6 +227,9 @@ public class Player implements Serializable {
     }
 
     public void draw(Graphics2D g, ImageObserver observer) {
+        if(g == null)
+            throw new IllegalArgumentException("Graphics cannot be null");
+
         parts.forEach(part -> part.draw(g, observer));
     }
 

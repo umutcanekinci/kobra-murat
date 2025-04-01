@@ -57,7 +57,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     public Game() {
         super();
         setDoubleBuffered(true);
-        setFullscreen();
         setBackground(Color.BLACK);
         initSplash();
         initServer();
@@ -72,21 +71,16 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         SplashEffect.setListener(this);
         addListener(splashEffect);
         addMouseListener(splashEffect);
-        //addKeyListener(splashEffect);
     }
 
     @Override
     public void onSplashFinished() {
+        setBackground(Constants.BACKGROUND_COLOR);
         UI.openPage(Page.MAIN_MENU);
     }
 
-    private void setFullscreen() {
-        setPreferredSize(Constants.SIZE);
-    }
-
     private void initServer() {
-        Server.init(Constants.PORT);
-        Server.setListener(this);
+        Server.addListener(this);
     }
 
     private void initWidgets() {
@@ -100,13 +94,20 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
             new Button("Çok oyunculu", e -> UI.openPage(Page.CONNECT_MODE))
         });
 
+        addPanel(Page.CUSTOMIZE, new Component[] {
+            new Button("Geri", e -> UI.openPage(Page.MAIN_MENU)),
+            new Button("Başla", e -> sendStart())
+        });
+
         addPanel(Page.CONNECT_MODE, new Component[] {
             new Button("Sunucu Aç", e -> onHostButtonClick()),
             new Button("Bağlan", e -> UI.openPage(Page.CONNECT))
         });
 
         addPanel(Page.CONNECT, new Component[] {
-            hostField, portField, new Button("Bağlan", e -> onConnectButtonClick())
+            hostField,
+            portField,
+            new Button("Bağlan", e -> onConnectButtonClick())
         });
 
         addPanel(Page.PAUSE, new Component[] {
@@ -114,17 +115,31 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
             new Button("Ana menü", e -> UI.openPage(Page.MAIN_MENU)),
         });
 
+        Button leaveButton = new Button("Ayrıl", e -> onLeaveButtonClick());
         addPanel(Page.LOBBY, new Component[] {
-            new Button("Başla", e -> sendStart()),
-            new Button("Ana menü", e -> UI.openPage(Page.MAIN_MENU)),
-            new Button("Çıkış", e -> exit())
+            new Button("Başlat", e -> sendStart()),
+            leaveButton
         });
 
         addPanel(Page.GAME, new Component[] {});
     }
 
     private void addPanel(Page page, Component[] components) {
+        if(page == null)
+            throw new IllegalArgumentException("Page cannot be null");
+
+        if(components == null)
+            throw new IllegalArgumentException("Components cannot be null");
+        
         add(UI.addPanel(page, components));
+    }
+
+    public static void onLeaveButtonClick() {
+        if(Client.isConnected()) {
+            Client.disconnect();
+            return;
+        }
+        Server.close();
     }
 
     //region ---------------------------------------- BUTTON METHODS ----------------------------------------
@@ -192,32 +207,21 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
         Client.disconnect();
     }
 
-    public void onServerStateChange(Server.State state) {
-        switch (state) {
-            case CONNECTED:
-                onServerOpened();
-                break;
-            case CLOSED:
-                onServerClosed();
-                break;
-            case LISTENING:
-                break;
-        }
-    }
-
     public static void onClientConnected() {
         UI.openPage(Page.LOBBY);
     }
 
     public static void onClientDisconnected() {
+        UI.openPage(Page.MAIN_MENU);
     }
 
-    public static void onServerOpened() {
+    public void onServerConnected() {
         updateClient();
         connect();
     }
 
-    public static void onServerClosed() {
+    public void onServerClosed() {
+        UI.openPage(Page.MAIN_MENU);
     }
 
     //endregion
@@ -264,6 +268,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     private static void keyPressedGame(KeyEvent e) {
+        if(e == null)
+            throw new IllegalArgumentException("KeyEvent cannot be null");
+
         if(!Client.isConnected())
             OfflinePlayerController.keyPressed(e);
         else
@@ -271,6 +278,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     private static void updateDirection(KeyEvent e) {
+        if(e == null)
+            throw new IllegalArgumentException("KeyEvent cannot be null");
+
         Direction direction = Utils.keyToDirection(e.getKeyCode());
 
         if(direction == null)
@@ -280,6 +290,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
     }
 
     private static void sendDirection(Direction direction) {
+        if(direction == null)
+            throw new IllegalArgumentException("Direction cannot be null");
+
         Client.sendData(new RotatePacket(PlayerList.getCurrentPlayer().getId(), direction));
     }
 
@@ -287,6 +300,9 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        if(e == null)
+            throw new IllegalArgumentException("ActionEvent cannot be null");
+
         currentTime = System.nanoTime();
         totalTime += currentTime - lastTime;
         lastTime = currentTime;
@@ -312,18 +328,23 @@ public class Game extends JPanel implements ActionListener, KeyListener, ServerL
 
     @Override
     public void paintComponent(Graphics g) {
+        if(g == null)
+            throw new IllegalArgumentException("Graphics cannot be null");
+
         super.paintComponent(g);
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.scale(Constants.SCALEW, Constants.SCALEH);
         
         if(SplashEffect.isPlaying()) {
-            SplashEffect.draw((Graphics2D) g, this);
+            SplashEffect.draw(g2d, this);
             return;
         }
 
         if(!isStarted)
-            Image.BACKGROUND_IMAGE.draw((Graphics2D) g, 0, 0, this);
+            Image.BACKGROUND_IMAGE.draw(g2d, 0, 0, this);
 
         Panel currentPanel = UI.getCurrentPanel();
-        Draw.all((Graphics2D) g, currentPanel, isStarted, currentPanel); // Draw everything
+        Draw.all(g2d, currentPanel, isStarted, currentPanel); // Draw everything
         
         //g.dispose();
     }

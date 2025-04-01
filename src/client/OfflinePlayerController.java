@@ -38,6 +38,9 @@ public class OfflinePlayerController {
     }
     
     public static void setPlayer(NetPlayer player) {
+        if(player == null)
+            throw new NullPointerException("Player cannot be null");
+
         OfflinePlayerController.player = player;
     }
 
@@ -64,6 +67,9 @@ public class OfflinePlayerController {
     }
 
     private static boolean doesCollide(Position position) {
+        if(position == null)
+            throw new NullPointerException("Position cannot be null");
+
         Boolean doesHitSelf = player.doesCollide(position) && !player.isPointOnTail(position);
         if(doesHitSelf || Tilemap.doesCollide(position))
             return true;
@@ -71,6 +77,9 @@ public class OfflinePlayerController {
     }
 
     private static void collectApples(Position position) {
+        if(position == null)
+            throw new NullPointerException("Position cannot be null");
+
         ArrayList<Position> collectedApples = AppleManager.getCollecteds(position);
 
         if(collectedApples.isEmpty())
@@ -81,6 +90,9 @@ public class OfflinePlayerController {
     }
     
     public static void keyPressed(KeyEvent e) {
+        if(e == null)
+            throw new NullPointerException("KeyEvent cannot be null");
+
         if(player == null)
             return;
         

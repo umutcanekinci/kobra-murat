@@ -14,14 +14,23 @@ public class AppleManager {
     private static ArrayList<Position> emptyTiles;
 
     public static void setEmptyTiles(ArrayList<Position> emptyTiles) {
+        if(emptyTiles == null)
+            throw new IllegalArgumentException("Empty tiles cannot be null.");
+
         AppleManager.emptyTiles = emptyTiles;
     }
 
     public static void add(Position position) {
+        if(position == null)
+            throw new IllegalArgumentException("Position cannot be null.");
+
         apples.add(new Apple(position));
     }
 
     public static void addAll(ArrayList<Position> positions) {
+        if(positions == null)
+            throw new IllegalArgumentException("Positions cannot be null.");
+
         apples.clear();
         positions.forEach(AppleManager::add);
     }
@@ -57,7 +66,17 @@ public class AppleManager {
         return true;
     }
 
+    public static void remove(Position position) {
+        if(position == null)
+            throw new IllegalArgumentException("Position cannot be null.");
+
+        apples.removeIf(apple -> apple.doesCollide(position));
+    }
+
     public static ArrayList<Position> getCollecteds(Position position) {
+        if(position == null)
+            throw new IllegalArgumentException("Position cannot be null.");
+
         ArrayList<Position> collectedApples = new ArrayList<>();
         for (Apple apple : apples) {
             if(apple.doesCollide(position))
@@ -66,20 +85,18 @@ public class AppleManager {
         return collectedApples;
     }
 
-    public static void clear() {
-        apples.clear();
-    }
-
     public static void draw(Graphics2D g, ImageObserver observer) {
+        if(g == null)
+            throw new IllegalArgumentException("Graphics cannot be null.");
+
         apples.forEach(apple -> apple.draw(g, observer));
     }
 
     public static void drawColliders(Graphics2D g) {
-        apples.forEach(apple -> apple.drawCollider(g));
-    }
+        if(g == null)
+            throw new IllegalArgumentException("Graphics cannot be null.");
 
-    public static void remove(Position position) {
-        apples.removeIf(apple -> apple.doesCollide(position));
+        apples.forEach(apple -> apple.drawCollider(g));
     }
 
     public static String getInfo() {

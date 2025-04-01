@@ -5,17 +5,21 @@ import java.awt.event.ActionListener;
 import javax.swing.Timer;
 
 import common.Constants;
+import common.ServerListener;
 
-public class GameManager implements ActionListener {
+public class GameManager implements ActionListener, ServerListener {
 
     /* This class will manage the movements of players with a main update loop. */
+    private static Timer timer;
 
-    public void start() {
-        initTimer();
+    @Override
+    public void onServerConnected() {
+        start();
     }
 
-    private void initTimer() {
-        new Timer(Constants.DELTATIME_MS, this).start();
+    public void start() {
+        timer = new Timer(Constants.DELTATIME_MS, this);
+        timer.start();
     }
 
     @Override
@@ -24,9 +28,12 @@ public class GameManager implements ActionListener {
     }
     
     private void update() {
-        if(!Server.isRunning())
-            return;
-
         PlayerList.players.values().forEach(player -> player.move());
     }
+
+    @Override
+    public void onServerClosed() {
+        timer.stop();
+    }
+
 }

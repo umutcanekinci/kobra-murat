@@ -27,6 +27,11 @@ public class Object extends Image {
         this.position = position;
     }
 
+    public Object(Position position, Image image) {
+        this(position);
+        setImage(image.get());
+    }
+
     public Position getPosition() {
         return position;
     }

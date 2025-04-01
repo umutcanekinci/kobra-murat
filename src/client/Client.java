@@ -5,42 +5,64 @@ import java.net.Socket;
 import java.lang.Object;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.ArrayList;
 
 import common.Connection;
+import common.packet.Packet;
 import common.packet.basic.DisconnectPacket;
 
 public class Client {
     
     //region ----------------------------------- Variables -----------------------------------
     
-    private enum State {
+    private enum ClientState {
         CLOSED,
         CONNECTED
     }
-    private static State state = State.CLOSED;
+    private static ClientState state = ClientState.CLOSED;
     private static String host;
     private static int port;
     private static Socket socket;
     private static Connection connection;
     private static final Logger LOGGER = Logger.getLogger(Client.class.getName());
+    private static ArrayList<ClientListener> listeners = new ArrayList<>();
 
     //endregion
 
     //region ----------------------------------- Constructors -----------------------------------
 
-    private static void setState(State state) {
+    public void addListener(ClientListener clientListener) {
+        if(clientListener == null)
+            throw new IllegalArgumentException("ClientListener cannot be null.");
+
+        listeners.add(clientListener);
+    }
+
+    private static void setState(ClientState state) {
+        if(state == null)
+            throw new IllegalArgumentException("State cannot be null.");
+
         Client.state = state;
         switch (state) {
-            case CLOSED -> Game.onClientDisconnected();
-            case CONNECTED -> Game.onClientConnected();
+            case CONNECTED -> listeners.forEach(ClientListener::onClientConnected);
+            case CLOSED -> listeners.forEach(ClientListener::onClientDisconnected);
         }
     }
 
     public static void setHost(String host) {
+        if(host == null || host.isEmpty())
+            throw new IllegalArgumentException("Host cannot be null or empty.");
+        
         Client.host = host;
     }
 
     public static void setPort(int port) {
+        if(port <= 0)
+            throw new IllegalArgumentException("Port cannot be less than or equal to 0.");
+
+        if(port > 65535)
+            throw new IllegalArgumentException("Port cannot be greater than 65535.");
+        
         Client.port = port;
     }
 
@@ -49,6 +71,9 @@ public class Client {
     //region ----------------------------------- Connection -----------------------------------
 
     public static void start() {
+        if(isConnected())
+            return;
+
         new Thread() {
             public void run() {
                 connect();
@@ -57,13 +82,22 @@ public class Client {
     }
     
     private static void connect() {
+        if(isConnected())
+            return;
+
+        if(host == null || host.isEmpty())
+            throw new IllegalArgumentException("Host cannot be null or empty.");
+
+        if(port <= 0)
+            throw new IllegalArgumentException("Port cannot be less than or equal to 0.");
+        
         try {    
             socket = new Socket(host, port);
             connection = new Connection(socket, false);
-            setState(State.CONNECTED);
+            setState(ClientState.CONNECTED);
         } catch (IOException e) {
             LOGGER.log(Level.SEVERE, e.toString(), e);
-            setState(State.CLOSED);
+            setState(ClientState.CLOSED);
         }
     }
 
@@ -71,11 +105,17 @@ public class Client {
         if(!isConnected())
             return;
 
+        if(data == null)
+            throw new IllegalArgumentException("Data cannot be null.");
+
+        if(!(data instanceof Packet))
+            throw new IllegalArgumentException("Data must be a Packet.");
+
         connection.sendData(data);
     }
 
     public static boolean isConnected() {
-        return !(connection == null || socket == null || socket.isClosed() || state == State.CLOSED);
+        return !(connection == null || socket == null || socket.isClosed() || state == ClientState.CLOSED);
     }
 
     public static void disconnect() {
@@ -88,7 +128,7 @@ public class Client {
 
     public static void close() {
         connection.close();
-        setState(State.CLOSED);
+        setState(ClientState.CLOSED);
     }
 
     public static String getInfo() {

@@ -1,7 +1,6 @@
 package server;
 
-import java.awt.*;
-import java.util.ArrayList;
+import java.awt.Point;
 
 import common.Constants;
 
@@ -9,13 +8,10 @@ public class Tile extends Point {
     
     private final boolean isCollidable;
     private final boolean isSpawnPoint;
-    private static final ArrayList<Integer> COLLIDABLE_IDS = new ArrayList<>() {{
-        add(1);
-    }};
 
     Tile(int id, int row, int column) {
         super(column, row);
-        isCollidable = COLLIDABLE_IDS.contains(id);
+        isCollidable = Constants.COLLIDABLE_IDS.contains(id);
         isSpawnPoint = id == Constants.SPAWN_TILE;
     }
 

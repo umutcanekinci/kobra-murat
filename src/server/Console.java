@@ -1,18 +1,20 @@
 package server;
 
-import common.Constants;
 import common.ServerListener;
 
 public class Console implements ServerListener {
 
     public void start() {
-        Server.init(Constants.PORT);
         Server.start();
-        Server.setListener(this);
+        Server.addListener(this);
     }
 
-    public void onServerStateChange(Server.State state) {
-        System.out.println(state);
+    public void onServerConnected() {
+        System.out.println("Server connected");
+    }
+
+    public void onServerClosed() {
+        System.out.println("Server closed");
     }
 
 }

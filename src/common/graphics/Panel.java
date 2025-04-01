@@ -1,5 +1,6 @@
 package common.graphics;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
@@ -17,7 +18,6 @@ public class Panel extends JPanel {
         layout = new GridBagLayout();
         setLayout(layout);
         setOpaque(false);
-        
         initContraints();
     }
 
@@ -44,7 +44,7 @@ public class Panel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         
-        /*
+        
         int[][] dims = layout.getLayoutDimensions();
         g.setColor(Color.BLUE);
         int x = 0;
@@ -59,7 +59,7 @@ public class Panel extends JPanel {
             y += add;
             g.drawLine(0, y, getWidth(), y);
         }
-        */
+        
         
         super.paintComponent(g);
     }

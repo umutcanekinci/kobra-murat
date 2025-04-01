@@ -28,6 +28,11 @@ public class PacketHandler {
     public static void handle(Object packet) {
         LOGGER.log(Level.INFO, packet + "\n");
 
+        if (packet == null) {
+            LOGGER.log(Level.WARNING, "Received null packet\n");
+            return;
+        }
+
         switch (packet) {
             case IdPacket idPacket ->
                 PlayerList.setId(idPacket.getId());

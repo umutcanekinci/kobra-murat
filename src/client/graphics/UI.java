@@ -21,6 +21,7 @@ public class UI {
 
     public enum Page {
         MAIN_MENU,
+        CUSTOMIZE,
         PLAY_MODE, // Singleplayer or Multiplayer
         CONNECT_MODE, // Server or Client
         CONNECT, // Connect
@@ -89,9 +90,9 @@ public class UI {
         Panel panel = new Panel();
         panels.put(page, panel);
 
-        if(components == null || components.length == 0) {
+        if(components == null || components.length == 0)
             return panel;
-        }
+        
         /*  GRID SIZE
             WIDTH = 20
             HEIGHT = 10
@@ -130,7 +131,6 @@ public class UI {
             panel.add(Box.createHorizontalStrut(rightSpace), leftCols + componentColumns, topRows + (componentRows)*i                , rightColumns    , componentRows);
         }
         panel.add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
-        //panel.add(components[0], 0*35, 17*3, 35, 17);
         panel.setVisible(false);
         return panel;
     }

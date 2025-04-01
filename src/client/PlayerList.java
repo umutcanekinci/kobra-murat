@@ -31,7 +31,19 @@ public class PlayerList {
     }
 
     public static NetPlayer getCurrentPlayer() {
-        return players.get(id);
+        return getPlayer(id);
+    }
+
+    private static NetPlayer getPlayer(int id) {
+        if(!players.containsKey(id))
+            throw new IllegalArgumentException("Player with id " + id + " does not exist");
+        
+        NetPlayer player = players.get(id);
+
+        if(player == null)
+            throw new IllegalArgumentException("Player with id " + id + " does not exist");
+
+        return player;
     }
 
     public static ArrayList<NetPlayer> getPlayers() {
@@ -64,47 +76,45 @@ public class PlayerList {
     }
 
     public static void spawn(int id, Position spawnPoint, int length) {
-        NetPlayer player = players.get(id);
-        if(player == null)
-            return;
+        if(spawnPoint == null)
+            throw new IllegalArgumentException("Spawn point cannot be null");
 
-        player.spawn(spawnPoint, length);
+        getPlayer(id).spawn(spawnPoint, length);
     }
 
     public static void updateTransform(int id, Direction direction, ArrayList<Position> parts, int tailIndex) {
+        if(parts == null)
+            throw new IllegalArgumentException("Parts cannot be null");
+
+        if(direction == null)
+            throw new IllegalArgumentException("Direction cannot be null");
+        
         NetPlayer player = players.get(id);
-        if(player == null)
-            return;
+
         player.setDirection(direction);
         player.setParts(parts);
         player.setTailIndex(tailIndex);
     }
 
     public static void step(int id, Direction direction) {
-        NetPlayer player = players.get(id);
-        if(player == null)
-            return;
-        
-        //if(player.isCurrentPlayer())
-            //Camera.focus(player.getHead().getPosition());
+        if(direction == null)
+            throw new IllegalArgumentException("Direction cannot be null");
 
+        NetPlayer player = players.get(id); 
         player.setDirection(direction);
         player.stepTo(player.getNextPosition());
     }
 
     public static void rotate(int id, Direction direction) {
+        if(direction == null)
+            throw new IllegalArgumentException("Direction cannot be null");
+
         NetPlayer player = players.get(id);
-        if(player == null)
-            return;
-            
         player.setDirection(direction);
     }
 
     public static void grow(int id, int amount) {
         NetPlayer player = players.get(id);
-        if(player == null)
-            return;
-
         player.grow(amount);
     }
 
@@ -118,23 +128,31 @@ public class PlayerList {
     //endregion
 
     public static boolean doesCollide(Position position) {
+        if(position == null)
+            throw new IllegalArgumentException("Position cannot be null");
+
         for (NetPlayer player : players.values()) {
-            if (player.doesCollide(position)) {
+            if (player.doesCollide(position))
                 return true;
-            }
         }
         return false;
     }
 
     public static void draw(Graphics2D g, ImageObserver observer) {
-        if(g == null || players.isEmpty())
+        if(g == null)
+            throw new IllegalArgumentException("Graphics cannot be null");
+
+        if(players.isEmpty())
             return;
 
         players.values().forEach(p -> p.draw(g, observer));
     }
 
     public static void drawColliders(Graphics2D g) {
-        if(g == null || players.isEmpty())
+        if(g == null)
+            throw new IllegalArgumentException("Graphics cannot be null");
+
+        if(players.isEmpty())
             return;
 
         players.values().forEach(p -> p.drawCollider(g));

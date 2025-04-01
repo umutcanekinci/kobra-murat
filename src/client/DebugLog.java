@@ -23,17 +23,20 @@ public class DebugLog {
     }
 
     public static void draw(Graphics2D g) {
-        if (!debugMode || g == null)
+        if (g == null)
+            throw new NullPointerException("Graphics2D object is null");
+
+        if (!debugMode)
             return;
 
         g.setFont(FONT);
-        String text = getText();
+        String text = getInfo();
         int[] size = Utils.calculateTextSize(g, text);
         drawBackground(g, size[0], size[1]);
         drawText(g, text);
     }
 
-    private static String getText() {
+    private static String getInfo() {
         return  "DEBUG MODE ON - Press F2 to toggle\n\n" +
                 "FPS: " + Constants.FPS + "\n" +   
                 Game.getInfo() + "\n" +
@@ -45,6 +48,12 @@ public class DebugLog {
     }
 
     private static void drawBackground(Graphics2D g, int width, int height) {
+        if (g == null)
+            throw new NullPointerException("Graphics2D object is null");
+
+        if (width <= 0 || height <= 0)
+            throw new IllegalArgumentException("Width and height must be greater than 0");
+
         g.setColor(BACKGROUND_COLOR);
         g.fillRect(0,0, width, height);
 
@@ -53,10 +62,19 @@ public class DebugLog {
     }
 
     private static void drawText(Graphics2D g, String text) {
+        if (g == null)
+            throw new NullPointerException("Graphics2D object is null");
+
+        if (text == null || text.isEmpty())
+            throw new IllegalArgumentException("Text cannot be null or empty");
+
         Utils.drawText(g, text, COLOR, RECT, false);
     }
 
     static void keyPressed(KeyEvent e) {
+        if (e == null)
+            throw new NullPointerException("KeyEvent object is null");
+
         if (e.getKeyCode() == KeyEvent.VK_F2)
             debugMode = !debugMode;
     }

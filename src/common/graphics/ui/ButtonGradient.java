@@ -92,6 +92,9 @@ public class ButtonGradient extends JButton implements MouseListener {
     }
     
     @Override
+    public void mouseClicked(MouseEvent e) {}
+
+    @Override
     public void mouseEntered(MouseEvent me) {
         mouseOver = true;
         timer.start();
@@ -124,10 +127,12 @@ public class ButtonGradient extends JButton implements MouseListener {
 
     @Override
     protected void paintComponent(Graphics grphcs) {
+
         int width = getWidth();
         int height = getHeight();
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = img.createGraphics();
+        //g2.scale(Constants.SCALEW, Constants.SCALEH);
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         //  Create Gradients Color
         GradientPaint gra = new GradientPaint(0, 0, color1, width, 0, color2);
@@ -169,11 +174,5 @@ public class ButtonGradient extends JButton implements MouseListener {
         float x = pressedLocation.x - (pressedSize / 2);
         float y = pressedLocation.y - (pressedSize / 2);
         g2.fillOval((int) x, (int) y, (int) pressedSize, (int) pressedSize);
-    }
-
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mouseClicked'");
     }
 }

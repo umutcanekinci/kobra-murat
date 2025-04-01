@@ -74,13 +74,18 @@ public class NetPlayer extends Player{
         connection.close();
     }
 
-    
-
     public String toString() {
         String info = 
-        "Player " + id + "\n" +
-        super.toString();
+        "Player " + id +
+        (isHost()          ? " (Host)" : "")
+        + "\n" + super.toString();
+        
         return info;
     }
+
+    public boolean isHost() {
+        return id == 0;
+    }
+
 
 }

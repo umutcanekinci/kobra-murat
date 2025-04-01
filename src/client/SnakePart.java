@@ -24,6 +24,9 @@ public class SnakePart extends Object {
     }
 
     public void setDirection(Direction direction) {
+        if (direction == null)
+            throw new IllegalArgumentException("Direction cannot be null");
+
         this.direction = direction;
     }
 
@@ -32,6 +35,9 @@ public class SnakePart extends Object {
     }
 
     public boolean isHidden(Position point) {
+        if (point == null)
+            throw new IllegalArgumentException("Position cannot be null");
+
         return point.equals(Constants.HIDDEN_POSITION);
     }
 
