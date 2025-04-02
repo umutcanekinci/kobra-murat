@@ -11,9 +11,7 @@ import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import javax.swing.Timer;
 
-import client.UIListener;
-
-public class SplashEffect implements UIListener, MouseListener {
+public class SplashEffect implements MouseListener {
     
     private static SplashEffect INSTANCE = null;
     private static boolean isFadingIn;
@@ -56,15 +54,6 @@ public class SplashEffect implements UIListener, MouseListener {
 
         listeners.add(splashListener);
     }
-
-    @Override
-    public void onConnectButtonClicked(String host, int ip) {}
-
-    @Override
-    public void onHostButtonClicked() {}
-
-    @Override
-    public void onStartButtonClicked() {}
 
     public static void start() {
         alpha = 0;

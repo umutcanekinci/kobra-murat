@@ -14,15 +14,13 @@ import common.Direction;
 import common.Utils;
 import common.Window;
 import common.graphics.Image;
+import common.graphics.Menu;
 import common.graphics.SplashEffect;
 import common.graphics.SplashListener;
 import common.packet.RotatePacket;
 import java.awt.Toolkit;
 
-import client.graphics.UI;
 import server.Server;
-
-import client.graphics.UI.Page;
 
 public class Game extends JPanel implements ActionListener, KeyListener, SplashListener {
 
@@ -35,7 +33,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
     private static int frameCount = 0;    
     private static long totalTime = 0;
     private static int currentFps = 0;
-    private static Timer timer;
 
     //endregion
 
@@ -46,17 +43,21 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
         setDoubleBuffered(true);
         setBackground(Color.BLACK);
         UI.init(this);
-        initListeners();    
+        initListeners();
+        SplashEffect.start();    
         initTimer();
     }
 
     private void initListeners() {
         Server.addListener(UI.getInstance());
-        
         addMouseListener(SplashEffect.getInstance());
         SplashEffect.addListener(this);
         SplashEffect.addListener(UI.getInstance());
-        SplashEffect.start();
+    }
+
+
+    private void initTimer() {
+        new Timer(Constants.DELTATIME_MS, this).start();
     }
 
     @Override
@@ -64,22 +65,12 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
         setBackground(Constants.BACKGROUND_COLOR);
     }
 
-    public static void onLeaveButtonClick() {
-        if(Client.isConnected()) {
-            Client.disconnect();
-            return;
-        }
-        Server.close();
-    }
-
-    //region ---------------------------------------- BUTTON METHODS ----------------------------------------
-
     public static void start() {
         if(isStarted)
             return;
 
         isStarted = true;
-        UI.openPage(Page.GAME);
+        Menu.openPage(Page.GAME);
     }
 
     public static void setPaused(boolean value) {
@@ -101,13 +92,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
 
     //endregion
 
-    private void initTimer() {
-        timer = new Timer(Constants.DELTATIME_MS, this);
-        timer.start();
-    }
-
-    //endregion
-
     //region ---------------------------------------- INPUT METHODS ---------------------------------------
 
     @Override
@@ -125,11 +109,11 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
             onBack();
             
         if(isStarted)
-            keyPressedGame(e);
+            updateDirection(e);
     }
 
     private void onBack() {
-        Page currentPage = UI.getCurrentPage();
+        Page currentPage = Menu.getCurrentPage();
         
         if(currentPage == null || currentPage == Page.MAIN_MENU)
             exit();
@@ -139,17 +123,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
         else if(currentPage == Page.PAUSE)
             setPaused(false);
 
-        UI.goBack();
-    }
-
-    private static void keyPressedGame(KeyEvent e) {
-        if(e == null)
-            throw new IllegalArgumentException("KeyEvent cannot be null");
-
-        if(!Client.isConnected())
-            OfflinePlayerController.keyPressed(e);
-        else
-            updateDirection(e);
+        Menu.goBack();
     }
 
     private static void updateDirection(KeyEvent e) {
@@ -161,7 +135,10 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
         if(direction == null)
             return;
 
-        sendDirection(direction);
+        if(!Client.isConnected())
+            OfflinePlayerController.rotate(direction);
+        else
+            sendDirection(direction);
     }
 
     private static void sendDirection(Direction direction) {
@@ -204,7 +181,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);    
-        draw((Graphics2D) g, UI.getCurrentPanel());
+        draw((Graphics2D) g, Menu.getCurrentPanel());
     }
 
     public static void draw(Graphics2D g, ImageObserver observer) {

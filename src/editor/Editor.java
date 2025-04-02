@@ -1,20 +1,37 @@
 package editor;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Color;
+import java.awt.MouseInfo;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.JPanel;
+import javax.swing.JFileChooser;
+import javax.swing.Timer;
+import javax.swing.JButton;
 
 import common.Window;
 import common.Constants;
 import common.Position;
 import common.Utils;
+import common.graphics.SplashEffect;
 import common.graphics.ui.Button;
 
 public class Editor extends JPanel implements ActionListener, KeyListener, MouseListener {
@@ -37,10 +54,18 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
 
     public Editor() {
         super(new GridBagLayout());
+        setBackground(Color.BLACK);
         setFullscreen();
         initLayout();
         initWidgets();
+
+        initListeners();
+        SplashEffect.start();
         initTimer();
+    }
+
+    private void initListeners() {
+        addMouseListener(SplashEffect.getInstance());
     }
 
     private void setFullscreen() {
@@ -55,18 +80,18 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
     }
 
     private void initWidgets() {
-        addButton("Yeni", e -> onNewButtonClick());
-        addButton("Aç", e -> onOpenButtonClick());
+        addButton("Yeni", e -> onNewButtonClicked());
+        addButton("Aç", e -> onOpenButtonClicked());
         addButton("Çıkış", e -> exit());
     }
 
-    private void onNewButtonClick() {
+    private void onNewButtonClicked() {
         Tilemap.newMap(17, 30);
         hideWidgets();
         isDrawing = true;
     }
 
-    private void onOpenButtonClick() {
+    private void onOpenButtonClicked() {
         int[][] data = getMapData();
         if(data == null)
             return;
@@ -188,6 +213,8 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
 
     @Override
     public void keyPressed(KeyEvent e) {
+        SplashEffect.keyPressed(e);
+
         if(e.getKeyCode() == KeyEvent.VK_S)
             saveMap();
         
@@ -269,11 +296,15 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
 
     @Override
     public void paintComponent(Graphics g) {
-        super.paintComponent(g); // Clear the screen
-        setBackground(Color.BLACK);
-
+        super.paintComponent(g);
+    
         Graphics2D g2d = (Graphics2D) g;
         
+        if(SplashEffect.isPlaying()) {
+            SplashEffect.draw(g2d, this);
+            return;
+        }
+
         if(isDrawing) {
             Tilemap.draw(g2d, this);
             drawGrid(g2d);

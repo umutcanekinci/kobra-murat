@@ -1,12 +1,10 @@
 package client;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 import common.Position;
 import common.Constants;
 import common.Direction;
-import common.Utils;
 import common.packet.EatApplePacket;
 import common.packet.SpawnPacket;
 import common.packet.StepPacket;
@@ -14,7 +12,7 @@ import common.packet.basic.AddPacket;
 import common.packet.basic.IdPacket;
 import common.packet.basic.SetMapPacket;
 
-public class OfflinePlayerController implements UIListener {    
+public class OfflinePlayerController {    
     /*
      * This class is used to simulate the server when the game is played offline.
      * It manages the game loop and the game state like collision detection, apple managment.
@@ -98,45 +96,17 @@ public class OfflinePlayerController implements UIListener {
         collectedApples.forEach(apple -> PacketHandler.handle(new EatApplePacket(player.getId(), apple)));
         collectedApples.forEach(apple -> AppleManager.spawn());
     }
-    
-    public static void keyPressed(KeyEvent e) {
-        if(e == null)
-            throw new NullPointerException("KeyEvent cannot be null");
 
-        if(player == null)
-            return;
-        
-        int key = e.getKeyCode();
-        rotate(key);
-    }
-
-    private static void rotate(int key) {
+    static void rotate(Direction newDirection) {
         if(!canRotate || player == null)
             return;
 
-        Direction newDirection = Utils.keyToDirection(key);
-
-        if(newDirection == null)
-            return;
+        
 
         if(newDirection.isParallel(player.getDirection()))
             return;
 
         player.setDirection(newDirection);
         canRotate = false;
-    }
-
-    @Override
-    public void onConnectButtonClicked(String host, int port) {}
-
-    @Override
-    public void onHostButtonClicked() {}
-
-    @Override
-    public void onStartButtonClicked() {
-        if(Client.isConnected())
-            return;
-        
-        init();
     }
 }
