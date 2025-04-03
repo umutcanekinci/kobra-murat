@@ -32,10 +32,10 @@ public class Constants {
     public static final int TILE_SIZE = 64;
     public static final int PLAYER_BOARD_WIDTH = 200;
 
-    public static final Dimension MAX_SIZE = new Dimension(1920, 1080);
+    public static final Dimension DEFAULT_SIZE = new Dimension(1920, 1080);
     public static final Dimension SIZE = Toolkit.getDefaultToolkit().getScreenSize();
-    public static final double SCALEW = (float) SIZE.width / MAX_SIZE.width;
-    public static final double SCALEH = (float) SIZE.height / MAX_SIZE.height;
+    public static final double SCALEW = (float) SIZE.width / DEFAULT_SIZE.width;
+    public static final double SCALEH = (float) SIZE.height / DEFAULT_SIZE.height;
     
     public static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
     public static final int DEFAULT_LENGTH = 12;

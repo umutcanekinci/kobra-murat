@@ -4,7 +4,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.lang.Object;
 
-import common.graphics.Menu;
 import common.packet.EatApplePacket;
 import common.packet.RotatePacket;
 import common.packet.SpawnApplePacket;
@@ -76,7 +75,7 @@ public class PacketHandler {
                 
             case ServerClosedPacket serverClosedPacket -> {
                 Client.close();
-                Menu.openPage(Page.MAIN_MENU);
+                UI.MENU.openPage(Page.MAIN_MENU);
             }
 
             default ->

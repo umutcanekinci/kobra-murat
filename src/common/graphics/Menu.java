@@ -1,46 +1,80 @@
 package common.graphics;
 
 import java.util.HashMap;
+import java.awt.event.ActionListener;
 
-import client.Page;
+public class Menu<T extends Enum<T>> {
 
-public class Menu {
-    
-    private static Page currentPage;
-    private static final HashMap<Page, Panel> panels = new HashMap<>();
-    
-    public static void addPanel(Page page, Panel panel) {
-        if(page == null || panel == null)
+    private T currentPage;
+    private final HashMap<T, Panel> panels = new HashMap<>();
+    private final HashMap<T, T> backPages;
+
+    public Menu(HashMap<T, T> backPages) {
+        if (backPages == null)
+            throw new IllegalArgumentException("Back pages cannot be null.");
+
+        this.backPages = backPages;
+    }
+
+    public void setBackPages(T page, T backPage) {
+        if (page == null || backPage == null)
+            throw new IllegalArgumentException("Page and backPage cannot be null.");
+
+        backPages.put(page, backPage);
+    }
+
+    public void addPanel(T page, Panel panel) {
+        if (page == null || panel == null)
             throw new IllegalArgumentException("Page and panel cannot be null.");
 
         panels.put(page, panel);
     }
 
-    public static Page getCurrentPage() {
+    public T getCurrentPage() {
         return currentPage;
     }
 
-    public static Panel getCurrentPanel() {
+    public Panel getCurrentPanel() {
         return panels.get(currentPage);
     }
 
-    public static void openPage(Page page) {
-        if(page == null)
+    public void openPage(T page) {
+        if (page == null)
             return;
 
         currentPage = page;
         panels.forEach((p, panel) -> panel.setVisible(p == page));
     }
 
-    public static void goBack() {
-        if(currentPage == null || currentPage.getBackPage() == null)
+    public void goBack(ActionListener onExit) {
+        if (onExit == null)
+            throw new IllegalArgumentException("onExit cannot be null.");
+
+        if (currentPage == null) {
+            onExit.actionPerformed(null);
             return;
-        
-        openPage(currentPage.getBackPage());
+        }
+
+        T backPage = getBackPage(currentPage);
+        if (backPage == null) {
+            onExit.actionPerformed(null);
+            return;
+        }
+            
+        openPage(backPage);
     }
 
-    public static String getInfo() {
+    private T getBackPage(T page) {
+        if (page == null)
+            throw new IllegalArgumentException("Page cannot be null.");
+
+        if (!backPages.containsKey(page))
+            return null;
+
+        return backPages.get(page);
+    }
+
+    public String getInfo() {
         return "Current page: " + currentPage;
     }
-
 }

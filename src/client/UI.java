@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.swing.Box;
 
 import common.Constants;
@@ -20,9 +22,20 @@ import common.graphics.ui.Button;
 import common.graphics.ui.TextField;
 import server.Server;
 
-public class UI implements ServerListener, UIListener, SplashListener {
+public class UI implements ServerListener, SplashListener {
 
     private static UI INSTANCE = null;
+    public static final Menu<Page> MENU = new Menu<>(new HashMap<Page, Page>() {{
+            put(Page.PLAY_MODE, Page.MAIN_MENU);
+            put(Page.GAME, Page.PAUSE);
+            put(Page.PAUSE, Page.GAME);
+            put(Page.CONNECT_MODE, Page.PLAY_MODE);
+            put(Page.CONNECT, Page.CONNECT_MODE);
+            put(Page.CUSTOMIZE, Page.PLAY_MODE);
+            put(Page.LOBBY, Page.PLAY_MODE);
+            
+    }});
+
     private static final Font DEFAULT_FONT = new Font("Lato", Font.BOLD, 25);
 
     private static TextField hostField = new TextField("localhost");
@@ -49,20 +62,21 @@ public class UI implements ServerListener, UIListener, SplashListener {
 
     private static void initWidgets(Container container) {
         add(container, Page.MAIN_MENU, new Component[] {
-            new Button("Başla", e -> Menu.openPage(Page.PLAY_MODE)),
+            new Button("Başla", e -> MENU.openPage(Page.PLAY_MODE)),
             new Button("Çıkış", e -> Game.exit())
         });
         
+        
         add(container, Page.PLAY_MODE, new Component[] {
             new Button("Tek oyunculu", e -> OfflinePlayerController.init()),
-            new Button("Çok oyunculu", e -> Menu.openPage(Page.CONNECT_MODE))
+            new Button("Çok oyunculu", e -> MENU.openPage(Page.CONNECT_MODE))
         });
 
         add(container, Page.CUSTOMIZE, new Component[] {});
 
         add(container, Page.CONNECT_MODE, new Component[] {
             new Button("Sunucu Aç", e -> listeners.forEach(UIListener::onHostButtonClicked)),
-            new Button("Bağlan", e -> Menu.openPage(Page.CONNECT))
+            new Button("Bağlan", e -> MENU.openPage(Page.CONNECT))
         });
 
         add(container, Page.CONNECT, new Component[] {
@@ -73,12 +87,12 @@ public class UI implements ServerListener, UIListener, SplashListener {
 
         add(container, Page.PAUSE, new Component[] {
             new Button("Devam et", e -> Game.start()),
-            new Button("Ana menü", e -> Menu.openPage(Page.MAIN_MENU)),
+            new Button("Ana menü", e -> MENU.openPage(Page.MAIN_MENU)),
         });
 
         Button leaveButton = new Button("Ayrıl", e -> onLeaveButtonClick());
         add(container, Page.LOBBY, new Component[] {
-            new Button("Başlat", e -> listeners.forEach(UIListener::onStartButtonClicked)),
+            new Button("Başlat", e -> onStartButtonClicked()),
             leaveButton
         });
 
@@ -105,28 +119,22 @@ public class UI implements ServerListener, UIListener, SplashListener {
 
     @Override
     public void onServerConnected(String ip) {
-        Menu.openPage(Page.LOBBY);
+        MENU.openPage(Page.LOBBY);
     }
 
     @Override
     public void onServerClosed() {
-        Menu.openPage(Page.CONNECT_MODE);
+        MENU.openPage(Page.CONNECT_MODE);
     }
 
     @Override
     public void onSplashFinished() {
-        Menu.openPage(Page.MAIN_MENU);
+        MENU.openPage(Page.MAIN_MENU);
     }
 
-    @Override
-    public void onConnectButtonClicked(String host, int ip) {}
-
-    @Override
-    public void onHostButtonClicked() {}
-
-    @Override
-    public void onStartButtonClicked() {
-        Menu.openPage(Page.GAME);
+    public static void onStartButtonClicked() {
+        listeners.forEach(UIListener::onStartButtonClicked);
+        MENU.openPage(Page.GAME);
     }
 
     public static void initGraphics(Graphics2D g) {
@@ -137,7 +145,7 @@ public class UI implements ServerListener, UIListener, SplashListener {
 
     public static void drawPlayerBoard(Graphics2D g) {
         int width = Constants.PLAYER_BOARD_WIDTH;
-        int x = Constants.MAX_SIZE.width - width;
+        int x = Constants.DEFAULT_SIZE.width - width;
         int y = 0;
 
         int count = PlayerList.getPlayerCount();
@@ -146,7 +154,7 @@ public class UI implements ServerListener, UIListener, SplashListener {
         
         g.setFont(DEFAULT_FONT);
         g.setColor(Color.BLACK);
-        System.out.println("x: " + x + ", y: " + y + ", width: " + width + ", height: " + height);
+    
         g.fillRect(x, y, width, height);
         g.setColor(Color.WHITE);
         g.drawRect(x, y, width, height);
@@ -170,15 +178,16 @@ public class UI implements ServerListener, UIListener, SplashListener {
 
         int gridWidth = 20; int gridHeight = 10;
         int totalCols = (int) Constants.SIZE.getWidth() / gridWidth;
-        int componentWidth = 700; int componentHeight = 170;
+        int componentWidth = Utils.scale(Button.SIZE).width;
+        int componentHeight = Utils.scale(Button.SIZE).height;
         int componentRows = componentHeight / gridHeight; int componentColumns = componentWidth / gridWidth; // 35
         
-        int leftCols = 10;
+        int leftCols = 12;
         int leftSpace = leftCols * gridWidth;
         int rightSpace = (int) Constants.SIZE.getWidth() - componentWidth - leftCols * gridWidth;
         int rightColumns = rightSpace / gridWidth;
 
-        int botRows = 43 - (components.length - 1) * componentRows;
+        int botRows = 26 - (components.length - 1) * componentRows;
         int botSpace = botRows * gridHeight;
         int topSpace = (int) Constants.SIZE.getHeight() - componentHeight*components.length - botRows * gridHeight;
         int topRows = topSpace / gridHeight;
@@ -192,7 +201,7 @@ public class UI implements ServerListener, UIListener, SplashListener {
         panel.add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
         panel.setVisible(false);
 
-        Menu.addPanel(page, panel);
+        MENU.addPanel(page, panel);
         return panel;
     }
 }

@@ -23,7 +23,7 @@ public class Panel extends JPanel {
 
     private static void initContraints() {
         constraints = new GridBagConstraints();
-        constraints.insets = new Insets(50, 0, 0, 0);
+        constraints.insets = new Insets(0, 0, 0, 0);
         constraints.fill = GridBagConstraints.BOTH;
     }
 
@@ -42,9 +42,13 @@ public class Panel extends JPanel {
     }
 
     @Override
-    public void paintComponent(Graphics g) {
-        
-        
+    public void paintComponent(Graphics g) {        
+        super.paintComponent(g);
+    }
+
+    public void drawColliders(Graphics g) { 
+        g.setColor(Color.RED);
+            
         int[][] dims = layout.getLayoutDimensions();
         g.setColor(Color.BLUE);
         int x = 0;
@@ -59,9 +63,6 @@ public class Panel extends JPanel {
             y += add;
             g.drawLine(0, y, getWidth(), y);
         }
-        
-        
-        super.paintComponent(g);
     }
 }
 

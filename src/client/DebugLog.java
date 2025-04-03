@@ -8,7 +8,6 @@ import java.awt.Font;
 
 import common.Constants;
 import common.Utils;
-import common.graphics.Menu;
 import server.Server;
 
 public class DebugLog {
@@ -41,7 +40,7 @@ public class DebugLog {
         return  "DEBUG MODE ON - Press F2 to toggle\n\n" +
                 "FPS: " + Constants.FPS + "\n" +   
                 Game.getInfo() + "\n" +
-                Menu.getInfo() + "\n" +
+                UI.MENU.getInfo() + "\n" +
                 Client.getInfo() + "\n" +
                 Tilemap.getInfo() + "\n\n" +
                 PlayerList.getInfo() + "\n" +

@@ -128,6 +128,8 @@ public class ButtonGradient extends JButton implements MouseListener {
     @Override
     protected void paintComponent(Graphics grphcs) {
 
+        
+
         int width = getWidth();
         int height = getHeight();
         BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);

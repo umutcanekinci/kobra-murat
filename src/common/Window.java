@@ -1,10 +1,13 @@
 package common;
 import java.awt.Container;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 import javax.swing.*;
+
 
 import client.Game;
 import editor.Editor;
@@ -29,6 +32,8 @@ public class Window extends JFrame {
             }
         }
     }
+
+    static GraphicsDevice device = GraphicsEnvironment.getLocalGraphicsEnvironment().getScreenDevices()[0];
 
     public static void open(Mode mode) {
         SwingUtilities.invokeLater(() -> {
@@ -82,9 +87,21 @@ public class Window extends JFrame {
     private void fullScreen() {
         // System.setProperty("sun.java2d.uiScale.enabled", "true");
         // System.setProperty("sun.java2d.uiScale ", "2.0");
-
-        setUndecorated(true);
+        
         setPreferredSize(Constants.SIZE);
+        
+        // Windowed Fullscreen
+        //setExtendedState(JFrame.MAXIMIZED_BOTH);
+        //setUndecorated(true);
+        
+
+        //java.awt.Label label = new java.awt.Label("Kobra Murat", java.awt.Label.CENTER);
+        //getContentPane().add(label);;
+
+        // Fullscreen   
+        setUndecorated(true);
+        device.setFullScreenWindow(this);
+
     }
 
     /*

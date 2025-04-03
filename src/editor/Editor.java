@@ -1,18 +1,13 @@
 package editor;
 
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Color;
 import java.awt.MouseInfo;
 import java.io.File;
@@ -20,32 +15,26 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JPanel;
 import javax.swing.JFileChooser;
 import javax.swing.Timer;
-import javax.swing.JButton;
 
 import common.Window;
 import common.Constants;
 import common.Position;
 import common.Utils;
+import common.graphics.Image;
 import common.graphics.SplashEffect;
-import common.graphics.ui.Button;
 
-public class Editor extends JPanel implements ActionListener, KeyListener, MouseListener {
+public class Editor extends JPanel implements ActionListener, KeyListener, MouseListener, UIListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
 
     private static final File MAP_FOLDER = new File(System.getProperty("user.dir") + "/maps");
     private static final String SAVE_FILE = "map.txt";
-    private static final ArrayList<JButton> buttons = new ArrayList<>();
-
-    private static Dimension SIZE;
     private static boolean doesMouseHold = false;
-    private static GridBagConstraints layout; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
-    private static boolean isDrawing = false;
+
     private static int DRAW_MODE = 0;
 
     //endregion
@@ -53,12 +42,10 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
     //region ---------------------------------------- INIT METHODS ----------------------------------------
 
     public Editor() {
-        super(new GridBagLayout());
+        super();
+        setDoubleBuffered(true);
         setBackground(Color.BLACK);
-        setFullscreen();
-        initLayout();
-        initWidgets();
-
+        UI.init(this);
         initListeners();
         SplashEffect.start();
         initTimer();
@@ -66,39 +53,24 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
 
     private void initListeners() {
         addMouseListener(SplashEffect.getInstance());
+        UI.addListener(this);
+        SplashEffect.addListener(UI.getInstance());
     }
 
-    private void setFullscreen() {
-        SIZE = Toolkit.getDefaultToolkit().getScreenSize();
-        setPreferredSize(SIZE);
-    }
-
-    private static void initLayout() {
-        layout = new GridBagConstraints();
-        layout.insets = new Insets(0, 10, 5, 0);
-        layout.weighty = 1;
-    }
-
-    private void initWidgets() {
-        addButton("Yeni", e -> onNewButtonClicked());
-        addButton("Aç", e -> onOpenButtonClicked());
-        addButton("Çıkış", e -> exit());
-    }
-
-    private void onNewButtonClicked() {
+    @Override
+    public void onNewButtonClicked() {
         Tilemap.newMap(17, 30);
-        hideWidgets();
-        isDrawing = true;
+        UI.MENU.openPage(Page.EDITOR);
     }
 
-    private void onOpenButtonClicked() {
+    @Override
+    public void onOpenButtonClicked() {
         int[][] data = getMapData();
         if(data == null)
             return;
         
         Tilemap.load(data);
-        hideWidgets();
-        isDrawing = true;
+        UI.MENU.openPage(Page.EDITOR);
     }
 
     private int[][] getMapData() {
@@ -149,28 +121,9 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
         return file.getAbsolutePath();
     }
 
-    private void addButton(String text, ActionListener listener) {
-        Button button = new Button(text, listener);
-        add(button, layout);
-        buttons.add(button);
-    }
-
-    //region ---------------------------------------- BUTTON METHODS ----------------------------------------
-
-    private static void hideWidgets() {
-        for (JButton button : buttons) {
-            if(button == null)
-                continue;
-
-            button.setVisible(false);
-        }
-    }
-
     public static void exit() {
         Window.exit();
     }
-
-    //endregion
 
     private void initTimer() {
         new Timer(Constants.DELTATIME_MS, this).start();
@@ -218,23 +171,15 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
         if(e.getKeyCode() == KeyEvent.VK_S)
             saveMap();
         
-        if(!isDrawing) 
-            keyPressedMenu(e);
-        else 
-            keyPressedGame(e);
-    }
-
-    private static void keyPressedMenu(KeyEvent e) {
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
-            exit();
+            UI.MENU.goBack(event -> exit());
+
+        if(UI.MENU.getCurrentPage() == Page.EDITOR)
+            keyPressedEditor(e);
     }
 
-    private void keyPressedGame(KeyEvent e) {
+    private void keyPressedEditor(KeyEvent e) {
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_ESCAPE: {
-                openMenu();
-                break;
-            }
             case KeyEvent.VK_D: {
                 DRAW_MODE = -1;
                 break;
@@ -247,41 +192,35 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
                 DRAW_MODE = 0;
                 break;
             }
-
         }
     }
 
     private void saveMap() {
         int[][] data = Tilemap.getData();
         String str = Utils.dataToString(data);
+
+        String uri = chooseFile(true);
+        if(uri.isEmpty())
+            return;
+
+        Path path = Paths.get(uri + "/" + SAVE_FILE);
+        if(!Files.exists(path.getParent()))
+            return;
+
         try {
-            Files.write(Paths.get(chooseFile(true) + "/" + SAVE_FILE), str.getBytes(StandardCharsets.UTF_8));
+            Files.write(path, str.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
-    public static void openMenu() {
-        isDrawing = false;
-        showWidgets();
-    }
-
-    private static void showWidgets() {
-        for (JButton button : buttons) {
-            if(button == null)
-                continue;
-
-            button.setVisible(true);
-        }
-    }
-
     //endregion
 
     @Override
     public void actionPerformed(ActionEvent e) {
         repaint(); // Redraw the screen
 
-        if(isDrawing) {
+        if(UI.MENU.getCurrentPage() == Page.EDITOR) {
             if(doesMouseHold)
                 paintTile();
         }
@@ -296,29 +235,36 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
 
     @Override
     public void paintComponent(Graphics g) {
+        if(g == null)
+            throw new IllegalArgumentException("Graphics cannot be null");
+
         super.paintComponent(g);
-    
-        Graphics2D g2d = (Graphics2D) g;
+        draw((Graphics2D) g);
+    }
+
+    private void draw(Graphics2D g) {
+        if(g == null)
+            throw new IllegalArgumentException("Graphics cannot be null");
+
+        g.scale(Constants.SCALEW, Constants.SCALEH);
         
         if(SplashEffect.isPlaying()) {
-            SplashEffect.draw(g2d, this);
+            SplashEffect.draw(g, this);
             return;
         }
 
-        if(isDrawing) {
-            Tilemap.draw(g2d, this);
-            drawGrid(g2d);
+        UI.initGraphics(g);
+
+        if(UI.MENU.getCurrentPage() == Page.MAIN_MENU) {
+            Image.BACKGROUND_IMAGE.draw(g, 0, 0, this);
         }
-    }
-
-    private void drawGrid(Graphics2D g) {
-        g.setColor(Color.GRAY);
-        
-        for(int i=0; i<SIZE.width; i+=Constants.TILE_SIZE)
-            g.drawLine(i, 0, i, SIZE.height);
-
-        for(int i=0; i<SIZE.height; i+=Constants.TILE_SIZE)
-            g.drawLine(0, i, SIZE.width, i);
+        else
+        {
+            if(UI.MENU.getCurrentPage() == Page.EDITOR) {
+                Tilemap.draw(g, this);
+                Tilemap.drawGrid(g);
+            }
+        }
     }
     
 }

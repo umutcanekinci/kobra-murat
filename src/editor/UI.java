@@ -1,29 +1,27 @@
 package editor;
 
-import java.awt.Font;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.swing.Box;
 
-import client.UIListener;
 import common.Constants;
-import common.ServerListener;
-import common.Utils;
 import common.graphics.Menu;
 import common.graphics.Panel;
 import common.graphics.SplashListener;
 import common.graphics.ui.Button;
-import common.graphics.ui.TextField;
-import server.Server;
 
 public class UI implements SplashListener {
 
     private static UI INSTANCE = null;
+    static final Menu<Page> MENU = new Menu<>(new HashMap<Page, Page>() {{
+            put(Page.EDITOR, Page.MAIN_MENU);
+    }});
+
     private static final ArrayList<UIListener> listeners = new ArrayList<>();
 
     private UI() {}
@@ -44,43 +42,13 @@ public class UI implements SplashListener {
     }
 
     private static void initWidgets(Container container) {
-        /*
         add(container, Page.MAIN_MENU, new Component[] {
-            new Button("Başla", e -> Menu.openPage(Page.PLAY_MODE)),
-            new Button("Çıkış", e -> Game.exit())
-        });
-        
-        add(container, Page.PLAY_MODE, new Component[] {
-            new Button("Tek oyunculu", e -> OfflinePlayerController.init()),
-            new Button("Çok oyunculu", e -> Menu.openPage(Page.CONNECT_MODE))
+            new Button("Yeni", e -> listeners.forEach(listener -> listener.onNewButtonClicked())),
+            new Button("Aç", e -> listeners.forEach(listener -> listener.onOpenButtonClicked())),
+            new Button("Çıkış", e -> Editor.exit())
         });
 
-        add(container, Page.CUSTOMIZE, new Component[] {});
-
-        add(container, Page.CONNECT_MODE, new Component[] {
-            new Button("Sunucu Aç", e -> listeners.forEach(UIListener::onHostButtonClicked)),
-            new Button("Bağlan", e -> Menu.openPage(Page.CONNECT))
-        });
-
-        add(container, Page.CONNECT, new Component[] {
-            hostField,
-            portField,
-            new Button("Bağlan", e -> listeners.forEach(listener -> listener.onConnectButtonClicked(hostField.getText(), Integer.parseInt(portField.getText())))),
-        });
-
-        add(container, Page.PAUSE, new Component[] {
-            new Button("Devam et", e -> Game.start()),
-            new Button("Ana menü", e -> Menu.openPage(Page.MAIN_MENU)),
-        });
-
-        Button leaveButton = new Button("Ayrıl", e -> onLeaveButtonClick());
-        add(container, Page.LOBBY, new Component[] {
-            new Button("Başlat", e -> listeners.forEach(UIListener::onStartButtonClicked)),
-            leaveButton
-        });
-
-        add(container, Page.GAME, new Component[] {});
-         */
+        add(container, Page.EDITOR, new Component[] {});
     }
 
     private static void add(Container container, Page page, Component[] components) {
@@ -95,7 +63,7 @@ public class UI implements SplashListener {
 
     @Override
     public void onSplashFinished() {
-        Menu.openPage(Page.MAIN_MENU);
+        MENU.openPage(Page.MAIN_MENU);
     }
 
     public static void initGraphics(Graphics2D g) {
@@ -134,7 +102,7 @@ public class UI implements SplashListener {
         panel.add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
         panel.setVisible(false);
 
-        Menu.addPanel(page, panel);
+        MENU.addPanel(page, panel);
         return panel;
     }
 }

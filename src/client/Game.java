@@ -14,7 +14,6 @@ import common.Direction;
 import common.Utils;
 import common.Window;
 import common.graphics.Image;
-import common.graphics.Menu;
 import common.graphics.SplashEffect;
 import common.graphics.SplashListener;
 import common.packet.RotatePacket;
@@ -55,7 +54,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
         SplashEffect.addListener(UI.getInstance());
     }
 
-
     private void initTimer() {
         new Timer(Constants.DELTATIME_MS, this).start();
     }
@@ -70,7 +68,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
             return;
 
         isStarted = true;
-        Menu.openPage(Page.GAME);
+        UI.MENU.openPage(Page.GAME);
     }
 
     public static void setPaused(boolean value) {
@@ -113,17 +111,14 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
     }
 
     private void onBack() {
-        Page currentPage = Menu.getCurrentPage();
+        Page currentPage = UI.MENU.getCurrentPage();
         
-        if(currentPage == null || currentPage == Page.MAIN_MENU)
-            exit();
-
         if(currentPage == Page.GAME)
             setPaused(true);
         else if(currentPage == Page.PAUSE)
             setPaused(false);
 
-        Menu.goBack();
+        UI.MENU.goBack(e -> exit());
     }
 
     private static void updateDirection(KeyEvent e) {
@@ -181,7 +176,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);    
-        draw((Graphics2D) g, Menu.getCurrentPanel());
+        draw((Graphics2D) g, UI.MENU.getCurrentPanel());
     }
 
     public static void draw(Graphics2D g, ImageObserver observer) {
@@ -189,17 +184,16 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
             throw new IllegalArgumentException("Graphics cannot be null");
 
         g.scale(Constants.SCALEW, Constants.SCALEH);
-    
+
         if(SplashEffect.isPlaying()) {
             SplashEffect.draw(g, observer);
             return;
         }
 
         UI.initGraphics(g);
-        
-        if(!isStarted) {
+
+        if(!isStarted)
             Image.BACKGROUND_IMAGE.draw(g, 0, 0, observer);
-        }
         else {
             Tilemap.draw(g, observer);
             AppleManager.draw(g, observer);
@@ -210,12 +204,17 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
                 PlayerList.drawColliders(g);
                 Tilemap.drawColliders(g);
                 AppleManager.drawColliders(g);
-
         }
+        
+
+        if(DebugLog.isOn())
+            UI.MENU.getCurrentPanel().drawColliders(g);
 
         DebugLog.draw(g);
         Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems
+        g.scale(1 / Constants.SCALEW, 1 / Constants.SCALEH); // reset scale
         //g.dispose();
+        
     }
 
     public static String getInfo() {

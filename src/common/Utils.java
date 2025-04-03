@@ -167,4 +167,8 @@ public final class Utils {
     public static int calculateSpeed(int length) {
         return Math.max(10, 20 - length);
     }
+
+    public static Dimension scale(Dimension size) {
+        return new Dimension((int) (size.width * Constants.SCALEW), (int) (size.height * Constants.SCALEH));
+    }
 }
