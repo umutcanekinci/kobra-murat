@@ -1,4 +1,5 @@
 package common;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
@@ -48,20 +49,14 @@ public class Window extends JFrame {
         pack();
         display();
         setFocusable(true);
+        requestFocusInWindow();
         
         /*
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         lock();
         centerize();
-        requestFocusInWindow();
         */
-        
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                requestFocusInWindow();
-            }
-        });
+
     }
 
     public void setMode(Mode mode) {
@@ -70,25 +65,33 @@ public class Window extends JFrame {
                 break;
             case CLIENT:
                 Game game = new Game();
-                init(game, game);
+                init(game, game, game);
                 break;
             case EDITOR:
                 Editor editor = new Editor();
-                init(editor, editor);
+                init(editor, editor, editor);
                 break;
         }
     }
 
-    public void init(KeyListener keyListener, Container contentPane) {        
+    public void init(KeyListener keyListener, Container contentPane, Component component) {        
         addKeyListener(keyListener);
         setContentPane(contentPane);
+
+        // I don't know why, but this is not working when I add mouseListener to the JFrame.
+        component.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                requestFocusInWindow();
+            }
+        });
     }
 
     private void fullScreen() {
         // System.setProperty("sun.java2d.uiScale.enabled", "true");
         // System.setProperty("sun.java2d.uiScale ", "2.0");
         
-        setPreferredSize(Constants.SIZE);
+        setPreferredSize(Constants.SCREEN_SIZE);
         
         // Windowed Fullscreen
         //setExtendedState(JFrame.MAXIMIZED_BOTH);

@@ -3,27 +3,42 @@ package common.graphics;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
+import java.util.ArrayList;
+
 import javax.swing.JPanel;
+
+import common.Constants;
 
 public class Panel extends JPanel {
 
     private GridBagLayout layout;
     public static GridBagConstraints constraints; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
-    
+    public ArrayList<Component> components = new ArrayList<>();
+    public Image backgroundImage = null;
+
     public Panel() {
         super();
         layout = new GridBagLayout();
         setLayout(layout);
         setOpaque(false);
         initContraints();
+        setPreferredSize(Constants.DEFAULT_SIZE);
+        this.backgroundImage = Image.BACKGROUND;
+    }
+
+    public Panel(Image backgroundImage) {
+        this();
+        this.backgroundImage = backgroundImage;
     }
 
     private static void initContraints() {
         constraints = new GridBagConstraints();
-        constraints.insets = new Insets(0, 0, 0, 0);
+        constraints.insets = new Insets(20, 0, 20, 0);
         constraints.fill = GridBagConstraints.BOTH;
     }
 
@@ -32,6 +47,7 @@ public class Panel extends JPanel {
     }
 
     public void add(Component comp, int x, int y, int width, int height) {
+        components.add(comp);
         constraints.gridx = x;
         constraints.gridy = y;
         
@@ -41,14 +57,16 @@ public class Panel extends JPanel {
         super.add(comp, constraints);   
     }
 
-    @Override
-    public void paintComponent(Graphics g) {        
-        super.paintComponent(g);
+    public void drawBackground(Graphics2D g) {
+        if (backgroundImage == null)
+            return;
+
+        backgroundImage.draw(g, new Point(), this);
     }
 
     public void drawColliders(Graphics g) { 
         g.setColor(Color.RED);
-            
+        
         int[][] dims = layout.getLayoutDimensions();
         g.setColor(Color.BLUE);
         int x = 0;

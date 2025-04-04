@@ -7,11 +7,21 @@ import java.util.ArrayList;
 import common.Utils;
 import common.Position;
 
-public class AppleManager {
+public class AppleManager implements ClientListener {
 
+    private static AppleManager INSTANCE;
     private static final int APPLE_COUNT = 5;
     private static final ArrayList<Apple> apples = new ArrayList<>();
     private static ArrayList<Position> emptyTiles;
+
+    private AppleManager() {}
+
+    public static AppleManager getInstance() {
+        if(INSTANCE == null)
+            INSTANCE = new AppleManager();
+
+        return INSTANCE;
+    }
 
     public static void setEmptyTiles(ArrayList<Position> emptyTiles) {
         if(emptyTiles == null)
@@ -85,6 +95,16 @@ public class AppleManager {
         return collectedApples;
     }
 
+    @Override
+    public void onClientConnected() {
+        apples.clear();
+    }
+
+    @Override
+    public void onClientDisconnected() {
+        apples.clear();
+    }
+
     public static void draw(Graphics2D g, ImageObserver observer) {
         if(g == null)
             throw new IllegalArgumentException("Graphics cannot be null.");
@@ -95,6 +115,12 @@ public class AppleManager {
     public static void drawColliders(Graphics2D g) {
         if(g == null)
             throw new IllegalArgumentException("Graphics cannot be null.");
+
+        if(!DebugLog.isOn())
+            return;
+
+        if(apples.isEmpty())
+            return;
 
         apples.forEach(apple -> apple.drawCollider(g));
     }
@@ -109,5 +135,4 @@ public class AppleManager {
 
         return str.toString();
     }
-
 }

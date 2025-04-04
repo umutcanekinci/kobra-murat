@@ -10,9 +10,11 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import common.packet.SpawnPacket;
 import common.packet.basic.AddPacket;
 import common.packet.basic.IdPacket;
 import common.packet.basic.ServerClosedPacket;
+import common.packet.basic.StartPacket;
 import common.Connection;
 import common.Constants;
 import common.ServerListener;
@@ -23,7 +25,7 @@ public class Server implements UIListener {
 
     //region ------------------------------------ Variables ------------------------------------
     
-    private static Server INSTANCE = null;
+    private static Server INSTANCE;
     private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
     private static String ip = Utils.getLocalIp();
     private static ServerSocket serverSocket;
@@ -38,9 +40,9 @@ public class Server implements UIListener {
     private Server() {}
 
     public static Server getInstance() {
-        if(INSTANCE == null) {
+        if(INSTANCE == null)
             INSTANCE = new Server();
-        }
+            
         return INSTANCE;
     }
 
@@ -53,7 +55,16 @@ public class Server implements UIListener {
     }
 
     @Override
-    public void onStartButtonClicked() {}
+    public void onStartButtonClicked() {
+        PlayerList.players.values().forEach(p -> PlayerList.sendToAll(new SpawnPacket(p.getId(), Tilemap.getSpawnPoint(), Constants.DEFAULT_LENGTH)));
+        PlayerList.players.values().forEach(p -> p.spawn(Tilemap.getSpawnPoint()));
+        PlayerList.sendToAll(new StartPacket());
+
+        listeners.forEach(listener -> listener.onServerStartedGame());
+    }
+
+    @Override
+    public void onReadyButtonClicked() {}
 
     public static void addListener(ServerListener listener) {
         if(listener == null)
@@ -89,6 +100,7 @@ public class Server implements UIListener {
     public static void start() {
         addListener(Tilemap.getInstance());
         Tilemap.addListener(AppleManager.getInstance());
+        addListener(GameManager.getInstance());
 
         open();
         new Thread() {

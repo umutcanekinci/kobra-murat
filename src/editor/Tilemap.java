@@ -88,10 +88,10 @@ public class Tilemap {
     public static void drawGrid(Graphics2D g) {
         g.setColor(Color.GRAY);
         
-        for(int i=0; i<Constants.SIZE.width; i+=Constants.TILE_SIZE)
-            g.drawLine(i, 0, i, Constants.SIZE.height);
+        for(int i=0; i<Constants.SCREEN_SIZE.width; i+=Constants.TILE_SIZE)
+            g.drawLine(i, 0, i, Constants.SCREEN_SIZE.height);
 
-        for(int i=0; i<Constants.SIZE.height; i+=Constants.TILE_SIZE)
-            g.drawLine(0, i, Constants.SIZE.width, i);
+        for(int i=0; i<Constants.SCREEN_SIZE.height; i+=Constants.TILE_SIZE)
+            g.drawLine(0, i, Constants.SCREEN_SIZE.width, i);
     }
 }

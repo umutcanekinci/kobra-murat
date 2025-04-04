@@ -17,10 +17,10 @@ import common.Utils;
 
 public class Image {
 
-    public static final Image BACKGROUND_IMAGE     = new Image("images/main-menu-background.png");
-    public static final Image TITLE                = new Image("images/title.png");
+    public static final Image BACKGROUND           = new Image("images/main-menu-background.png");
+    public static final Image LOBBY_BACKGROUND     = new Image("images/lobby.png");
     public static final Image SPRITESHEET          = new Image("images/honored.png");
-    public static final Image TILESHEET            = new Image("images/wall.png");
+    public static final Image TILESHEET            = new Image("images/tilesheet.png");
     public static final Image SPLASH               = new Image("images/splash.png");
     public static final Image APPLE                = new Image("images/apple.png");
 

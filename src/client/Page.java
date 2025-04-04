@@ -9,4 +9,5 @@ public enum Page {
     CONNECT,
     PAUSE,
     LOBBY,
+    PAUSE_LOBBY
 }

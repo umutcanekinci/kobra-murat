@@ -1,6 +1,7 @@
 package common.graphics;
 
 import java.util.HashMap;
+import java.awt.Graphics2D;
 import java.awt.event.ActionListener;
 
 public class Menu<T extends Enum<T>> {
@@ -72,6 +73,14 @@ public class Menu<T extends Enum<T>> {
             return null;
 
         return backPages.get(page);
+    }
+
+    public void drawBackground(Graphics2D g) {
+        Panel currentPanel = getCurrentPanel();
+        if (currentPanel == null)
+            return;
+        
+        currentPanel.drawBackground(g);
     }
 
     public String getInfo() {

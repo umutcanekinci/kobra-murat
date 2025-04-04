@@ -14,7 +14,7 @@ class AppleManager implements TilemapListener {
      * This script is seperated from the game.AppleManager class because server does not need to draw the apples.
      */
 
-    private static AppleManager INSTANCE = null;
+    private static AppleManager INSTANCE;
     private static final int APPLE_COUNT = 5;
     private static ArrayList<Position> apples = new ArrayList<>();
     private static ArrayList<Position> emptyTiles;
@@ -22,9 +22,8 @@ class AppleManager implements TilemapListener {
     private AppleManager() {}
 
     public static AppleManager getInstance() {
-        if(INSTANCE == null) {
+        if(INSTANCE == null)
             INSTANCE = new AppleManager();
-        }
 
         return INSTANCE;
     }

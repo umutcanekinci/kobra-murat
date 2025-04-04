@@ -5,6 +5,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.*;
 import java.awt.image.ImageObserver;
+import java.util.ArrayList;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -13,10 +14,9 @@ import common.Constants;
 import common.Direction;
 import common.Utils;
 import common.Window;
-import common.graphics.Image;
+import common.graphics.Panel;
 import common.graphics.SplashEffect;
 import common.graphics.SplashListener;
-import common.packet.RotatePacket;
 import java.awt.Toolkit;
 
 import server.Server;
@@ -32,6 +32,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
     private static int frameCount = 0;    
     private static long totalTime = 0;
     private static int currentFps = 0;
+    private static ArrayList<GameListener> listeners = new ArrayList<>();
 
     //endregion
 
@@ -48,10 +49,23 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
     }
 
     private void initListeners() {
-        Server.addListener(UI.getInstance());
+        UI.addListener(Server.getInstance());
+        UI.addListener(Client.getInstance());
+        Server.addListener(Client.getInstance());
         addMouseListener(SplashEffect.getInstance());
         SplashEffect.addListener(this);
         SplashEffect.addListener(UI.getInstance());
+        addListener(Client.getInstance());
+        Client.addListener(UI.getInstance());
+        Client.addListener(PlayerList.getInstance());
+        Client.addListener(AppleManager.getInstance());
+    }
+
+    public static void addListener(GameListener listener) {
+        if(listener == null)
+            throw new IllegalArgumentException("Listener cannot be null");
+
+        listeners.add(listener);
     }
 
     private void initTimer() {
@@ -76,16 +90,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
     }
 
     public static void exit() {
-        disconnect();
         Window.exit();
-    }
-
-    private static void disconnect() {
-        if(Server.isRunning()) {
-            Server.close(); // Server will close all clients so no need to close the client.
-            return;
-        }
-        Client.disconnect();
     }
 
     //endregion
@@ -107,7 +112,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
             onBack();
             
         if(isStarted)
-            updateDirection(e);
+            handleDirectionChange(e);
     }
 
     private void onBack() {
@@ -118,10 +123,13 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
         else if(currentPage == Page.PAUSE)
             setPaused(false);
 
+        if(currentPage == Page.LOBBY)
+            return;
+
         UI.MENU.goBack(e -> exit());
     }
 
-    private static void updateDirection(KeyEvent e) {
+    private static void handleDirectionChange(KeyEvent e) {
         if(e == null)
             throw new IllegalArgumentException("KeyEvent cannot be null");
 
@@ -133,14 +141,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
         if(!Client.isConnected())
             OfflinePlayerController.rotate(direction);
         else
-            sendDirection(direction);
-    }
-
-    private static void sendDirection(Direction direction) {
-        if(direction == null)
-            throw new IllegalArgumentException("Direction cannot be null");
-
-        Client.sendData(new RotatePacket(PlayerList.getCurrentPlayer().getId(), direction));
+            listeners.forEach(listener -> listener.onDirectionChanged(direction));
     }
 
     //endregion
@@ -193,22 +194,23 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
         UI.initGraphics(g);
 
         if(!isStarted)
-            Image.BACKGROUND_IMAGE.draw(g, 0, 0, observer);
+            UI.MENU.drawBackground(g);
         else {
             Tilemap.draw(g, observer);
             AppleManager.draw(g, observer);
-            PlayerList.draw(g, observer);
+            PlayerList.draw(g, observer);            
             UI.drawPlayerBoard(g);
-            
-            if(DebugLog.isOn())
-                PlayerList.drawColliders(g);
-                Tilemap.drawColliders(g);
-                AppleManager.drawColliders(g);
+            PlayerList.drawColliders(g);
+            Tilemap.drawColliders(g);
+            AppleManager.drawColliders(g);
         }
         
+        if(DebugLog.isOn()) {
+            Panel panel = UI.MENU.getCurrentPanel();
 
-        if(DebugLog.isOn())
-            UI.MENU.getCurrentPanel().drawColliders(g);
+            if(panel != null)
+                panel.drawColliders(g);
+        }
 
         DebugLog.draw(g);
         Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems

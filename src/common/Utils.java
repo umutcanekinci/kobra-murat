@@ -48,7 +48,7 @@ public final class Utils {
         for (String line : text.split("\n")) {
             g.drawString(line, pos[0], pos[1] += g.getFontMetrics().getHeight());
 
-            if(pos[1] > Constants.SIZE.height - 20) {
+            if(pos[1] > Constants.SCREEN_SIZE.height - 20) {
                 pos[0] += bounds.width;
                 pos[1] = bounds.y + g.getFontMetrics().getHeight();
             }
@@ -90,10 +90,10 @@ public final class Utils {
         int width = calculateTextWidth(g, text) + 20;
         int height = calculateTextHeight(g, text) + 20;
         
-        if(height >= Constants.SIZE.height)
-            width = width * (height / Constants.SIZE.height + 1) + 20;
+        if(height >= Constants.SCREEN_SIZE.height)
+            width = width * (height / Constants.SCREEN_SIZE.height + 1) + 20;
 
-        return new int[]{Math.clamp(width + 20, 0, Constants.SIZE.width), Math.clamp(height + 20, 0, Constants.SIZE.height)};
+        return new int[]{Math.clamp(width + 20, 0, Constants.SCREEN_SIZE.width), Math.clamp(height + 20, 0, Constants.SCREEN_SIZE.height)};
     }
 
     public static int calculateTextWidth(Graphics2D g, String text) {
@@ -165,7 +165,7 @@ public final class Utils {
     }
 
     public static int calculateSpeed(int length) {
-        return Math.max(10, 20 - length);
+        return Math.max(1, length);
     }
 
     public static Dimension scale(Dimension size) {

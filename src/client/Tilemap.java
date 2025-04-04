@@ -128,6 +128,10 @@ public class Tilemap {
         if(g == null)
             throw new IllegalArgumentException("Graphics2D cannot be null");
 
+        if(!DebugLog.isOn())
+            return;
+
+
         if(tiles == null)
             return;
 

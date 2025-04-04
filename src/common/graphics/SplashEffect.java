@@ -13,7 +13,7 @@ import javax.swing.Timer;
 
 public class SplashEffect implements MouseListener {
     
-    private static SplashEffect INSTANCE = null;
+    private static SplashEffect INSTANCE;
     private static boolean isFadingIn;
     private static int alpha;
     private static double scale = 1;
@@ -42,9 +42,9 @@ public class SplashEffect implements MouseListener {
     private SplashEffect() {}
 
     public static SplashEffect getInstance() {
-        if(INSTANCE == null) {
+        if(INSTANCE == null)
             INSTANCE = new SplashEffect();
-        }
+
         return INSTANCE;
     }
 

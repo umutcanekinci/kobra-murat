@@ -18,7 +18,7 @@ public class OfflinePlayerController {
      * It manages the game loop and the game state like collision detection, apple managment.
      */
 
-    private static OfflinePlayerController INSTANCE = null;
+    private static OfflinePlayerController INSTANCE;
     private static NetPlayer player;
     private static double displacement = 0;
     private static boolean canRotate = true;
@@ -26,9 +26,8 @@ public class OfflinePlayerController {
     private OfflinePlayerController() {}
 
     public static OfflinePlayerController getInstance() {
-        if(INSTANCE == null) {
+        if(INSTANCE == null)
             INSTANCE = new OfflinePlayerController();
-        }
         return INSTANCE;
     }
 
@@ -57,6 +56,7 @@ public class OfflinePlayerController {
     }
 
     private static void move() {
+        System.out.println("Displacement: " + displacement);
         displacement += player.getSpeed() * Constants.DELTATIME;
 
         if(displacement < 1)

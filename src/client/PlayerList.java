@@ -16,13 +16,27 @@ public class PlayerList implements ClientListener {
      * 1. addPlayer(Connection connection, AddPlayerPacket player)
      * 
      */
+
+    private static PlayerList INSTANCE;
+    
     private static int id;
     private static final HashMap<Integer, NetPlayer> players = new HashMap<>();
 
+    private PlayerList() {}
+
+    public static PlayerList getInstance() {
+        if(INSTANCE == null)
+            INSTANCE = new PlayerList();
+
+        return INSTANCE;
+    }
+
+    @Override
     public void onClientConnected() {
         clear();
     }
 
+    @Override
     public void onClientDisconnected() {
         clear();
     }
@@ -160,6 +174,9 @@ public class PlayerList implements ClientListener {
     public static void drawColliders(Graphics2D g) {
         if(g == null)
             throw new IllegalArgumentException("Graphics cannot be null");
+
+        if(!DebugLog.isOn())
+            return;
 
         if(players.isEmpty())
             return;

@@ -17,7 +17,7 @@ import common.graphics.ui.Button;
 
 public class UI implements SplashListener {
 
-    private static UI INSTANCE = null;
+    private static UI INSTANCE;
     static final Menu<Page> MENU = new Menu<>(new HashMap<Page, Page>() {{
             put(Page.EDITOR, Page.MAIN_MENU);
     }});
@@ -27,9 +27,9 @@ public class UI implements SplashListener {
     private UI() {}
 
     public static UI getInstance() {
-        if(INSTANCE == null) {
+        if(INSTANCE == null)
             INSTANCE = new UI();
-        }
+            
         return INSTANCE;
     }
 
@@ -79,18 +79,18 @@ public class UI implements SplashListener {
             return panel;
 
         int gridWidth = 20; int gridHeight = 10;
-        int totalCols = (int) Constants.SIZE.getWidth() / gridWidth;
+        int totalCols = (int) Constants.SCREEN_SIZE.getWidth() / gridWidth;
         int componentWidth = 700; int componentHeight = 170;
         int componentRows = componentHeight / gridHeight; int componentColumns = componentWidth / gridWidth; // 35
         
         int leftCols = 10;
         int leftSpace = leftCols * gridWidth;
-        int rightSpace = (int) Constants.SIZE.getWidth() - componentWidth - leftCols * gridWidth;
+        int rightSpace = (int) Constants.SCREEN_SIZE.getWidth() - componentWidth - leftCols * gridWidth;
         int rightColumns = rightSpace / gridWidth;
 
         int botRows = 43 - (components.length - 1) * componentRows;
         int botSpace = botRows * gridHeight;
-        int topSpace = (int) Constants.SIZE.getHeight() - componentHeight*components.length - botRows * gridHeight;
+        int topSpace = (int) Constants.SCREEN_SIZE.getHeight() - componentHeight*components.length - botRows * gridHeight;
         int topRows = topSpace / gridHeight;
 
         panel.add(Box.createVerticalStrut(topSpace)        , 0                        , 0                                      , totalCols       , topRows); // Top space

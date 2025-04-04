@@ -10,14 +10,17 @@ import java.util.ArrayList;
 import common.Connection;
 import common.ServerListener;
 import common.packet.Packet;
+import common.packet.RotatePacket;
 import common.packet.basic.DisconnectPacket;
-import common.packet.basic.StartPacket;
+import common.packet.basic.ReadyPacket;
+import common.Constants;
+import common.Direction;
 
-public class Client implements UIListener, ServerListener {
+public class Client implements UIListener, ServerListener, GameListener {
     
     //region ----------------------------------- Variables -----------------------------------
     
-    private static Client INSTANCE = null;
+    private static Client INSTANCE;
     private static ClientState state = ClientState.CLOSED;
     private static String host;
     private static int port;
@@ -33,9 +36,9 @@ public class Client implements UIListener, ServerListener {
     private Client() {}
 
     public static Client getInstance() {
-        if(INSTANCE == null) {
+        if(INSTANCE == null)
             INSTANCE = new Client();
-        }
+            
         return INSTANCE;
     }
 
@@ -45,13 +48,6 @@ public class Client implements UIListener, ServerListener {
 
         listeners.add(clientListener);
     }
-
-    public void onServerConnected(String ip) {
-        setHost(ip);
-        start();
-    }
-
-    public void onServerClosed() {}
 
     private static void setState(ClientState state) {
         if(state == null)
@@ -81,9 +77,26 @@ public class Client implements UIListener, ServerListener {
         Client.port = port;
     }
 
-    //endregion
+    @Override
+    public void onServerConnected(String ip) {
+        setHost(ip);
+        setPort(Constants.PORT);
+        start();
+    }
 
-    //region ----------------------------------- Connection -----------------------------------
+    @Override
+    public void onServerClosed() {}
+
+    @Override
+    public void onServerStartedGame() {}
+
+    @Override
+    public void onDirectionChanged(Direction direction) {
+        if(!isConnected())
+            return;
+
+        sendData(new RotatePacket(PlayerList.getId(), direction));
+    }
 
     @Override
     public void onConnectButtonClicked(String host, int port) {
@@ -106,12 +119,19 @@ public class Client implements UIListener, ServerListener {
     public void onHostButtonClicked() {}
 
     @Override
-    public void onStartButtonClicked() {
+    public void onReadyButtonClicked() {
         if(isConnected())
             return;
 
-        sendData(new StartPacket(PlayerList.getId()));
+        sendData(new ReadyPacket(PlayerList.getId()));
     }
+
+    @Override
+    public void onStartButtonClicked() {}
+
+    //endregion
+
+    //region ----------------------------------- Connection -----------------------------------
 
     public static void start() {
         if(isConnected())
@@ -134,7 +154,7 @@ public class Client implements UIListener, ServerListener {
         if(port <= 0)
             throw new IllegalArgumentException("Port cannot be less than or equal to 0.");
         
-        try {    
+        try {
             socket = new Socket(host, port);
             connection = new Connection(socket, false);
             setState(ClientState.CONNECTED);

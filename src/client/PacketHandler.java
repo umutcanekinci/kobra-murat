@@ -16,6 +16,7 @@ import common.packet.basic.IdPacket;
 import common.packet.basic.RemovePacket;
 import common.packet.basic.ServerClosedPacket;
 import common.packet.basic.SetMapPacket;
+import common.packet.basic.StartPacket;
 
 public class PacketHandler {
 
@@ -51,6 +52,9 @@ public class PacketHandler {
             case UpdateTransformPacket transformPacket ->
                 PlayerList.updateTransform(transformPacket.getId(), transformPacket.getDirection(), transformPacket.getParts(), transformPacket.getTailIndex());
 
+            case StartPacket startPacket -> {
+                Game.start();
+            }
 
             case EatApplePacket eatApplePacket -> {
                 AppleManager.remove(eatApplePacket.getPosition());
@@ -75,7 +79,6 @@ public class PacketHandler {
                 
             case ServerClosedPacket serverClosedPacket -> {
                 Client.close();
-                UI.MENU.openPage(Page.MAIN_MENU);
             }
 
             default ->

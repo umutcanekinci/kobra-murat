@@ -36,9 +36,8 @@ public class Connection implements Runnable {
 
     @Override
     public void run() {
-        while(socket.isConnected()) {
+        while(socket.isConnected())
             readData();
-        }
     }
     
     private void readData() {
@@ -55,6 +54,7 @@ public class Connection implements Runnable {
                 return;
 
             LOGGER.log(Level.SEVERE, "Failed to read data from " + (isServer ? "server." : "client. \n"), e);
+            Window.exit();
         }
     }
 

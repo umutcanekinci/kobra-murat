@@ -29,13 +29,16 @@ public class Constants {
     public static final double DELTATIME = 1.0 / FPS;
     public static final int DELTATIME_MS = (int) (DELTATIME * 1000);
 
+    // UI Layout
+    public static final Dimension GRID_SIZE = new Dimension(20, 10);
+
     public static final int TILE_SIZE = 64;
     public static final int PLAYER_BOARD_WIDTH = 200;
 
     public static final Dimension DEFAULT_SIZE = new Dimension(1920, 1080);
-    public static final Dimension SIZE = Toolkit.getDefaultToolkit().getScreenSize();
-    public static final double SCALEW = (float) SIZE.width / DEFAULT_SIZE.width;
-    public static final double SCALEH = (float) SIZE.height / DEFAULT_SIZE.height;
+    public static final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
+    public static final double SCALEW = (float) SCREEN_SIZE.width / DEFAULT_SIZE.width;
+    public static final double SCALEH = (float) SCREEN_SIZE.height / DEFAULT_SIZE.height;
     
     public static final Direction DEFAULT_DIRECTION = Direction.RIGHT;
     public static final int DEFAULT_LENGTH = 12;

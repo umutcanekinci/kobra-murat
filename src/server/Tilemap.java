@@ -20,7 +20,7 @@ public class Tilemap implements ServerListener {
      * This class is a singleton because we only need one instance of it.
      */
 
-    private static Tilemap INSTANCE = null;
+    private static Tilemap INSTANCE;
     private static int currentLevel;
     private static Tile[][] tiles;
     private static ArrayList<Position> emptyTiles;
@@ -38,9 +38,8 @@ public class Tilemap implements ServerListener {
     private Tilemap() {}
 
     public static Tilemap getInstance() {
-        if(INSTANCE == null) {
+        if(INSTANCE == null)
             INSTANCE = new Tilemap();
-        }
 
         return INSTANCE;
     }
@@ -52,10 +51,10 @@ public class Tilemap implements ServerListener {
 
     @Override
     public void onServerClosed() {
-        // TODO Auto-generated method stub
-        // This method is called when the server is closed.
-        // We can use this method to save the map to a file if we want to.
-        // But for now, we will just leave it empty.
+    }
+
+    @Override
+    public void onServerStartedGame() {
     }
 
     public static void load(int id) {

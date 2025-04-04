@@ -28,7 +28,13 @@ Methods: These methods should be grouped by functionality rather than by scope o
 
 
 BUG Buttons are not scaling correctly. They work fine in just 1080p.
-BUG FPS IS NOT STABLE
+    There are mathmetical errors in layout. Need to use different layout or figure out the problem.
+BUG FPS IS NOT STABLE.
+
+     LOBBY
+TODO Kick system in Lobby
+TODO Configure system in lobby
+TODO Player names, player skins
 
 
 HELPS

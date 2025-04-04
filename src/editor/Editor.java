@@ -256,7 +256,7 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
         UI.initGraphics(g);
 
         if(UI.MENU.getCurrentPage() == Page.MAIN_MENU) {
-            Image.BACKGROUND_IMAGE.draw(g, 0, 0, this);
+            Image.BACKGROUND.draw(g, 0, 0, this);
         }
         else
         {

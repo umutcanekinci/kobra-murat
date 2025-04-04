@@ -32,7 +32,6 @@ public class NetPlayer extends Player{
 
     public void move() {
         displacement += getSpeed() * Constants.DELTATIME;
-
         if(displacement < 1)
             return;
 
