@@ -41,7 +41,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
     public Game() {
         super();
         setDoubleBuffered(true);
-        setBackground(Color.BLACK);
         UI.init(this);
         initListeners();
         SplashEffect.start();    

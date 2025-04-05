@@ -8,6 +8,5 @@ public enum Page {
     CUSTOMIZE,
     CONNECT,
     PAUSE,
-    LOBBY,
-    PAUSE_LOBBY
+    LOBBY
 }

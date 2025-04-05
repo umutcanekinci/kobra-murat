@@ -24,9 +24,16 @@ public class LobbyPanel extends Panel {
         if (!visible)
             return;
 
-        startButton.setText(Server.isRunning() ? "Başlat" : "Hazır ol");
+        boolean isHost = Server.isRunning();
+        boolean isGameStarted = (PlayerList.doesCurrentPlayerExist() && PlayerList.getCurrentPlayer().getHead() != null);
+        startButton.setText(isGameStarted ? "Oyuna dön" : isHost ? "Başlat" : "Hazır ol");
         startButton.setAction(e -> {
-            if (Server.isRunning())
+            if(isGameStarted) {
+                Game.start();
+                return;
+            }
+
+            if (isHost)
                 UI.onStartButtonClicked();
             else
                 UI.onReadyButtonClicked();

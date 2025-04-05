@@ -92,13 +92,7 @@ public class UI implements SplashListener, ClientListener {
             new Button("Ayrıl", e -> onLeaveButtonClick())
         }));
 
-        container.add(addPanel(new Panel(), Page.PAUSE_LOBBY, new Component[] {
-            new Button("Devam et", e -> Game.start()),
-            new Button("Ayrıl", e -> onLeaveButtonClick())
-        }));
-
         container.add(addPanel(new Panel(), Page.CUSTOMIZE, new Component[] {}));
-        container.add(addPanel(new Panel(), Page.GAME, new Component[] {}));
     }
 
     public static void onStartButtonClicked() {
@@ -169,10 +163,15 @@ public class UI implements SplashListener, ClientListener {
     }
 
     private static Panel addPanel(Panel panel, Page page, Component[] components) {
-        
         if(components == null || components.length == 0)
             return panel;
 
+        addComponentsToPanel(panel, components);
+        MENU.addPanel(page, panel);
+        return panel;
+    }
+
+    private static void addComponentsToPanel(Panel panel, Component[] components) {
         Dimension gridSize      = Constants.GRID_SIZE;
         Dimension componentSize = new Dimension(Button.SIZE.width, Button.SIZE.height*2);
         Dimension windowSize    = Constants.DEFAULT_SIZE;
@@ -199,8 +198,5 @@ public class UI implements SplashListener, ClientListener {
         }
         panel.add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
         panel.setVisible(false);
-
-        MENU.addPanel(page, panel);
-        return panel;
     }
 }

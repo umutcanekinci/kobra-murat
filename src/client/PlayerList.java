@@ -61,6 +61,10 @@ public class PlayerList implements ClientListener {
         return getPlayer(id);
     }
 
+    public static boolean doesCurrentPlayerExist() {
+        return players.containsKey(id);
+    }
+
     private static NetPlayer getPlayer(int id) {
         if(!players.containsKey(id))
             throw new IllegalArgumentException("Player with id " + id + " does not exist");

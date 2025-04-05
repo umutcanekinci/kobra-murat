@@ -7,7 +7,7 @@ public class PausePanel extends Panel {
     private Button exitButton;
 
     public PausePanel(Button exitButton) {
-        super();
+        super(null);
         this.exitButton = exitButton;
     }
 
@@ -22,6 +22,6 @@ public class PausePanel extends Panel {
             return;
 
         exitButton.setText(Client.isConnected() ? "Lobiye Dön" : "Ana Menüye Dön");
-        exitButton.setAction(e -> UI.MENU.openPage(Client.isConnected() ? Page.PAUSE_LOBBY : Page.MAIN_MENU));
+        exitButton.setAction(e -> UI.MENU.openPage(Client.isConnected() ? Page.LOBBY : Page.MAIN_MENU));
     }
 }
