@@ -4,16 +4,14 @@ import java.awt.Font;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.Box;
-
 import common.Constants;
+import common.Direction;
 import common.Utils;
 import common.graphics.Menu;
 import common.graphics.Panel;
@@ -22,7 +20,7 @@ import common.graphics.ui.Button;
 import common.graphics.ui.TextField;
 import server.Server;
 
-public class UI implements SplashListener, ClientListener {
+public class UI implements GameListener, SplashListener, ClientListener {
 
     private static UI INSTANCE;
     public static final Menu<Page> MENU = new Menu<>(new HashMap<Page, Page>() {{
@@ -59,6 +57,8 @@ public class UI implements SplashListener, ClientListener {
     }
 
     private static void initPanels(Container container) {
+        container.add(addPanel(new SplashPanel(), Page.SPLASH));
+
         container.add(addPanel(new Panel(), Page.MAIN_MENU, new Component[] {
             new Button("Oyna", e -> MENU.openPage(Page.PLAY_MODE)),
             new Button("Çıkış", e -> Game.exit())
@@ -87,12 +87,34 @@ public class UI implements SplashListener, ClientListener {
         }));
         
         Button startButton = new Button("");
-        container.add(addPanel(new LobbyPanel(startButton), Page.LOBBY, new Component[] {
+        LobbyPanel lobbyPanel = new LobbyPanel(startButton);
+        addPanel(lobbyPanel, Page.LOBBY);
+        container.add((Panel) lobbyPanel);
+        /*
+        new Component[] {
             startButton,
             new Button("Ayrıl", e -> onLeaveButtonClick())
-        }));
+        }
+        */
 
-        container.add(addPanel(new Panel(), Page.CUSTOMIZE, new Component[] {}));
+        addPanel(new LobbyPanel(startButton), Page.LOBBY);
+        container.add(addPanel(new Panel(), Page.CUSTOMIZE));
+    }
+    
+    private static Panel addPanel(Panel panel, Page page) {
+        if(panel == null || page == null)
+            throw new IllegalArgumentException("Panel and page cannot be null.");
+
+        MENU.addPanel(page, panel);
+        return panel;
+    }
+
+    private static Panel addPanel(Panel panel, Page page, Component[] components) {
+        if(panel == null || page == null || components == null)
+            throw new IllegalArgumentException("Panel, page and components cannot be null.");
+
+        panel.addComponents(components);        
+        return addPanel(panel, page);
     }
 
     public static void onStartButtonClicked() {
@@ -109,6 +131,14 @@ public class UI implements SplashListener, ClientListener {
         else if(Client.isConnected())
             Client.close();
     }
+
+    @Override
+    public void onWindowReady() {
+        MENU.openPage(Page.SPLASH);
+    }
+    
+    @Override
+    public void onDirectionChanged(Direction direction) {}
 
     @Override
     public void onSplashFinished() {
@@ -160,43 +190,5 @@ public class UI implements SplashListener, ClientListener {
             Utils.drawText(g, "Player " + player.getId(), player.isCurrentPlayer() ? Color.YELLOW : Color.WHITE, new Rectangle(x, y + (i + 2) * playerHeight + 10, width, playerHeight), true);
             i++;
         }
-    }
-
-    private static Panel addPanel(Panel panel, Page page, Component[] components) {
-        if(components == null || components.length == 0)
-            return panel;
-
-        addComponentsToPanel(panel, components);
-        MENU.addPanel(page, panel);
-        return panel;
-    }
-
-    private static void addComponentsToPanel(Panel panel, Component[] components) {
-        Dimension gridSize      = Constants.GRID_SIZE;
-        Dimension componentSize = new Dimension(Button.SIZE.width, Button.SIZE.height*2);
-        Dimension windowSize    = Constants.DEFAULT_SIZE;
-
-        int totalCols        = windowSize.width / gridSize.width;
-        int componentRows    = componentSize.height / gridSize.height;
-        int componentCols    = componentSize.width / gridSize.width;
-
-        int leftCols = 10;
-        int leftSpace = leftCols * gridSize.width;
-        int rightSpace = windowSize.width - componentSize.width - leftSpace;
-        int rightCols = rightSpace / gridSize.width;
-
-        int botRows = 30 - (components.length - 1) * componentRows;
-        int botSpace = botRows * gridSize.height;
-        int topSpace = windowSize.height - componentSize.height * components.length - botSpace;
-        int topRows = topSpace / gridSize.height;
-
-        panel.add(Box.createVerticalStrut(topSpace)        , 0                        , 0                                      , totalCols       , topRows); // Top space
-        for(int i=0; i<components.length; i++) {
-            panel.add(Box.createHorizontalStrut(leftSpace) , 0                        , topRows + (componentRows)*i                , leftCols        , componentRows);
-            panel.add(components[i]                        , leftCols                   , topRows + (componentRows)*i                , componentCols, componentRows);
-            panel.add(Box.createHorizontalStrut(rightSpace), leftCols + componentCols, topRows + (componentRows)*i                , rightCols    , componentRows);
-        }
-        panel.add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
-        panel.setVisible(false);
     }
 }

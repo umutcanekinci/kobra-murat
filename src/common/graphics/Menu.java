@@ -43,6 +43,7 @@ public class Menu<T extends Enum<T>> {
         if (page == null)
             return;
 
+        System.out.println("Opening page: " + page);
         currentPage = page;
         panels.forEach((p, panel) -> panel.setVisible(p == page));
     }

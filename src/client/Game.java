@@ -1,10 +1,11 @@
 package client;
 
-import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagLayout;
 import java.awt.event.*;
 import java.awt.image.ImageObserver;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
@@ -14,45 +15,49 @@ import common.Constants;
 import common.Direction;
 import common.Utils;
 import common.Window;
-import common.graphics.Panel;
 import common.graphics.SplashEffect;
-import common.graphics.SplashListener;
-import java.awt.Toolkit;
+
 
 import server.Server;
 
-public class Game extends JPanel implements ActionListener, KeyListener, SplashListener {
+public class Game extends JPanel implements ActionListener, KeyListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
-
     private static boolean isStarted = false;
-    
+
     private static long currentTime = System.nanoTime();
     private static long lastTime = System.nanoTime();
     private static int frameCount = 0;    
     private static long totalTime = 0;
     private static int currentFps = 0;
     private static ArrayList<GameListener> listeners = new ArrayList<>();
-
     //endregion
 
     //region ---------------------------------------- INIT METHODS ----------------------------------------
 
-    public Game() {
-        super();
+    private static Game INSTANCE;
+    public static Game getInstance() {
+        if(INSTANCE == null)
+            INSTANCE = new Game();
+
+        return INSTANCE;
+    }
+
+    private Game() {
+        super(new GridBagLayout()); // Without using a layout manager, there exist a space between the panel and jframe on the top.
         setDoubleBuffered(true);
         UI.init(this);
         initListeners();
-        SplashEffect.start();    
+        listeners.forEach(listener -> listener.onWindowReady());
         initTimer();
     }
 
     private void initListeners() {
+        addListener(UI.getInstance());
         UI.addListener(Server.getInstance());
         UI.addListener(Client.getInstance());
         Server.addListener(Client.getInstance());
         addMouseListener(SplashEffect.getInstance());
-        SplashEffect.addListener(this);
         SplashEffect.addListener(UI.getInstance());
         addListener(Client.getInstance());
         Client.addListener(UI.getInstance());
@@ -69,11 +74,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
 
     private void initTimer() {
         new Timer(Constants.DELTATIME_MS, this).start();
-    }
-
-    @Override
-    public void onSplashFinished() {
-        setBackground(Constants.BACKGROUND_COLOR);
     }
 
     public static void start() {
@@ -104,25 +104,25 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
 
     @Override
     public void keyPressed(KeyEvent e) {
-        DebugLog.keyPressed(e);
-        SplashEffect.keyPressed(e);
-
         if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
             onBack();
-            
+
         if(isStarted)
             handleDirectionChange(e);
+
+        DebugLog.keyPressed(e);
+        SplashEffect.keyPressed(e);
     }
 
     private void onBack() {
         Page currentPage = UI.MENU.getCurrentPage();
-        
+
         if(currentPage == Page.GAME)
             setPaused(true);
         else if(currentPage == Page.PAUSE)
             setPaused(false);
 
-        if(currentPage == Page.LOBBY)
+        if(currentPage == Page.LOBBY || currentPage == Page.SPLASH)
             return;
 
         UI.MENU.goBack(e -> exit());
@@ -177,6 +177,7 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
     public void paintComponent(Graphics g) {
         super.paintComponent(g);    
         draw((Graphics2D) g, UI.MENU.getCurrentPanel());
+        Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems
     }
 
     public static void draw(Graphics2D g, ImageObserver observer) {
@@ -184,12 +185,6 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
             throw new IllegalArgumentException("Graphics cannot be null");
 
         g.scale(Constants.SCALEW, Constants.SCALEH);
-
-        if(SplashEffect.isPlaying()) {
-            SplashEffect.draw(g, observer);
-            return;
-        }
-
         UI.initGraphics(g);
 
         if(!isStarted)
@@ -204,15 +199,11 @@ public class Game extends JPanel implements ActionListener, KeyListener, SplashL
             AppleManager.drawColliders(g);
         }
         
-        if(DebugLog.isOn()) {
-            Panel panel = UI.MENU.getCurrentPanel();
-
-            if(panel != null)
-                panel.drawColliders(g);
-        }
+        if(DebugLog.isOn())
+            UI.MENU.getCurrentPanel().drawColliders(g);
 
         DebugLog.draw(g);
-        Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems
+
         g.scale(1 / Constants.SCALEW, 1 / Constants.SCALEH); // reset scale
         //g.dispose();
         

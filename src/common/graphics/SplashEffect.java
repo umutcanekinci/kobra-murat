@@ -1,6 +1,8 @@
 package common.graphics;
 
 import java.awt.AlphaComposite;
+import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,10 +11,19 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
+
+import javax.swing.JComponent;
 import javax.swing.Timer;
 
-public class SplashEffect implements MouseListener {
-    
+import common.Constants;
+
+public class SplashEffect extends JComponent implements MouseListener {
+    /*
+     * To add the splash screen to the jpanels we need to extend the JPanel class and override the paintComponent method.
+    */
+
+    //region ---------------------------------------- Variables ------------------------------------------
+
     private static SplashEffect INSTANCE;
     private static boolean isFadingIn;
     private static int alpha;
@@ -39,6 +50,8 @@ public class SplashEffect implements MouseListener {
 
     private static ArrayList<SplashListener> listeners = new ArrayList<>();
 
+    //endregion
+
     private SplashEffect() {}
 
     public static SplashEffect getInstance() {
@@ -53,6 +66,11 @@ public class SplashEffect implements MouseListener {
             throw new IllegalArgumentException("SplashListener cannot be null.");
 
         listeners.add(splashListener);
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return Constants.SCREEN_SIZE;
     }
 
     public static void start() {
@@ -72,6 +90,17 @@ public class SplashEffect implements MouseListener {
         listeners.forEach(SplashListener::onSplashFinished);
     }
 
+    @Override
+    public Dimension getPreferredSize() {
+        return Constants.SCREEN_SIZE;
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        draw((Graphics2D) g, this);
+    }
+
     public static void draw(Graphics2D g, ImageObserver observer) {
         if (scale > 1) {
             g.scale(scale, scale);
@@ -80,7 +109,7 @@ public class SplashEffect implements MouseListener {
 
         if (alpha > 0) {
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha / 255f));
-            g.drawImage(Image.SPLASH.get(), 0,0 , observer);
+            g.drawImage(Image.SPLASH.get(), 0,0 , null);
             g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)); // Reset alpha
         }
     }

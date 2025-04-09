@@ -64,7 +64,7 @@ public class Window extends JFrame {
             case SERVER:
                 break;
             case CLIENT:
-                Game game = new Game();
+                Game game = Game.getInstance();
                 init(game, game, game);
                 break;
             case EDITOR:

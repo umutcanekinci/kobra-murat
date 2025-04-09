@@ -91,6 +91,9 @@ public class Client implements UIListener, ServerListener, GameListener {
     public void onServerStartedGame() {}
 
     @Override
+    public void onWindowReady() {}
+
+    @Override
     public void onDirectionChanged(Direction direction) {
         if(!isConnected())
             return;

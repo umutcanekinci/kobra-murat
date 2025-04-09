@@ -2,6 +2,7 @@ package common.graphics;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -10,14 +11,16 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.util.ArrayList;
 
+import javax.swing.Box;
 import javax.swing.JPanel;
 
 import common.Constants;
+import common.graphics.ui.Button;
 
 public class Panel extends JPanel {
 
     private GridBagLayout layout;
-    public static GridBagConstraints constraints; // Https://docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
+    public static GridBagConstraints constraints; // Https:docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
     public ArrayList<Component> components = new ArrayList<>();
     public Image backgroundImage = null;
 
@@ -46,7 +49,7 @@ public class Panel extends JPanel {
         constraints.insets = new Insets(top, left, bottom, right);
     }
 
-    public void add(Component comp, int x, int y, int width, int height) {
+    public void add(Component comp, int x, int y, int width, int height) {  
         components.add(comp);
         constraints.gridx = x;
         constraints.gridy = y;
@@ -55,6 +58,41 @@ public class Panel extends JPanel {
         constraints.gridheight = height;
         layout.setConstraints(comp, constraints);
         super.add(comp, constraints);   
+    }
+
+    public void addComponents(Component[] components) {
+        if(components == null)
+            throw new IllegalArgumentException("Panel and components cannot be null.");
+
+        if(components.length == 0)
+            return;
+
+        Dimension gridSize      = Constants.GRID_SIZE;
+        Dimension componentSize = new Dimension(Button.SIZE.width, Button.SIZE.height*2);
+        Dimension windowSize    = Constants.DEFAULT_SIZE;
+
+        int totalCols        = windowSize.width / gridSize.width;
+        int componentRows    = componentSize.height / gridSize.height;
+        int componentCols    = componentSize.width / gridSize.width;
+
+        int leftCols = 10;
+        int leftSpace = leftCols * gridSize.width;
+        int rightSpace = windowSize.width - componentSize.width - leftSpace;
+        int rightCols = rightSpace / gridSize.width;
+
+        int botRows = 30 - (components.length - 1) * componentRows;
+        int botSpace = botRows * gridSize.height;
+        int topSpace = windowSize.height - componentSize.height * components.length - botSpace;
+        int topRows = topSpace / gridSize.height;
+
+        add(Box.createVerticalStrut(topSpace)        , 0                        , 0                                      , totalCols       , topRows); // Top space
+        for(int i=0; i<components.length; i++) {
+            add(Box.createHorizontalStrut(leftSpace) , 0                        , topRows + (componentRows)*i                , leftCols        , componentRows);
+            add(components[i]                        , leftCols                   , topRows + (componentRows)*i                , componentCols, componentRows);
+            add(Box.createHorizontalStrut(rightSpace), leftCols + componentCols, topRows + (componentRows)*i                , rightCols    , componentRows);
+        }
+        add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
+        setVisible(false);
     }
 
     public void drawBackground(Graphics2D g) {
@@ -81,6 +119,8 @@ public class Panel extends JPanel {
             y += add;
             g.drawLine(0, y, getWidth(), y);
         }
+            
     }
+
 }
 

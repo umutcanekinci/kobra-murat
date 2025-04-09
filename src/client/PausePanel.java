@@ -7,7 +7,7 @@ public class PausePanel extends Panel {
     private Button exitButton;
 
     public PausePanel(Button exitButton) {
-        super(null);
+        super();
         this.exitButton = exitButton;
     }
 

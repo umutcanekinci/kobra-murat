@@ -1,6 +1,7 @@
 package client;
 
 public enum Page {
+    SPLASH,
     MAIN_MENU,
     GAME,
     PLAY_MODE,
