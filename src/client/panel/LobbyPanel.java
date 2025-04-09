@@ -1,11 +1,14 @@
-package client;
+package client.panel;
 
 import java.awt.Dimension;
 import java.awt.Component;
 import javax.swing.Box;
 
-import common.graphics.Image;
-import common.graphics.Panel;
+import client.Game;
+import client.Page;
+import client.PlayerList;
+import client.UI;
+import common.graphics.panel.Panel;
 import common.graphics.ui.Button;
 import common.Constants;
 
@@ -15,22 +18,29 @@ import server.Server;
 public class LobbyPanel extends Panel {
 
     private Button startButton;
+    private Button leaveButton;
 
-    LobbyPanel(Button startButton) {
-        super(Image.LOBBY_BACKGROUND);
-        this.startButton = startButton;
+    public LobbyPanel() {
+        super();
+        setBackgroundImage(Page.LOBBY.getBackgroundImage());
+
+        this.startButton = new Button("");
+        this.leaveButton = new Button("");
+
+        addComponents(new Component[] {
+            startButton,
+            leaveButton
+        });
     }
 
     @Override
     public void setVisible(boolean visible) {
-        updateStartButton(visible);
+        updateButtons(visible);
         super.setVisible(visible);
     }
-    
-    /*
+
     @Override
     public void addComponents(Component[] components) {
-        
         if(components == null)
             throw new IllegalArgumentException("Panel and components cannot be null.");
 
@@ -42,7 +52,6 @@ public class LobbyPanel extends Panel {
         Dimension windowSize    = Constants.DEFAULT_SIZE;
 
         int totalCols        = windowSize.width / gridSize.width;
-        int totalRows        = windowSize.height / gridSize.height;
         int componentRows    = componentSize.height / gridSize.height;
         int componentCols    = componentSize.width / gridSize.width;
 
@@ -56,19 +65,16 @@ public class LobbyPanel extends Panel {
         int topSpace = windowSize.height - componentSize.height * components.length - botSpace;
         int topRows = topSpace / gridSize.height;
 
-        add(Box.createVerticalStrut(leftSpace)        , 0                      , 0                                      , leftCols       , totalRows); // Top space
+        add(Box.createVerticalStrut(topSpace)        , 0                        , 0                                      , totalCols       , topRows); // Top space
         for(int i=0; i<components.length; i++) {
-            add(Box.createHorizontalStrut(topSpace) , 0                        , 0                , leftCols        , componentRows);
-            add(components[i]                        , leftCols                  , topRows                , componentCols, componentRows);
-            add(Box.createHorizontalStrut(botSpace), leftCols + componentCols    , topRows + componentRows                , rightCols    , componentRows);
+            add(Box.createHorizontalStrut(leftSpace) , 0                        , topRows + (componentRows)*i                , leftCols        , componentRows);
+            add(components[i]                        , leftCols                   , topRows + (componentRows)*i                , componentCols, componentRows);
+            add(Box.createHorizontalStrut(rightSpace), leftCols + componentCols, topRows + (componentRows)*i                , rightCols    , componentRows);
         }
-        add(Box.createVerticalStrut(rightSpace)        , 0                        , topRows + componentRows*components.length, rightCols       , totalRows); // Bottom space
-        setVisible(false);
-         
+        add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
     }
-        */
 
-    private void updateStartButton(boolean visible) {
+    private void updateButtons(boolean visible) {
         if (!visible)
             return;
 
@@ -85,6 +91,16 @@ public class LobbyPanel extends Panel {
                 UI.onStartButtonClicked();
             else
                 UI.onReadyButtonClicked();
+        });
+
+        leaveButton.setText(isHost ? "Oyunu İptal Et" : "Ayrıl");
+        leaveButton.setAction(e -> {
+            if (isHost) {
+                UI.onTerminateClicked();
+                return;
+            }
+
+            UI.onLeaveButtonClick();
         });
     }
 

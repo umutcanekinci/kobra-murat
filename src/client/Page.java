@@ -1,5 +1,8 @@
 package client;
 
+import common.graphics.image.BackgroundImage;
+import common.graphics.image.SplashImage;
+
 public enum Page {
     SPLASH,
     MAIN_MENU,
@@ -9,5 +12,18 @@ public enum Page {
     CUSTOMIZE,
     CONNECT,
     PAUSE,
-    LOBBY
+    LOBBY;
+    
+    public BackgroundImage getBackgroundImage() {
+        switch (this) {
+            case SPLASH:
+                return SplashImage.getInstance();
+            case GAME:
+                return null;
+            case LOBBY:
+                return BackgroundImage.LOBBY;
+            default:
+                return BackgroundImage.MAIN_MENU;
+        }
+    }
 }

@@ -1,8 +1,8 @@
 package client;
 
 import common.Position;
+import common.graphics.image.Image;
 import common.Object;
-import common.graphics.Image;
 
 public class Apple extends Object {
 

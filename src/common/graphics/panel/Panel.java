@@ -1,42 +1,37 @@
-package common.graphics;
+package common.graphics.panel;
 
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.util.ArrayList;
-
 import javax.swing.Box;
-import javax.swing.JPanel;
 
+import client.DebugLog;
 import common.Constants;
 import common.graphics.ui.Button;
 
-public class Panel extends JPanel {
+
+public class Panel extends BackgroundPanel {
 
     private GridBagLayout layout;
     public static GridBagConstraints constraints; // Https:docs.oracle.com/javase/tutorial/uiswing/layout/visual.html#gridbag
     public ArrayList<Component> components = new ArrayList<>();
-    public Image backgroundImage = null;
 
     public Panel() {
         super();
-        layout = new GridBagLayout();
-        setLayout(layout);
-        setOpaque(false);
-        initContraints();
-        setPreferredSize(Constants.DEFAULT_SIZE);
-        this.backgroundImage = Image.BACKGROUND;
+        init();   
     }
 
-    public Panel(Image backgroundImage) {
-        this();
-        this.backgroundImage = backgroundImage;
+    private void init() {
+        layout = new GridBagLayout();
+        setLayout(layout);
+        initContraints();
+        setPreferredSize(Constants.DEFAULT_SIZE);
+        setVisible(false);
     }
 
     private static void initContraints() {
@@ -92,27 +87,27 @@ public class Panel extends JPanel {
             add(Box.createHorizontalStrut(rightSpace), leftCols + componentCols, topRows + (componentRows)*i                , rightCols    , componentRows);
         }
         add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
-        setVisible(false);
     }
 
-    public void drawBackground(Graphics2D g) {
-        if (backgroundImage == null)
-            return;
-
-        backgroundImage.draw(g, new Point(), this);
-    }
-
-    public void drawColliders(Graphics g) { 
-        g.setColor(Color.RED);
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
         
+        if (DebugLog.isOn())
+            drawColliders(g);
+    }
+
+    private void drawColliders(Graphics g) {
         int[][] dims = layout.getLayoutDimensions();
         g.setColor(Color.BLUE);
+        
         int x = 0;
         for (int add : dims[0])
         {
             x += add;
             g.drawLine(x, 0, x, getHeight());
         }
+
         int y = 0;
         for (int add : dims[1])
         {

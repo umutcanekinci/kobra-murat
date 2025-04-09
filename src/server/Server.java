@@ -91,6 +91,11 @@ public class Server implements UIListener {
         return ip;
     }
 
+    public static void terminateLobby() {
+        closeConnections();
+        setState(ServerState.CLOSED);
+    }
+
     //endregion
 
     //region ------------------------------------ Methods ------------------------------------

@@ -1,5 +1,6 @@
 package client;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
@@ -15,9 +16,7 @@ import common.Constants;
 import common.Direction;
 import common.Utils;
 import common.Window;
-import common.graphics.SplashEffect;
-
-
+import common.graphics.image.SplashImage;
 import server.Server;
 
 public class Game extends JPanel implements ActionListener, KeyListener {
@@ -45,9 +44,11 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     private Game() {
         super(new GridBagLayout()); // Without using a layout manager, there exist a space between the panel and jframe on the top.
-        setDoubleBuffered(true);
+        //setDoubleBuffered(true);
         UI.init(this);
+        setBackground(Color.red);
         initListeners();
+        
         listeners.forEach(listener -> listener.onWindowReady());
         initTimer();
     }
@@ -57,8 +58,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         UI.addListener(Server.getInstance());
         UI.addListener(Client.getInstance());
         Server.addListener(Client.getInstance());
-        addMouseListener(SplashEffect.getInstance());
-        SplashEffect.addListener(UI.getInstance());
+        addMouseListener(SplashImage.getInstance());
+        SplashImage.addListener(UI.getInstance());
         addListener(Client.getInstance());
         Client.addListener(UI.getInstance());
         Client.addListener(PlayerList.getInstance());
@@ -111,7 +112,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
             handleDirectionChange(e);
 
         DebugLog.keyPressed(e);
-        SplashEffect.keyPressed(e);
+        SplashImage.keyPressed(e);
     }
 
     private void onBack() {
@@ -166,7 +167,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         }
     }
 
-    public static void update() {
+    private static void update() {
         if(isStarted) {
             if(!Client.isConnected())
                 OfflinePlayerController.update();
@@ -174,39 +175,25 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);    
-        draw((Graphics2D) g, UI.MENU.getCurrentPanel());
+    public void paint(Graphics g) {
+        // When we use the gridbaglayout, paintcomponent method is not calling while we dont add any components to jpanel.
+        // It should be becaouse of the layout managers smart enough to not draw hidden components.
+
+        super.paint(g);
+        draw((Graphics2D) g, this);
         Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems
     }
 
-    public static void draw(Graphics2D g, ImageObserver observer) {
+    private static void draw(Graphics2D g, ImageObserver observer) {
         if(g == null)
             throw new IllegalArgumentException("Graphics cannot be null");
 
         g.scale(Constants.SCALEW, Constants.SCALEH);
         UI.initGraphics(g);
-
-        if(!isStarted)
-            UI.MENU.drawBackground(g);
-        else {
-            Tilemap.draw(g, observer);
-            AppleManager.draw(g, observer);
-            PlayerList.draw(g, observer);            
-            UI.drawPlayerBoard(g);
-            PlayerList.drawColliders(g);
-            Tilemap.drawColliders(g);
-            AppleManager.drawColliders(g);
-        }
-        
-        if(DebugLog.isOn())
-            UI.MENU.getCurrentPanel().drawColliders(g);
-
         DebugLog.draw(g);
 
         g.scale(1 / Constants.SCALEW, 1 / Constants.SCALEH); // reset scale
         //g.dispose();
-        
     }
 
     public static String getInfo() {

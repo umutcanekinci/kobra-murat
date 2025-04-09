@@ -76,7 +76,7 @@ public class Window extends JFrame {
 
     public void init(KeyListener keyListener, Container contentPane, Component component) {        
         addKeyListener(keyListener);
-        setContentPane(contentPane);
+        add(contentPane);
 
         // I don't know why, but this is not working when I add mouseListener to the JFrame.
         component.addMouseListener(new MouseAdapter() {

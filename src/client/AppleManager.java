@@ -112,19 +112,6 @@ public class AppleManager implements ClientListener {
         apples.forEach(apple -> apple.draw(g, observer));
     }
 
-    public static void drawColliders(Graphics2D g) {
-        if(g == null)
-            throw new IllegalArgumentException("Graphics cannot be null.");
-
-        if(!DebugLog.isOn())
-            return;
-
-        if(apples.isEmpty())
-            return;
-
-        apples.forEach(apple -> apple.drawCollider(g));
-    }
-
     public static String getInfo() {
         StringBuilder str = new StringBuilder("APPLES (" + apples.size() + ")\n");
 

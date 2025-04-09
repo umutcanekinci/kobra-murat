@@ -24,8 +24,8 @@ import common.Window;
 import common.Constants;
 import common.Position;
 import common.Utils;
-import common.graphics.Image;
-import common.graphics.SplashEffect;
+import common.graphics.image.BackgroundImage;
+import common.graphics.image.SplashImage;
 
 public class Editor extends JPanel implements ActionListener, KeyListener, MouseListener, UIListener {
 
@@ -47,14 +47,14 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
         setBackground(Color.BLACK);
         UI.init(this);
         initListeners();
-        SplashEffect.start();
+        SplashImage.start();
         initTimer();
     }
 
     private void initListeners() {
-        addMouseListener(SplashEffect.getInstance());
+        addMouseListener(SplashImage.getInstance());
         UI.addListener(this);
-        SplashEffect.addListener(UI.getInstance());
+        SplashImage.addListener(UI.getInstance());
     }
 
     @Override
@@ -166,7 +166,7 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
 
     @Override
     public void keyPressed(KeyEvent e) {
-        SplashEffect.keyPressed(e);
+        SplashImage.keyPressed(e);
 
         if(e.getKeyCode() == KeyEvent.VK_S)
             saveMap();
@@ -248,15 +248,10 @@ public class Editor extends JPanel implements ActionListener, KeyListener, Mouse
 
         g.scale(Constants.SCALEW, Constants.SCALEH);
         
-        if(SplashEffect.isPlaying()) {
-            SplashEffect.draw(g, this);
-            return;
-        }
-
         UI.initGraphics(g);
 
         if(UI.MENU.getCurrentPage() == Page.MAIN_MENU) {
-            Image.BACKGROUND.draw(g, 0, 0, this);
+            BackgroundImage.MAIN_MENU.draw(g, this);
         }
         else
         {

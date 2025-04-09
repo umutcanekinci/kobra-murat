@@ -174,20 +174,7 @@ public class PlayerList implements ClientListener {
 
         players.values().forEach(p -> p.draw(g, observer));
     }
-
-    public static void drawColliders(Graphics2D g) {
-        if(g == null)
-            throw new IllegalArgumentException("Graphics cannot be null");
-
-        if(!DebugLog.isOn())
-            return;
-
-        if(players.isEmpty())
-            return;
-
-        players.values().forEach(p -> p.drawCollider(g));
-    }
-
+    
     public static String getInfo() {
         StringBuilder str = new StringBuilder("PLAYERS (" + players.size() + ")\n");
 

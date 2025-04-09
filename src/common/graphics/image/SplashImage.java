@@ -1,7 +1,6 @@
-package common.graphics;
+package common.graphics.image;
 
 import java.awt.AlphaComposite;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -11,20 +10,14 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
-
-import javax.swing.JComponent;
 import javax.swing.Timer;
 
-import common.Constants;
-
-public class SplashEffect extends JComponent implements MouseListener {
-    /*
-     * To add the splash screen to the jpanels we need to extend the JPanel class and override the paintComponent method.
-    */
+public class SplashImage extends BackgroundImage implements MouseListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
 
-    private static SplashEffect INSTANCE;
+    private static SplashImage INSTANCE;
+    private static final String IMAGE_PATH = "images/splash.png";
     private static boolean isFadingIn;
     private static int alpha;
     private static double scale = 1;
@@ -52,11 +45,13 @@ public class SplashEffect extends JComponent implements MouseListener {
 
     //endregion
 
-    private SplashEffect() {}
+    private SplashImage() {
+        super(IMAGE_PATH);
+    }
 
-    public static SplashEffect getInstance() {
+    public static SplashImage getInstance() {
         if(INSTANCE == null)
-            INSTANCE = new SplashEffect();
+            INSTANCE = new SplashImage();
 
         return INSTANCE;
     }
@@ -66,11 +61,6 @@ public class SplashEffect extends JComponent implements MouseListener {
             throw new IllegalArgumentException("SplashListener cannot be null.");
 
         listeners.add(splashListener);
-    }
-
-    @Override
-    public Dimension getMinimumSize() {
-        return Constants.SCREEN_SIZE;
     }
 
     public static void start() {
@@ -91,26 +81,18 @@ public class SplashEffect extends JComponent implements MouseListener {
     }
 
     @Override
-    public Dimension getPreferredSize() {
-        return Constants.SCREEN_SIZE;
-    }
+    public void draw(Graphics g, ImageObserver observer) {
+        Graphics2D g2d = (Graphics2D) g;
 
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        draw((Graphics2D) g, this);
-    }
-
-    public static void draw(Graphics2D g, ImageObserver observer) {
         if (scale > 1) {
-            g.scale(scale, scale);
-            g.translate(-Image.SPLASH.getWidth() / 2 * (scale - 1), -Image.SPLASH.getHeight() / 2 * (scale - 1));
+            g2d.scale(scale, scale);
+            g2d.translate(-getWidth() / 2 * (scale - 1), -getHeight() / 2 * (scale - 1));
         }
 
         if (alpha > 0) {
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha / 255f));
-            g.drawImage(Image.SPLASH.get(), 0,0 , null);
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)); // Reset alpha
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, alpha / 255f));
+            super.draw(g, observer);
+            g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f)); // Reset alpha
         }
     }
 

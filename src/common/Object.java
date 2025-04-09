@@ -4,32 +4,62 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
-import java.io.File;
+import javax.swing.JComponent;
 
-import common.graphics.Image;
+import client.DebugLog;
 
-public class Object extends Image {
+import java.awt.Dimension;
+import java.awt.Graphics;
 
+import common.graphics.image.Image;
+
+public class Object extends JComponent {
+
+    private Color colliderColor = Color.BLACK;
     protected Position position;
-
-    public Object() {
-        super();
-        this.position = new Position();
-    }
+    protected Image image = null;
 
     public Object(Position position) {
         super();
         this.position = position;
     }
 
-    public Object(Position position, File imageFile) {
-        super(imageFile);
-        this.position = position;
+    public Object(Position position, String imagePath) {
+        this(position);
+        this.image = new Image(imagePath);
     }
 
     public Object(Position position, Image image) {
         this(position);
         setImage(image.get());
+    }
+
+    public void setColliderColor(Color color) {
+        if(color == null)
+            throw new IllegalArgumentException("Color cannot be null");
+
+        this.colliderColor = color;
+    }
+
+    @Override
+    public Dimension getMinimumSize() {
+        return new Dimension(image.getWidth(), image.getHeight());
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(image.getWidth(), image.getHeight());
+    }
+
+    @Override
+    public Dimension getMaximumSize() {
+        return new Dimension(image.getWidth(), image.getHeight());
+    }
+    
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        g.drawImage(image.get(), position.x, position.y, null);
     }
 
     public Position getPosition() {
@@ -41,11 +71,14 @@ public class Object extends Image {
     }
 
     public BufferedImage getImage() {
-        return super.get();
+        return image.get();
     }
 
     public void setImage(BufferedImage image) {
-        super.set(image);
+        if(this.image == null)
+            this.image = new Image();
+
+        this.image.set(image);
     }
 
     public boolean doesCollide(Position position) {
@@ -56,15 +89,13 @@ public class Object extends Image {
     }
 
     public void draw(Graphics2D g, ImageObserver observer) {
-        super.draw(g, position, observer);
-    }
+        image.draw(g, position.x, position.y, observer);
 
-    public void drawCollider(Graphics2D g) {
-        super.drawBorder(g, position);
+        if(DebugLog.isOn())
+            drawCollider(g, colliderColor);
     }
-
-    public void drawCollider(Graphics2D g, Color color) {
-        super.drawBorder(g, color, position);
+    private void drawCollider(Graphics2D g, Color color) {
+        image.drawBorder(g, color, position);
     }
 
     @Override

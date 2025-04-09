@@ -11,8 +11,8 @@ public class Tile extends Point {
 
     Tile(int id, int row, int column) {
         super(column, row);
-        isCollidable = Constants.COLLIDABLE_IDS.contains(id);
-        isSpawnPoint = id == Constants.SPAWN_TILE;
+        isCollidable = Constants.COLLIDABLE_TILE_IDS.contains(id);
+        isSpawnPoint = id == Constants.SPAWN_TILE_ID;
     }
 
     public boolean isCollidable() {

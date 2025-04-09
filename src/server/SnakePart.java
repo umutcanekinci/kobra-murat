@@ -9,7 +9,7 @@ public class SnakePart extends Position {
     Direction direction;
 
     public SnakePart() {
-        super(Constants.HIDDEN_POSITION);
+        super(Constants.HIDDEN_PART_POSITION);
     }
 
     public SnakePart(Position point) {
@@ -17,7 +17,7 @@ public class SnakePart extends Position {
     }
 
     public void reset() {
-        setLocation(Constants.HIDDEN_POSITION);
+        setLocation(Constants.HIDDEN_PART_POSITION);
         setDirection(null);
     }
 
@@ -30,6 +30,6 @@ public class SnakePart extends Position {
     }
 
     public boolean isHidden(Position point) {
-        return point.equals(Constants.HIDDEN_POSITION);
+        return point.equals(Constants.HIDDEN_PART_POSITION);
     }
 }

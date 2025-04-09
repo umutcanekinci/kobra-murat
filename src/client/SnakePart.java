@@ -10,7 +10,7 @@ public class SnakePart extends Object {
     private Direction direction;
 
     public SnakePart() {
-        super(Constants.HIDDEN_POSITION);
+        super(Constants.HIDDEN_PART_POSITION);
     }
 
     public SnakePart(Position point) {
@@ -18,7 +18,7 @@ public class SnakePart extends Object {
     }
 
     public void reset() {
-        setPosition(Constants.HIDDEN_POSITION);
+        setPosition(Constants.HIDDEN_PART_POSITION);
         setImage(null);
         setDirection(Constants.DEFAULT_DIRECTION);
     }
@@ -38,7 +38,7 @@ public class SnakePart extends Object {
         if (point == null)
             throw new IllegalArgumentException("Position cannot be null");
 
-        return point.equals(Constants.HIDDEN_POSITION);
+        return point.equals(Constants.HIDDEN_PART_POSITION);
     }
 
 }

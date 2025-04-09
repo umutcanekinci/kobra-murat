@@ -8,6 +8,7 @@ import java.awt.image.ImageObserver;
 
 import common.Constants;
 import common.Position;
+import common.Spritesheet;
 import common.Utils;
 import common.Direction;
 
@@ -111,6 +112,7 @@ public class Player implements Serializable {
         newHead.setPosition(position);
 
         updateHead();
+        updateColliderColors();
     }
     
     private BufferedImage getFrame(Direction dir, Direction newDir) {
@@ -118,11 +120,11 @@ public class Player implements Serializable {
             throw new IllegalArgumentException("Direction cannot be null");
 
         int frame = dir == newDir ? 1 : 0;
-        return Utils.getRotatedImage(Constants.SPRITESHEET.getSprite(frame), newDir.getAngle(dir));
+        return Utils.getRotatedImage(Spritesheet.SNAKESHEET.getSprite(frame), newDir.getAngle(dir));
     }
 
     private BufferedImage getHeadFrame() {
-        return Utils.getRotatedImage(Constants.SPRITESHEET.getSprite(3), direction.getAngle());
+        return Utils.getRotatedImage(Spritesheet.SNAKESHEET.getSprite(3), direction.getAngle());
     }
 
     private void updateHead() {
@@ -208,21 +210,18 @@ public class Player implements Serializable {
         return false;
     }
 
-    public void drawCollider(Graphics2D g) {
-        if(g == null)
-            throw new IllegalArgumentException("Graphics cannot be null");
-
-        parts.forEach(part -> part.drawCollider(g, Color.RED));
+    private void updateColliderColors() {
+        parts.forEach(part -> part.setColliderColor(Color.RED));
         
         SnakePart head = getHead();
         if(head == null)
             return;
-        head.drawCollider(g, Color.GREEN);
+        head.setColliderColor(Color.GREEN);
 
         SnakePart tail = getTail();
         if(tail == null)
             return;
-        tail.drawCollider(g, Color.BLUE);
+        tail.setColliderColor(Color.BLUE);
     }
 
     public void draw(Graphics2D g, ImageObserver observer) {

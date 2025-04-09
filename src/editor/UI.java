@@ -11,8 +11,8 @@ import javax.swing.Box;
 
 import common.Constants;
 import common.graphics.Menu;
-import common.graphics.Panel;
-import common.graphics.SplashListener;
+import common.graphics.image.SplashListener;
+import common.graphics.panel.Panel;
 import common.graphics.ui.Button;
 
 public class UI implements SplashListener {

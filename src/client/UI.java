@@ -10,12 +10,16 @@ import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import client.panel.GamePanel;
+import client.panel.LobbyPanel;
+import client.panel.PausePanel;
 import common.Constants;
 import common.Direction;
 import common.Utils;
 import common.graphics.Menu;
-import common.graphics.Panel;
-import common.graphics.SplashListener;
+import common.graphics.image.SplashListener;
+import common.graphics.panel.Panel;
+import common.graphics.panel.SplashPanel;
 import common.graphics.ui.Button;
 import common.graphics.ui.TextField;
 import server.Server;
@@ -57,64 +61,86 @@ public class UI implements GameListener, SplashListener, ClientListener {
     }
 
     private static void initPanels(Container container) {
+        initSplash(container);
+        initMainMenu(container);
+        initPlayMode(container);
+        initConnectMode(container);
+        initConnect(container);
+        initPause(container);
+        initLobby(container);
+        initCustomize(container);
+        initGame(container);
+    }
+    
+    public static void initSplash(Container container) {
         container.add(addPanel(new SplashPanel(), Page.SPLASH));
+    }
 
-        container.add(addPanel(new Panel(), Page.MAIN_MENU, new Component[] {
+    private static void initMainMenu(Container container) {
+        newPanel(container, Page.MAIN_MENU, new Component[] {
             new Button("Oyna", e -> MENU.openPage(Page.PLAY_MODE)),
             new Button("Çıkış", e -> Game.exit())
-        }));
-        
-        container.add(addPanel(new Panel(), Page.PLAY_MODE, new Component[] {
+        });
+    }
+
+    private static void initPlayMode(Container container) {
+        newPanel(container, Page.PLAY_MODE, new Component[] {
             new Button("Tek oyunculu", e -> OfflinePlayerController.init()),
             new Button("Çok oyunculu", e -> MENU.openPage(Page.CONNECT_MODE))
-        }));
-
-        container.add(addPanel(new Panel(), Page.CONNECT_MODE, new Component[] {
+        });
+    }
+    
+    private static void initConnectMode(Container container) {
+        newPanel(container, Page.CONNECT_MODE, new Component[] {
             new Button("Sunucu Aç", e -> listeners.forEach(UIListener::onHostButtonClicked)),
             new Button("Bağlan", e -> MENU.openPage(Page.CONNECT))
-        }));
+        });
+    }
 
-        container.add(addPanel(new Panel(), Page.CONNECT, new Component[] {
+    private static void initGame(Container container) {
+        container.add(addPanel(new GamePanel(), Page.GAME));
+    }
+
+    private static void initConnect(Container container) {
+        newPanel(container, Page.CONNECT, new Component[] {
             hostField,
             portField,
             new Button("Bağlan", e -> listeners.forEach(l -> l.onConnectButtonClicked(hostField.getText(), Integer.parseInt(portField.getText())))),
-        }));
+        });
+    }
 
+    private static void initPause(Container container) {
         Button exitButton = new Button("");
         container.add(addPanel(new PausePanel(exitButton), Page.PAUSE, new Component[] {
             new Button("Devam et", e -> Game.start()),
             exitButton
         }));
-        
-        Button startButton = new Button("");
-        LobbyPanel lobbyPanel = new LobbyPanel(startButton);
-        addPanel(lobbyPanel, Page.LOBBY);
-        container.add((Panel) lobbyPanel);
-        /*
-        new Component[] {
-            startButton,
-            new Button("Ayrıl", e -> onLeaveButtonClick())
-        }
-        */
-
-        addPanel(new LobbyPanel(startButton), Page.LOBBY);
-        container.add(addPanel(new Panel(), Page.CUSTOMIZE));
     }
-    
-    private static Panel addPanel(Panel panel, Page page) {
-        if(panel == null || page == null)
-            throw new IllegalArgumentException("Panel and page cannot be null.");
 
-        MENU.addPanel(page, panel);
-        return panel;
+    private static void initLobby(Container container) {        
+        container.add(addPanel(new LobbyPanel(), Page.LOBBY));
+    }
+
+    private static void initCustomize(Container container) {
+        newPanel(container,Page.CUSTOMIZE, new Component[] {
+            new Button("Geri", e -> MENU.openPage(Page.MAIN_MENU)),
+            new Button("Oyna", e -> listeners.forEach(UIListener::onStartButtonClicked))
+        });
+    }
+
+    private static void newPanel(Container container, Page page, Component[] components) {
+        container.add(addPanel(new Panel(), page, components));
     }
 
     private static Panel addPanel(Panel panel, Page page, Component[] components) {
-        if(panel == null || page == null || components == null)
-            throw new IllegalArgumentException("Panel, page and components cannot be null.");
-
-        panel.addComponents(components);        
+        panel.addComponents(components);    
         return addPanel(panel, page);
+    }
+
+    private static Panel addPanel(Panel panel, Page page) {
+        panel.setBackgroundImage(page.getBackgroundImage());
+        MENU.addPanel(page, panel);
+        return panel;
     }
 
     public static void onStartButtonClicked() {
@@ -123,6 +149,10 @@ public class UI implements GameListener, SplashListener, ClientListener {
 
     public static void onReadyButtonClicked() {
         listeners.forEach(UIListener::onReadyButtonClicked);
+    }
+
+    public static void onTerminateClicked() {
+        Server.terminateLobby();
     }
 
     public static void onLeaveButtonClick() {

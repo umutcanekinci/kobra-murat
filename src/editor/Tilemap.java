@@ -5,6 +5,7 @@ import java.awt.image.ImageObserver;
 
 import common.Constants;
 import common.Position;
+import common.Spritesheet;
 
 public class Tilemap {
 
@@ -34,7 +35,7 @@ public class Tilemap {
 
         for(int row = 0; row < rows; row++) {
             for(int col = 0; col < cols; col++)
-                tiles[row][col] = new Tile(data[row][col], row, col, Constants.TILESHEET.getSprite(data[row][col]));
+                tiles[row][col] = new Tile(data[row][col], row, col, Spritesheet.TILESHEET.getSprite(data[row][col]));
         }
     }
 
@@ -61,11 +62,11 @@ public class Tilemap {
             return;
 
         if(tiles[row][col] == null) {
-            tiles[row][col] = new Tile(tileId, row, col, Constants.TILESHEET.getSprite(tileId));
+            tiles[row][col] = new Tile(tileId, row, col, Spritesheet.TILESHEET.getSprite(tileId));
             return;
         }
 
-        tiles[row][col].setId(tileId, Constants.TILESHEET.getSprite(tileId));
+        tiles[row][col].setId(tileId, Spritesheet.TILESHEET.getSprite(tileId));
     }
 
     public static void draw(Graphics2D renderer, ImageObserver observer) {

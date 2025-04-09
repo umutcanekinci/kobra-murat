@@ -1,4 +1,4 @@
-package common.graphics;
+package common.graphics.image;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -17,11 +17,8 @@ import common.Utils;
 
 public class Image {
 
-    public static final Image BACKGROUND           = new Image("images/main-menu-background.png");
-    public static final Image LOBBY_BACKGROUND     = new Image("images/lobby.png");
     public static final Image SPRITESHEET          = new Image("images/honored.png");
     public static final Image TILESHEET            = new Image("images/tilesheet.png");
-    public static final Image SPLASH               = new Image("images/splash.png");
     public static final Image APPLE                = new Image("images/apple.png");
 
     private static final Logger LOGGER = Logger.getLogger(Utils.class.getName());
@@ -39,7 +36,6 @@ public class Image {
 
     private void load(File imageFile) {
         set(readImageFile(imageFile));
-        //set(image.getScaledInstance(getWidth(), getHeight(), BufferedImage.SCALE_SMOOTH));
     }
 
     private static BufferedImage readImageFile(File imageFile) {
@@ -67,12 +63,8 @@ public class Image {
         return image.getHeight();
     }
 
-    public void draw(Graphics2D g, Point position, ImageObserver observer) {
-        draw(g, position.x * Constants.TILE_SIZE, position.y * Constants.TILE_SIZE, observer);
-    }
-
     public void draw(Graphics2D g, int x, int y, ImageObserver observer) {
-        g.drawImage(image, x, y, observer);
+        g.drawImage(image, x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, observer);
     }
 
     public void drawBorder(Graphics2D g, Color color, Point position) {

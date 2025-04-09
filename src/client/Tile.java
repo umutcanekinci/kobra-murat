@@ -1,22 +1,20 @@
 package client;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
 import common.Object;
 import common.Position;
 import common.Constants;
-public class Tile extends Object{
+public class Tile extends Object {
 
     private final boolean isCollidable;
     private final boolean isSpawnPoint;
 
     Tile(int id, int row, int column, BufferedImage image) {
         super(new Position(column, row));
+        isSpawnPoint = id == Constants.SPAWN_TILE_ID;
+        isCollidable = Constants.COLLIDABLE_TILE_IDS.contains(id);
         super.setImage(image);
-        isSpawnPoint = id == Constants.SPAWN_TILE;
-        isCollidable = Constants.COLLIDABLE_IDS.contains(id);
     }
 
     public boolean isCollidable() {
@@ -33,17 +31,6 @@ public class Tile extends Object{
             throw new IllegalArgumentException("Position cannot be null");
 
         return isCollidable && super.doesCollide(point);
-    }
-
-    @Override
-    public void drawCollider(Graphics2D renderer) {
-        if(renderer == null)
-            throw new IllegalArgumentException("Graphics2D cannot be null");
-
-        if(!isCollidable)
-            return;
-
-        super.drawCollider(renderer, Color.RED);
     }
 
 }

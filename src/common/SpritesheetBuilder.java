@@ -3,7 +3,8 @@ package common;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import common.graphics.Image;
+
+import common.graphics.image.Image;
 
 public class SpritesheetBuilder {
 

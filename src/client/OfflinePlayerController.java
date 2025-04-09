@@ -56,7 +56,6 @@ public class OfflinePlayerController {
     }
 
     private static void move() {
-        System.out.println("Displacement: " + displacement);
         displacement += player.getSpeed() * Constants.DELTATIME;
 
         if(displacement < 1)
