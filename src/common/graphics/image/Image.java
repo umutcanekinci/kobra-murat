@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import common.Constants;
+import common.Position;
 import common.Utils;
 
 public class Image {
@@ -63,8 +64,8 @@ public class Image {
         return image.getHeight();
     }
 
-    public void draw(Graphics2D g, int x, int y, ImageObserver observer) {
-        g.drawImage(image, x * Constants.TILE_SIZE, y * Constants.TILE_SIZE, observer);
+    public void draw(Graphics2D g, Position screenPosition, ImageObserver observer) {
+        g.drawImage(image, screenPosition.x, screenPosition.y, observer);
     }
 
     public void drawBorder(Graphics2D g, Color color, Point position) {

@@ -16,6 +16,14 @@ import common.packet.basic.ReadyPacket;
 import common.Constants;
 import common.Direction;
 
+/**
+ * The Client class is responsible for managing the client-side connection to the server.
+ * It handles the connection, disconnection, and communication with the server.
+ * It also implements the UIListener and ServerListener interfaces to handle UI events and server events.
+ * @since 1.0
+ * @see UIListener
+ * @see ServerListener
+ */
 public class Client implements UIListener, ServerListener, GameListener {
     
     //region ----------------------------------- Variables -----------------------------------
@@ -33,8 +41,16 @@ public class Client implements UIListener, ServerListener, GameListener {
 
     //region ----------------------------------- Constructors -----------------------------------
 
+    /**
+     * Private constructor to prevent instantiation.
+     * @since 1.0
+     */
     private Client() {}
 
+    /**
+     * @return The singleton instance of the Client class.
+     * @since 1.0
+     */
     public static Client getInstance() {
         if(INSTANCE == null)
             INSTANCE = new Client();
@@ -42,6 +58,12 @@ public class Client implements UIListener, ServerListener, GameListener {
         return INSTANCE;
     }
 
+    /**
+     * Adds a listener to the client.
+     * @param clientListener The listener to be added.
+     * @throws IllegalArgumentException if the listener is null.
+     * @since 1.0
+     */
     public static void addListener(ClientListener clientListener) {
         if(clientListener == null)
             throw new IllegalArgumentException("ClientListener cannot be null.");
@@ -49,6 +71,12 @@ public class Client implements UIListener, ServerListener, GameListener {
         listeners.add(clientListener);
     }
 
+    /**
+     * Sets the state of the client.
+     * @param state The state to be set.
+     * @throws IllegalArgumentException if the state is null.
+     * @since 1.0
+     */
     private static void setState(ClientState state) {
         if(state == null)
             throw new IllegalArgumentException("State cannot be null.");
@@ -136,9 +164,15 @@ public class Client implements UIListener, ServerListener, GameListener {
 
     //region ----------------------------------- Connection -----------------------------------
 
+    /**
+     * Starts the client connection to the server in a new thread.
+     * @throws IllegalStateException if the client is already connected.
+     * @since 1.0
+     * @see Client#connect()
+     */
     public static void start() {
         if(isConnected())
-            return;
+            throw new IllegalStateException("Client is already connected.");
 
         new Thread() {
             public void run() {
@@ -147,6 +181,13 @@ public class Client implements UIListener, ServerListener, GameListener {
         }.start();
     }
     
+    /**
+     * Connects the client to the server using the specified host and port.
+     * @throws IllegalArgumentException if the host is null or empty, or if the port is less than or equal to 0.
+     * @since 1.0
+     * @see Socket#Socket(String, int)
+     * @see Connection#Connection(Socket, boolean)
+     */
     private static void connect() {
         if(isConnected())
             return;
@@ -167,15 +208,26 @@ public class Client implements UIListener, ServerListener, GameListener {
         }
     }
 
+    /**
+     * Sends data to the server.
+     * @param data The data to be sent.
+     * @throws IllegalArgumentException if the data is null or not an instance of Packet.
+     * @throws IllegalStateException if the connection is null or closed.
+     * @since 1.0
+     * @see Connection#sendData(Object)
+     */
     public static void sendData(Object data) {
-        if(!isConnected())
-            return;
-
         if(data == null)
             throw new IllegalArgumentException("Data cannot be null.");
 
         if(!(data instanceof Packet))
             throw new IllegalArgumentException("Data must be a Packet.");
+
+        if(connection == null)
+            throw new IllegalStateException("Connection is null.");
+
+        if(!isConnected())
+            return;
 
         connection.sendData(data);
     }
@@ -184,7 +236,18 @@ public class Client implements UIListener, ServerListener, GameListener {
         return !(connection == null || socket == null || socket.isClosed() || state == ClientState.CLOSED);
     }
 
+    /**
+     * Disconnects the client from the server and closes the connection.
+     * Sends a DisconnectPacket to the server before closing the connection.
+     * @throws IllegalStateException if the connection is null.
+     * @since 1.0
+     * @see Connection#sendData(Object)
+     * @see Connection#close()
+     */
     public static void disconnect() {
+        if(connection == null)
+            throw new IllegalStateException("Connection is null.");
+
         if(!isConnected())
             return;
 
@@ -192,11 +255,26 @@ public class Client implements UIListener, ServerListener, GameListener {
         close();
     }
 
+     /**
+     * Closes the connection and socket.
+     * @throws IllegalStateException if the connection or socket is null.
+     * @since 1.0
+     * @see Connection#close()
+     * @see Socket#close()
+     * @see ClientState#CLOSED
+     */
     public static void close() {
+        if(connection == null || socket == null)
+            throw new IllegalStateException("Connection or socket is null.");
+
         connection.close();
         setState(ClientState.CLOSED);
     }
 
+    /**
+     * @return The current state of the client as a string.
+     * @since 1.0
+     */
     public static String getInfo() {
         return  "CLIENT: " + state + "\n" + 
                 "(HOST: " + host + " PORT: " + port + ")\n";

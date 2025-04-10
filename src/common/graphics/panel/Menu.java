@@ -1,9 +1,6 @@
-package common.graphics;
+package common.graphics.panel;
 
 import java.util.HashMap;
-
-import common.graphics.panel.Panel;
-
 import java.awt.event.ActionListener;
 
 public class Menu<T extends Enum<T>> {
@@ -71,6 +68,16 @@ public class Menu<T extends Enum<T>> {
             return null;
 
         return backPages.get(page);
+    }
+
+    public Panel getPanel(T page) {
+        if (page == null)
+            throw new IllegalArgumentException("Page cannot be null.");
+
+        if (!panels.containsKey(page))
+            return null;
+
+        return panels.get(page);
     }
 
     public String getInfo() {

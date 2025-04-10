@@ -2,10 +2,10 @@ package client.panel;
 import client.Client;
 import client.Page;
 import client.UI;
-import common.graphics.panel.Panel;
+import common.graphics.panel.GridBagPanel;
 import common.graphics.ui.Button;
 
-public class PausePanel extends Panel {
+public class PausePanel extends GridBagPanel {
 
     private Button exitButton;
 

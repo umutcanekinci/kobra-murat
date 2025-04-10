@@ -93,7 +93,7 @@ public class OfflinePlayerController {
             return;
             
         collectedApples.forEach(apple -> PacketHandler.handle(new EatApplePacket(player.getId(), apple)));
-        collectedApples.forEach(apple -> AppleManager.spawn());
+        collectedApples.forEach(apple -> AppleManager.spawnAppleAtRandom());
     }
 
     static void rotate(Direction newDirection) {

@@ -22,6 +22,15 @@ public class PlayerList implements ClientListener {
     private static int id;
     private static final HashMap<Integer, NetPlayer> players = new HashMap<>();
 
+    private static ArrayList<PlayerListListener> listeners = new ArrayList<>();
+
+    public static void addListener(PlayerListListener listener) {
+        if(listener == null)
+            throw new IllegalArgumentException("Listener cannot be null");
+
+        listeners.add(listener);
+    }
+
     private PlayerList() {}
 
     public static PlayerList getInstance() {
@@ -65,7 +74,7 @@ public class PlayerList implements ClientListener {
         return players.containsKey(id);
     }
 
-    private static NetPlayer getPlayer(int id) {
+    public static NetPlayer getPlayer(int id) {
         if(!players.containsKey(id))
             throw new IllegalArgumentException("Player with id " + id + " does not exist");
         
@@ -100,6 +109,8 @@ public class PlayerList implements ClientListener {
             return;
 
         players.put(id, new NetPlayer(id));
+
+        listeners.forEach(listener -> listener.onPlayerAdded());
     }
 
     public static void spawn(int id, Position spawnPoint, int length) {
@@ -150,6 +161,8 @@ public class PlayerList implements ClientListener {
         if(player == null)
             return;
         players.remove(id);
+
+        listeners.forEach(listener -> listener.onPlayerRemoved());
     }
 
     //endregion

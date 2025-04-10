@@ -36,7 +36,6 @@ public class PacketHandler {
     
             case SetMapPacket setMapPacket -> {
                 Tilemap.load(setMapPacket);
-                AppleManager.setEmptyTiles(Tilemap.getEmptyTiles());
             }
                 
             case AddPacket addPacket ->

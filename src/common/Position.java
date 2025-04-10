@@ -7,25 +7,34 @@ public class Position extends Point {
     /*
      * This class presents a position as row and column.
     */
+    private boolean isScreenPosition = false;
 
     public Position() {
-        super();
+        super(0, 0);
     }
 
     public Position(int column, int row) {
         super(column, row);
-    }
-
-    public Position(Position position) {
-        super(position);
+        isScreenPosition = false;
     }
 
     public Position(Point point) {
-        super(point);
+        this(point.x, point.y);
+        isScreenPosition = false;
+    }
+
+    public Position setScreenPosition(int x, int y) {
+        this.x = x;
+        this.y = y;
+        isScreenPosition = true;
+        return this;
     }
 
     public Position getScreenPosition() {
-        return new Position(x * common.Constants.TILE_SIZE, y * common.Constants.TILE_SIZE);
+        if (isScreenPosition)
+            return this;
+
+        return new Position(x * Constants.TILE_SIZE, y * Constants.TILE_SIZE);
     }
 
     @Override

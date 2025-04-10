@@ -13,7 +13,6 @@ public class PacketHandler {
     private static final Logger LOGGER = Logger.getLogger(PacketHandler.class.getName());
     
     public static void handle(Object packet, Connection connection) {
-        System.out.println("Packet: " + packet);
         LOGGER.log(Level.INFO, packet + "\n");
         
         switch (packet) {

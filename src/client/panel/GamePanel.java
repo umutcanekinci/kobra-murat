@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
+
 import client.AppleManager;
 import client.PlayerList;
 import client.Tilemap;
@@ -16,6 +17,8 @@ public class GamePanel extends Panel {
 
     public GamePanel() {
         super();
+        fill();
+        setOpaque(true);
         setBackground(Color.GRAY);
     }
 

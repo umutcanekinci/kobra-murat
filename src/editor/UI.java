@@ -7,12 +7,10 @@ import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import javax.swing.Box;
-
-import common.Constants;
-import common.graphics.Menu;
 import common.graphics.image.SplashListener;
+import common.graphics.panel.Menu;
 import common.graphics.panel.Panel;
+import common.graphics.panel.GridBagPanel;
 import common.graphics.ui.Button;
 
 public class UI implements SplashListener {
@@ -58,7 +56,23 @@ public class UI implements SplashListener {
         if(components == null)
             throw new IllegalArgumentException("Components cannot be null");
         
-        container.add(addPanel(page, components));
+        newPanel(container, page, components);
+    }
+
+    private static void newPanel(Container container, Page page, Component[] components) {
+        container.add(addPanel(new GridBagPanel(), page, components));
+    }
+
+
+    private static Panel addPanel(Panel panel, Page page, Component[] components) {
+        panel.addComponents(components);    
+        return addPanel(panel, page);
+    }
+
+    private static Panel addPanel(Panel panel, Page page) {
+        panel.setBackgroundImage(page.getBackgroundImage());
+        MENU.addPanel(page, panel);
+        return panel;
     }
 
     @Override
@@ -72,37 +86,4 @@ public class UI implements SplashListener {
         g.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS, RenderingHints.VALUE_FRACTIONALMETRICS_ON);
     }
 
-    private static Panel addPanel(Page page, Component[] components) {
-        Panel panel = new Panel();
-        
-        if(components == null || components.length == 0)
-            return panel;
-
-        int gridWidth = 20; int gridHeight = 10;
-        int totalCols = (int) Constants.SCREEN_SIZE.getWidth() / gridWidth;
-        int componentWidth = 700; int componentHeight = 170;
-        int componentRows = componentHeight / gridHeight; int componentColumns = componentWidth / gridWidth; // 35
-        
-        int leftCols = 10;
-        int leftSpace = leftCols * gridWidth;
-        int rightSpace = (int) Constants.SCREEN_SIZE.getWidth() - componentWidth - leftCols * gridWidth;
-        int rightColumns = rightSpace / gridWidth;
-
-        int botRows = 43 - (components.length - 1) * componentRows;
-        int botSpace = botRows * gridHeight;
-        int topSpace = (int) Constants.SCREEN_SIZE.getHeight() - componentHeight*components.length - botRows * gridHeight;
-        int topRows = topSpace / gridHeight;
-
-        panel.add(Box.createVerticalStrut(topSpace)        , 0                        , 0                                      , totalCols       , topRows); // Top space
-        for(int i=0; i<components.length; i++) {
-            panel.add(Box.createHorizontalStrut(leftSpace) , 0                        , topRows + (componentRows)*i                , leftCols        , componentRows);
-            panel.add(components[i]                        , leftCols                   , topRows + (componentRows)*i                , componentColumns, componentRows);
-            panel.add(Box.createHorizontalStrut(rightSpace), leftCols + componentColumns, topRows + (componentRows)*i                , rightColumns    , componentRows);
-        }
-        panel.add(Box.createVerticalStrut(botSpace)        , 0                        , topRows + componentRows*components.length, totalCols       , botRows); // Bottom space
-        panel.setVisible(false);
-
-        MENU.addPanel(page, panel);
-        return panel;
-    }
 }

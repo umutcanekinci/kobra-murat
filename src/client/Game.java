@@ -5,7 +5,6 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.awt.event.*;
-import java.awt.image.ImageObserver;
 import java.awt.Toolkit;
 import java.util.ArrayList;
 
@@ -50,6 +49,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         initListeners();
         
         listeners.forEach(listener -> listener.onWindowReady());
+        
         initTimer();
     }
 
@@ -178,22 +178,17 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     public void paint(Graphics g) {
         // When we use the gridbaglayout, paintcomponent method is not calling while we dont add any components to jpanel.
         // It should be becaouse of the layout managers smart enough to not draw hidden components.
-
         super.paint(g);
-        draw((Graphics2D) g, this);
+        draw((Graphics2D) g);
         Toolkit.getDefaultToolkit().sync();  // this smooths out animations on some systems
     }
 
-    private static void draw(Graphics2D g, ImageObserver observer) {
+    private static void draw(Graphics2D g) {
         if(g == null)
             throw new IllegalArgumentException("Graphics cannot be null");
 
-        g.scale(Constants.SCALEW, Constants.SCALEH);
         UI.initGraphics(g);
         DebugLog.draw(g);
-
-        g.scale(1 / Constants.SCALEW, 1 / Constants.SCALEH); // reset scale
-        //g.dispose();
     }
 
     public static String getInfo() {

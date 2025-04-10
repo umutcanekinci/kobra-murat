@@ -7,15 +7,31 @@ import java.util.ArrayList;
 import common.Utils;
 import common.Position;
 
+/**
+ * The AppleManager class is responsible for managing the apples in the game.
+ * It handles the spawning, removal, and drawing of apples on the game screen.
+ * It also implements the ClientListener interface to handle client connection events.
+ * @since 1.0
+ * @see ClientListener
+ * @see Apple
+ * @see Position
+ */
 public class AppleManager implements ClientListener {
 
     private static AppleManager INSTANCE;
     private static final int APPLE_COUNT = 5;
     private static final ArrayList<Apple> apples = new ArrayList<>();
-    private static ArrayList<Position> emptyTiles;
 
+    /**
+     * Private constructor to prevent instantiation.
+     * @since 1.0
+     */
     private AppleManager() {}
 
+    /**
+     * @return The singleton instance of the AppleManager class.
+     * @since 1.0
+     */
     public static AppleManager getInstance() {
         if(INSTANCE == null)
             INSTANCE = new AppleManager();
@@ -23,13 +39,12 @@ public class AppleManager implements ClientListener {
         return INSTANCE;
     }
 
-    public static void setEmptyTiles(ArrayList<Position> emptyTiles) {
-        if(emptyTiles == null)
-            throw new IllegalArgumentException("Empty tiles cannot be null.");
-
-        AppleManager.emptyTiles = emptyTiles;
-    }
-
+    /**
+     * Adds an apple to the list of apples.
+     * @param position The position of the apple to be added.
+     * @throws IllegalArgumentException if the position is null.
+     * @since 1.0
+     */
     public static void add(Position position) {
         if(position == null)
             throw new IllegalArgumentException("Position cannot be null.");
@@ -37,6 +52,12 @@ public class AppleManager implements ClientListener {
         apples.add(new Apple(position));
     }
 
+    /**
+     * Adds a list of apples to the list of apples.
+     * @param positions The list of positions of the apples to be added.
+     * @throws IllegalArgumentException if the positions are null.
+     * @since 1.0
+     */
     public static void addAll(ArrayList<Position> positions) {
         if(positions == null)
             throw new IllegalArgumentException("Positions cannot be null.");
@@ -45,15 +66,25 @@ public class AppleManager implements ClientListener {
         positions.forEach(AppleManager::add);
     }
 
+    /**
+     * Spawns apples until the maximum number of apples is reached.
+     * @since 1.0
+     */
     public static void spawnAll() {
         apples.clear();
         while(apples.size() < APPLE_COUNT) {
-            if(!spawn())
+            if(!spawnAppleAtRandom())
                 break;
         }
     }
 
-    public static boolean spawn() {
+    /**
+     * Spawns a single apple at a random position.
+     * If there is no empty tile, it will not spawn an apple.
+     * @return true if the apple was spawned successfully, false otherwise.
+     * @since 1.0
+     */
+    public static boolean spawnAppleAtRandom() {
         /*
          * Instead of getting a random point and checking if it collides with the snake or an apple,
          * we can get the arraylist of empty points and get a random point from there.
@@ -61,6 +92,8 @@ public class AppleManager implements ClientListener {
          * We should not spawn an apple if EMPTY_TILE_COUNT <= TOTAL_SNAKE_SIZE + APPLE_COUNT
          * We have to remove the snake parts from the empty tiles every time we spawn an apple because the snake can grow and move
          */
+        ArrayList<Position> emptyTiles = Tilemap.getEmptyTiles();
+        
         if(emptyTiles == null)
             return false;
         
@@ -76,6 +109,12 @@ public class AppleManager implements ClientListener {
         return true;
     }
 
+    /**
+     * Removes an apple from the list of apples.
+     * @param position The position of the apple to be removed.
+     * @throws IllegalArgumentException if the position is null.
+     * @since 1.0
+     */
     public static void remove(Position position) {
         if(position == null)
             throw new IllegalArgumentException("Position cannot be null.");
@@ -83,6 +122,11 @@ public class AppleManager implements ClientListener {
         apples.removeIf(apple -> apple.doesCollide(position));
     }
 
+    /**
+     * Gets the list of positions of apples that were collected at the given position.
+     * @param position The position of the player.
+     * @return A list of positions of apples that were collected at the given position.
+     */
     public static ArrayList<Position> getCollecteds(Position position) {
         if(position == null)
             throw new IllegalArgumentException("Position cannot be null.");
@@ -95,16 +139,32 @@ public class AppleManager implements ClientListener {
         return collectedApples;
     }
 
+    /**
+     * Clears the list of apples when the client connects.
+     * @since 1.0
+     */
     @Override
     public void onClientConnected() {
         apples.clear();
     }
 
+    /**
+     * Clears the list of apples when the client disconnects.
+     * @since 1.0
+     * @see ClientListener#onClientDisconnected()
+     */
     @Override
     public void onClientDisconnected() {
         apples.clear();
     }
 
+    /**
+     * Draws the apples on the game screen.
+     * @param g The graphics object used to draw the apples.
+     * @param observer The image observer used to observe the images.
+     * @throws IllegalArgumentException if the graphics object is null.
+     * @since 1.0
+     */
     public static void draw(Graphics2D g, ImageObserver observer) {
         if(g == null)
             throw new IllegalArgumentException("Graphics cannot be null.");
@@ -112,6 +172,11 @@ public class AppleManager implements ClientListener {
         apples.forEach(apple -> apple.draw(g, observer));
     }
 
+    /**
+     * Gets the debug information of the apples.
+     * @return A string containing the debug information of the apples.
+     * @since 1.0
+     */
     public static String getInfo() {
         StringBuilder str = new StringBuilder("APPLES (" + apples.size() + ")\n");
 

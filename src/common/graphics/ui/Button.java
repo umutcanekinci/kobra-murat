@@ -11,7 +11,7 @@ import common.Utils;
 public class Button extends ButtonGradient {
 
     public static final Dimension SIZE = new Dimension(700, 170);
-    public static final Font FONT = new Font("Lato", Font.BOLD, 50);
+    public static final Font FONT = new Font("Lato",Font.BOLD, 50);
     private static final Color COLOR = new Color(84, 148, 21);
     private static final Color COLOR2 = new Color(141, 198, 63);
 

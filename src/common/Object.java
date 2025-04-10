@@ -19,6 +19,11 @@ public class Object extends JComponent {
     protected Position position;
     protected Image image = null;
 
+    public Object() {
+        super();
+        this.position = new Position();
+    }
+
     public Object(Position position) {
         super();
         this.position = position;
@@ -59,7 +64,7 @@ public class Object extends JComponent {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(image.get(), position.x, position.y, null);
+        image.draw((Graphics2D) g, position.getScreenPosition(), null);
     }
 
     public Position getPosition() {
@@ -89,11 +94,15 @@ public class Object extends JComponent {
     }
 
     public void draw(Graphics2D g, ImageObserver observer) {
-        image.draw(g, position.x, position.y, observer);
+        if(image == null)
+            return;
+
+        image.draw(g, position.getScreenPosition(), observer);
 
         if(DebugLog.isOn())
             drawCollider(g, colliderColor);
     }
+
     private void drawCollider(Graphics2D g, Color color) {
         image.drawBorder(g, color, position);
     }

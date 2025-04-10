@@ -123,7 +123,7 @@ public class Player implements Serializable {
         return Utils.getRotatedImage(Spritesheet.SNAKESHEET.getSprite(frame), newDir.getAngle(dir));
     }
 
-    private BufferedImage getHeadFrame() {
+    public BufferedImage getHeadFrame() {
         return Utils.getRotatedImage(Spritesheet.SNAKESHEET.getSprite(3), direction.getAngle());
     }
 
@@ -222,6 +222,18 @@ public class Player implements Serializable {
         if(tail == null)
             return;
         tail.setColliderColor(Color.BLUE);
+    }
+
+    public void drawLobby(Graphics2D g, Position position, Direction direction, ImageObserver observer) {
+        if(g == null)
+            throw new IllegalArgumentException("Graphics cannot be null");
+
+        SnakePart head = new SnakePart(position);
+        head.setImage(Utils.getRotatedImage(getHeadFrame(), direction.getAngle()));
+        head.setDirection(direction);
+        
+        head.draw(g, observer);
+        
     }
 
     public void draw(Graphics2D g, ImageObserver observer) {

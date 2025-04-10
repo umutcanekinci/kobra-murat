@@ -16,9 +16,10 @@ import client.panel.PausePanel;
 import common.Constants;
 import common.Direction;
 import common.Utils;
-import common.graphics.Menu;
 import common.graphics.image.SplashListener;
+import common.graphics.panel.Menu;
 import common.graphics.panel.Panel;
+import common.graphics.panel.GridBagPanel;
 import common.graphics.panel.SplashPanel;
 import common.graphics.ui.Button;
 import common.graphics.ui.TextField;
@@ -117,7 +118,7 @@ public class UI implements GameListener, SplashListener, ClientListener {
         }));
     }
 
-    private static void initLobby(Container container) {        
+    private static void initLobby(Container container) {   
         container.add(addPanel(new LobbyPanel(), Page.LOBBY));
     }
 
@@ -129,7 +130,7 @@ public class UI implements GameListener, SplashListener, ClientListener {
     }
 
     private static void newPanel(Container container, Page page, Component[] components) {
-        container.add(addPanel(new Panel(), page, components));
+        container.add(addPanel(new GridBagPanel(), page, components));
     }
 
     private static Panel addPanel(Panel panel, Page page, Component[] components) {
