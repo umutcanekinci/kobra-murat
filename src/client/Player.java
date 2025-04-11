@@ -3,6 +3,7 @@ package client;
 import java.awt.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 import java.awt.image.BufferedImage;
 import java.awt.image.ImageObserver;
 
@@ -12,10 +13,11 @@ import common.Spritesheet;
 import common.Utils;
 import common.Direction;
 
+
 public class Player implements Serializable {
     
     private Direction direction = Constants.DEFAULT_DIRECTION;
-    private ArrayList<SnakePart> parts = new ArrayList<>();
+    private ArrayList<SnakePartObject> parts = new ArrayList<>();
     private int tailIndex = 0;
 
     private int speed;
@@ -54,7 +56,7 @@ public class Player implements Serializable {
         speed = Utils.calculateSpeed(length);
     }
     
-    public ArrayList<Position> getParts() {
+    public List<Position> getParts() {
         ArrayList<Position> points = new ArrayList<>();
         parts.forEach(part -> points.add(part.getPosition()));
         return points;
@@ -67,14 +69,14 @@ public class Player implements Serializable {
         getHead().setPosition(position);
     }
 
-    public SnakePart getHead() {
+    public SnakePartObject getHead() {
         if(parts.isEmpty())
             return null;
         
         return parts.get((tailIndex - 1 + length) % length);
     }
 
-    public boolean isHead(SnakePart part) {
+    public boolean isHead(SnakePartObject part) {
         if(part == null)
             throw new IllegalArgumentException("Part cannot be null");
 
@@ -103,12 +105,12 @@ public class Player implements Serializable {
         if(position == null)
             throw new IllegalArgumentException("Position cannot be null");
 
-        SnakePart head = getHead();
+        SnakePartObject head = getHead();
         head.setImage(getFrame(head.getDirection(), direction));
 
         tailIndex = (tailIndex + 1) % length;
 
-        SnakePart newHead = getHead();
+        SnakePartObject newHead = getHead();
         newHead.setPosition(position);
 
         updateHead();
@@ -128,7 +130,7 @@ public class Player implements Serializable {
     }
 
     private void updateHead() {
-        SnakePart head = getHead();
+        SnakePartObject head = getHead();
         head.setDirection(direction);
         head.setImage(getHeadFrame());
     }
@@ -140,7 +142,7 @@ public class Player implements Serializable {
         return getTail().doesCollide(point);
     }
 
-    private SnakePart getTail() {
+    private SnakePartObject getTail() {
         return parts.get(tailIndex);
     }
 
@@ -164,7 +166,7 @@ public class Player implements Serializable {
 
     public void grow(int amount) {
         for(int i=0; i<amount; i++) {
-            parts.add(tailIndex, new SnakePart()); // locating the new part to the head position, also it is tailIndex so it will become new head after move.
+            parts.add(tailIndex, new SnakePartObject()); // locating the new part to the head position, also it is tailIndex so it will become new head after move.
         }
         length += amount;
         updateSpeed();
@@ -179,7 +181,7 @@ public class Player implements Serializable {
 
     public void resetParts() {
         tailIndex = 0;
-        parts.forEach(SnakePart::reset);
+        parts.forEach(SnakePartObject::reset);
     }
 
     public void resetDirection() {
@@ -190,12 +192,12 @@ public class Player implements Serializable {
         return getHead().getPosition();
     }
 
-    public void setParts(ArrayList<Position> parts) {
+    public void setParts(List<Position> parts) {
         if(parts == null)
             throw new IllegalArgumentException("Parts cannot be null");
 
         this.parts.clear();
-        parts.forEach(part -> this.parts.add(new SnakePart(part)));
+        parts.forEach(part -> this.parts.add(new SnakePartObject(part)));
         length = parts.size();
     }
     
@@ -203,7 +205,7 @@ public class Player implements Serializable {
         if(point == null)
             throw new IllegalArgumentException("Point cannot be null");
 
-        for(SnakePart part : parts) {
+        for(SnakePartObject part : parts) {
             if(part.doesCollide(point))
                 return true;
         }
@@ -213,12 +215,12 @@ public class Player implements Serializable {
     private void updateColliderColors() {
         parts.forEach(part -> part.setColliderColor(Color.RED));
         
-        SnakePart head = getHead();
+        SnakePartObject head = getHead();
         if(head == null)
             return;
         head.setColliderColor(Color.GREEN);
 
-        SnakePart tail = getTail();
+        SnakePartObject tail = getTail();
         if(tail == null)
             return;
         tail.setColliderColor(Color.BLUE);
@@ -228,7 +230,7 @@ public class Player implements Serializable {
         if(g == null)
             throw new IllegalArgumentException("Graphics cannot be null");
 
-        SnakePart head = new SnakePart(position);
+        SnakePartObject head = new SnakePartObject(position);
         head.setImage(Utils.getRotatedImage(getHeadFrame(), direction.getAngle()));
         head.setDirection(direction);
         

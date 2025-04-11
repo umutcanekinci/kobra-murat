@@ -2,6 +2,11 @@ package client;
 
 import java.awt.event.KeyEvent;
 
+/**
+ * Enum representing the keys used for movement in the game.
+ * This enum is used to map the keys to their respective key codes.
+ * @version 1.0
+ */
 public enum MoveKey {
     LEFT(KeyEvent.VK_LEFT),
     UP(KeyEvent.VK_UP),

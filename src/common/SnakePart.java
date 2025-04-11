@@ -1,12 +1,9 @@
-package server;
+package common;
 
-import common.Direction;
-import common.Position;
-import common.Constants;
-
+// Base class for all parts of snake. Server usng that but client uses a child with gui.
 public class SnakePart extends Position {
 
-    Direction direction;
+    private Direction direction;
 
     public SnakePart() {
         super(Constants.HIDDEN_PART_POSITION);
@@ -18,10 +15,13 @@ public class SnakePart extends Position {
 
     public void reset() {
         setLocation(Constants.HIDDEN_PART_POSITION);
-        setDirection(null);
+        setDirection(Constants.DEFAULT_DIRECTION);
     }
 
     public void setDirection(Direction direction) {
+        if (direction == null)
+            throw new IllegalArgumentException("Direction cannot be null");
+
         this.direction = direction;
     }
 
@@ -30,6 +30,9 @@ public class SnakePart extends Position {
     }
 
     public boolean isHidden(Position point) {
+        if (point == null)
+            throw new IllegalArgumentException("Position cannot be null");
+            
         return point.equals(Constants.HIDDEN_PART_POSITION);
     }
 }

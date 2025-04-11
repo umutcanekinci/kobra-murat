@@ -12,7 +12,7 @@ import common.Position;
  * The AppleManager class is responsible for managing the apples in the game.
  * It handles the spawning, removal, and drawing of apples on the game screen.
  * It also implements the ClientListener interface to handle client connection events.
- * @since 1.0
+ * @version 1.0
  * @see ClientListener
  * @see Apple
  * @see Position
@@ -25,13 +25,13 @@ public class AppleManager implements ClientListener {
 
     /**
      * Private constructor to prevent instantiation.
-     * @since 1.0
+     * @version 1.0
      */
     private AppleManager() {}
 
     /**
      * @return The singleton instance of the AppleManager class.
-     * @since 1.0
+     * @version 1.0
      */
     public static AppleManager getInstance() {
         if(instance == null)
@@ -40,11 +40,11 @@ public class AppleManager implements ClientListener {
         return instance;
     }
 
-    /**
+    /***
      * Adds an apple to the list of apples.
      * @param position The position of the apple to be added.
      * @throws IllegalArgumentException if the position is null.
-     * @since 1.0
+     * @version 1.0
      */
     public static void add(Position position) {
         if(position == null)
@@ -57,7 +57,7 @@ public class AppleManager implements ClientListener {
      * Adds a list of apples to the list of apples.
      * @param positions The list of positions of the apples to be added.
      * @throws IllegalArgumentException if the positions are null.
-     * @since 1.0
+     * @version 1.0
      */
     public static void addAll(List<Position> positions) {
         if(positions == null)
@@ -69,7 +69,7 @@ public class AppleManager implements ClientListener {
 
     /**
      * Spawns apples until the maximum number of apples is reached.
-     * @since 1.0
+     * @version 1.0
      */
     public static void spawnAll() {
         apples.clear();
@@ -83,7 +83,7 @@ public class AppleManager implements ClientListener {
      * Spawns a single apple at a random position.
      * If there is no empty tile, it will not spawn an apple.
      * @return true if the apple was spawned successfully, false otherwise.
-     * @since 1.0
+     * @version 1.0
      */
     public static boolean spawnAtRandom() {
         /*
@@ -114,7 +114,7 @@ public class AppleManager implements ClientListener {
      * Removes an apple from the list of apples.
      * @param position The position of the apple to be removed.
      * @throws IllegalArgumentException if the position is null.
-     * @since 1.0
+     * @version 1.0
      */
     public static void remove(Position position) {
         if(position == null)
@@ -142,7 +142,7 @@ public class AppleManager implements ClientListener {
 
     /**
      * Clears the list of apples when the client connects.
-     * @since 1.0
+     * @version 1.0
      */
     @Override
     public void onClientConnected() {
@@ -151,7 +151,7 @@ public class AppleManager implements ClientListener {
 
     /**
      * Clears the list of apples when the client disconnects.
-     * @since 1.0
+     * @version 1.0
      * @see ClientListener#onClientDisconnected()
      */
     @Override
@@ -164,7 +164,7 @@ public class AppleManager implements ClientListener {
      * @param g The graphics object used to draw the apples.
      * @param observer The image observer used to observe the images.
      * @throws IllegalArgumentException if the graphics object is null.
-     * @since 1.0
+     * @version 1.0
      */
     public static void drawAll(Graphics2D g, ImageObserver observer) {
         if(g == null)
@@ -176,7 +176,7 @@ public class AppleManager implements ClientListener {
     /**
      * Gets the debug information of the apples.
      * @return A string containing the debug information of the apples.
-     * @since 1.0
+     * @version 1.0
      */
     public static String getInfo() {
         StringBuilder str = new StringBuilder("APPLES (" + apples.size() + ")\n");

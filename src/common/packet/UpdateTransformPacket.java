@@ -1,5 +1,6 @@
 package common.packet;
 import java.util.ArrayList;
+import java.util.List;
 
 import common.Direction;
 import common.Position;
@@ -7,10 +8,10 @@ import common.Position;
 public class UpdateTransformPacket extends Packet {
 
     public final int tailIndex;
-    public final ArrayList<Position> parts = new ArrayList<>();
     public final Direction direction;
+    private final List<Position> parts = new ArrayList<>();
  
-    public UpdateTransformPacket(int id, ArrayList<Position> parts, Direction direction, int tailIndex) {
+    public UpdateTransformPacket(int id, List<Position> parts, Direction direction, int tailIndex) {
         super(id);
         this.tailIndex = tailIndex;
         this.parts.addAll(parts);
@@ -22,14 +23,14 @@ public class UpdateTransformPacket extends Packet {
     }
 
     public UpdateTransformPacket(server.NetPlayer player) {
-        this(player.getId(), player.getParts(), player.getDirection(), player.tailIndex);
+        this(player.getId(), player.getParts(), player.getDirection(), player.getTailIndex());
     }
 
     public int getTailIndex() {
         return tailIndex;
     }
 
-    public ArrayList<Position> getParts() {
+    public List<Position> getParts() {
         return parts;
     }
 

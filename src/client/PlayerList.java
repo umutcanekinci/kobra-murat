@@ -3,6 +3,7 @@ import java.awt.Graphics2D;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import common.Direction;
 import common.Position;
@@ -86,7 +87,7 @@ public class PlayerList implements ClientListener {
         return player;
     }
 
-    public static ArrayList<NetPlayer> getPlayers() {
+    public static List<NetPlayer> getPlayers() {
         return new ArrayList<>(players.values());
     }
 
@@ -94,7 +95,7 @@ public class PlayerList implements ClientListener {
         return players.size();
     }
 
-    public static ArrayList<Position> getSnakeParts() {
+    public static List<Position> getSnakeParts() {
         ArrayList<Position> parts = new ArrayList<>();
         for (NetPlayer player : players.values()) {
             parts.addAll(player.getParts());
@@ -110,7 +111,7 @@ public class PlayerList implements ClientListener {
 
         players.put(id, new NetPlayer(id));
 
-        listeners.forEach(listener -> listener.onPlayerAdded());
+        listeners.forEach(PlayerListListener::onPlayerAdded);
     }
 
     public static void spawn(int id, Position spawnPoint, int length) {
@@ -120,7 +121,7 @@ public class PlayerList implements ClientListener {
         getPlayer(id).spawn(spawnPoint, length);
     }
 
-    public static void updateTransform(int id, Direction direction, ArrayList<Position> parts, int tailIndex) {
+    public static void updateTransform(int id, Direction direction, List<Position> parts, int tailIndex) {
         if(parts == null)
             throw new IllegalArgumentException("Parts cannot be null");
 
@@ -162,7 +163,7 @@ public class PlayerList implements ClientListener {
             return;
         players.remove(id);
 
-        listeners.forEach(listener -> listener.onPlayerRemoved());
+        listeners.forEach(PlayerListListener::onPlayerRemoved);
     }
 
     //endregion

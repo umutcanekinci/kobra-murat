@@ -2,7 +2,6 @@ package client;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.lang.Object;
 
 import common.packet.EatApplePacket;
 import common.packet.RotatePacket;
@@ -22,8 +21,10 @@ public class PacketHandler {
 
     private static final Logger LOGGER = Logger.getLogger(PacketHandler.class.getName());
 
+    private PacketHandler() {}
+
     public static void handle(Object packet) {
-        LOGGER.log(Level.INFO, packet + "\n");
+        LOGGER.log(Level.INFO, "{0}\n", packet);
 
         if (packet == null) {
             LOGGER.log(Level.WARNING, "Received null packet\n");
@@ -34,9 +35,8 @@ public class PacketHandler {
             case IdPacket idPacket ->
                 PlayerList.setId(idPacket.getId());
     
-            case SetMapPacket setMapPacket -> {
+            case SetMapPacket setMapPacket ->
                 Tilemap.load(setMapPacket);
-            }
                 
             case AddPacket addPacket ->
                 PlayerList.add(addPacket.getId());
@@ -51,18 +51,16 @@ public class PacketHandler {
             case UpdateTransformPacket transformPacket ->
                 PlayerList.updateTransform(transformPacket.getId(), transformPacket.getDirection(), transformPacket.getParts(), transformPacket.getTailIndex());
 
-            case StartPacket startPacket -> {
+            case StartPacket startPacket ->
                 Game.start();
-            }
 
             case EatApplePacket eatApplePacket -> {
                 AppleManager.remove(eatApplePacket.getPosition());
                 PlayerList.grow(eatApplePacket.getId(), 1);
             }
 
-            case SpawnApplesPacket spawnApplesPacket -> {
+            case SpawnApplesPacket spawnApplesPacket ->
                 AppleManager.addAll(spawnApplesPacket.getPositions());
-            }
 
             case SpawnApplePacket spawnApplePacket ->
                 AppleManager.add(spawnApplePacket.getPosition());
@@ -76,12 +74,11 @@ public class PacketHandler {
             case RemovePacket removePacket ->
                 PlayerList.remove(removePacket.getId());
                 
-            case ServerClosedPacket serverClosedPacket -> {
+            case ServerClosedPacket serverClosedPacket ->
                 Client.close();
-            }
 
             default ->
-                LOGGER.log(Level.WARNING, "Unknown packet: " + packet + "\n");
+                LOGGER.log(Level.WARNING, "Unknown packet: {0}\n", packet);
         }
     }
 

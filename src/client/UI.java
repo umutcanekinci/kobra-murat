@@ -9,7 +9,9 @@ import java.awt.RenderingHints;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
+import client.panel.ConnectPanel;
 import client.panel.GamePanel;
 import client.panel.LobbyPanel;
 import client.panel.PausePanel;
@@ -38,12 +40,8 @@ public class UI implements GameListener, SplashListener, ClientListener {
     }});
 
     private static final Font DEFAULT_FONT = new Font("Lato", Font.BOLD, 25);
-
-    private static TextField hostField = new TextField("localhost");
-    private static TextField portField = new TextField(Constants.PORT + "");
-
-    private static final ArrayList<UIListener> listeners = new ArrayList<>();
-
+    private static final List<UIListener> listeners = new ArrayList<>();
+   
     private UI() {}
 
     public static UI getInstance() {
@@ -103,11 +101,14 @@ public class UI implements GameListener, SplashListener, ClientListener {
     }
 
     private static void initConnect(Container container) {
-        newPanel(container, Page.CONNECT, new Component[] {
+        TextField hostField = new TextField("localhost");
+        TextField portField = new TextField(Constants.PORT + ""); 
+        container.add(addPanel(new ConnectPanel(hostField, portField), Page.PAUSE, new Component[] {
+            new Button("Devam et", e -> Game.start()),
             hostField,
             portField,
             new Button("Bağlan", e -> listeners.forEach(l -> l.onConnectButtonClicked(hostField.getText(), Integer.parseInt(portField.getText())))),
-        });
+        }));
     }
 
     private static void initPause(Container container) {
@@ -178,7 +179,7 @@ public class UI implements GameListener, SplashListener, ClientListener {
 
     @Override
     public void onClientConnected() {
-            MENU.openPage(Page.LOBBY);
+        MENU.openPage(Page.LOBBY);
     }
 
     @Override

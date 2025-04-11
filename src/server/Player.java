@@ -2,18 +2,20 @@ package server;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
 
 import common.Utils;
 import common.Constants;
 import common.Direction;
 import common.Position;
+import common.SnakePart;
 
 public class Player implements Serializable {
 
-    public ArrayList<SnakePart> parts = new ArrayList<>();
+    private List<SnakePart> parts = new ArrayList<>();
     private Direction direction = Constants.DEFAULT_DIRECTION;
-    public int tailIndex = 0;
-    public int length;
+    private int tailIndex = 0;
+    private int length;
     private int speed;
 
     public int getSpeed() {
@@ -24,9 +26,13 @@ public class Player implements Serializable {
         return direction;
     }
 
-    public ArrayList<Position> getParts() {
+    public int getTailIndex() {
+        return tailIndex;
+    }
+
+    public List<Position> getParts() {
         ArrayList<Position> points = new ArrayList<>();
-        parts.forEach(part -> points.add(part));
+        parts.forEach(points::add);
         return points;
     }
 

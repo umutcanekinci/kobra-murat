@@ -48,7 +48,7 @@ public class Game extends JPanel implements ActionListener, KeyListener {
         setBackground(Color.red);
         initListeners();
         
-        listeners.forEach(listener -> listener.onWindowReady());
+        listeners.forEach(GameListener::onWindowReady);
         
         initTimer();
     }
@@ -168,9 +168,8 @@ public class Game extends JPanel implements ActionListener, KeyListener {
     }
 
     private static void update() {
-        if(isStarted) {
-            if(!Client.isConnected())
-                OfflinePlayerController.update();
+        if(isStarted && !Client.isConnected()) {
+            OfflinePlayerController.update();
         }
     }
 

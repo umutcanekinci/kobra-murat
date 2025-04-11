@@ -10,6 +10,15 @@ import common.Constants;
 import common.Utils;
 import server.Server;
 
+/**
+ * DebugLog class is used to display debug information on the screen.
+ * It is used to toggle debug mode on and off.
+ * It also displays the current FPS, game information, and other debug information.
+ * It is used for debugging purposes only and should not be used in production code.
+ * It is not thread-safe and should only be used in the main game thread.
+ * 
+ * @version 1.0
+ */
 public class DebugLog {
 
     private static boolean debugMode = false;
@@ -18,6 +27,13 @@ public class DebugLog {
     private static final Color BACKGROUND_COLOR = new Color(0, 0, 0, 150);
     private static final Rectangle RECT = new Rectangle(20, 0, 410, 0);
     
+    /**
+     * The constructor is private to prevent instantiation of this class.
+     * This class is a utility class and should not be instantiated.
+     * @version 1.0
+     */
+    private DebugLog() {}
+
     public static boolean isOn() {
         return debugMode;
     }
