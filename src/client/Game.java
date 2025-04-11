@@ -33,12 +33,12 @@ public class Game extends JPanel implements ActionListener, KeyListener {
 
     //region ---------------------------------------- INIT METHODS ----------------------------------------
 
-    private static Game INSTANCE;
+    private static Game instance;
     public static Game getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new Game();
+        if(instance == null)
+            instance = new Game();
 
-        return INSTANCE;
+        return instance;
     }
 
     private Game() {

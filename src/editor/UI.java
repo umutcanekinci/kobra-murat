@@ -15,7 +15,7 @@ import common.graphics.ui.Button;
 
 public class UI implements SplashListener {
 
-    private static UI INSTANCE;
+    private static UI instance;
     static final Menu<Page> MENU = new Menu<>(new HashMap<Page, Page>() {{
             put(Page.EDITOR, Page.MAIN_MENU);
     }});
@@ -25,10 +25,10 @@ public class UI implements SplashListener {
     private UI() {}
 
     public static UI getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new UI();
+        if(instance == null)
+            instance = new UI();
             
-        return INSTANCE;
+        return instance;
     }
 
     public static void addListener(UIListener listener) {

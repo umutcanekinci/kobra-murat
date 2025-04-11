@@ -2,7 +2,6 @@ package client;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.lang.Object;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class Client implements UIListener, ServerListener, GameListener {
     
     //region ----------------------------------- Variables -----------------------------------
     
-    private static Client INSTANCE;
+    private static Client instance;
     private static ClientState state = ClientState.CLOSED;
     private static String host;
     private static int port;
@@ -52,10 +51,10 @@ public class Client implements UIListener, ServerListener, GameListener {
      * @since 1.0
      */
     public static Client getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new Client();
+        if(instance == null)
+            instance = new Client();
             
-        return INSTANCE;
+        return instance;
     }
 
     /**
@@ -82,10 +81,10 @@ public class Client implements UIListener, ServerListener, GameListener {
             throw new IllegalArgumentException("State cannot be null.");
 
         Client.state = state;
-        switch (state) {
-            case CONNECTED -> listeners.forEach(ClientListener::onClientConnected);
-            case CLOSED -> listeners.forEach(ClientListener::onClientDisconnected);
-        }
+        if(state == ClientState.CLOSED)
+            listeners.forEach(ClientListener::onClientConnected);
+        else if(state == ClientState.CONNECTED)
+            listeners.forEach(ClientListener::onClientDisconnected);
     }
 
     public static void setHost(String host) {
@@ -131,17 +130,17 @@ public class Client implements UIListener, ServerListener, GameListener {
 
     @Override
     public void onConnectButtonClicked(String host, int port) {
+        if(host.isEmpty())
+            throw new IllegalArgumentException("Host cannot be null or empty.");
+        
+        if(port <= 0)
+            throw new IllegalArgumentException("Port cannot be less than or equal to 0.");
+
         if(isConnected())
             return;
 
         setHost(host);
         setPort(port);
-
-        if(host == null || host.isEmpty())
-            throw new IllegalArgumentException("Host cannot be null or empty.");
-
-        if(port <= 0)
-            throw new IllegalArgumentException("Port cannot be less than or equal to 0.");
 
         start();
     }
@@ -175,6 +174,7 @@ public class Client implements UIListener, ServerListener, GameListener {
             throw new IllegalStateException("Client is already connected.");
 
         new Thread() {
+            @Override
             public void run() {
                 connect();
             }

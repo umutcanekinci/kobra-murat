@@ -1,6 +1,7 @@
 package server;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import common.Connection;
 import common.Utils;
@@ -14,22 +15,20 @@ class AppleManager implements TilemapListener {
      * This script is seperated from the game.AppleManager class because server does not need to draw the apples.
      */
 
-    private static AppleManager INSTANCE;
+    private static AppleManager instance;
     private static final int APPLE_COUNT = 5;
     private static ArrayList<Position> apples = new ArrayList<>();
-    private static ArrayList<Position> emptyTiles;
 
     private AppleManager() {}
 
     public static AppleManager getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new AppleManager();
+        if(instance == null)
+            instance = new AppleManager();
 
-        return INSTANCE;
+        return instance;
     }
 
     public void onMapLoaded(ArrayList<Position> emptyTiles) {
-        AppleManager.emptyTiles = emptyTiles;
         spawnAll();
     }
 
@@ -52,6 +51,8 @@ class AppleManager implements TilemapListener {
          * We should not spawn an apple if EMPTY_TILE_COUNT <= TOTAL_SNAKE_SIZE + APPLE_COUNT
          * We have to remove the snake parts from the empty tiles every time we spawn an apple because the snake can grow and move
          */
+        List<Position> emptyTiles = Tilemap.getEmptyTiles();
+        
         if(emptyTiles == null)
             return null;
         
@@ -67,7 +68,7 @@ class AppleManager implements TilemapListener {
         return position;
     }
 
-    public static ArrayList<Position> getCollecteds(NetPlayer player) {
+    public static List<Position> getCollecteds(NetPlayer player) {
         ArrayList<Position> collectedApples = new ArrayList<>();
         for (Position apple : apples) {
             //if(PlayerList.growIfCollide(apple.getPosition()))
@@ -77,13 +78,12 @@ class AppleManager implements TilemapListener {
         return collectedApples;
     }
 
-    public static void removeAll(ArrayList<Position> applesToRemove) {
+    public static void removeAll(List<Position> applesToRemove) {
         apples.removeAll(applesToRemove);
     }
 
     public static void sendAllTo(Connection connection) {
         connection.sendData(new SpawnApplesPacket(apples));
-        //apples.forEach((apple) -> connection.sendData(new SpawnApplePacket(apple)));
     }
 
     public static String getInfo() {

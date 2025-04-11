@@ -25,7 +25,7 @@ public class Server implements UIListener {
 
     //region ------------------------------------ Variables ------------------------------------
     
-    private static Server INSTANCE;
+    private static Server instance;
     private static final Logger LOGGER = Logger.getLogger(Server.class.getName());
     private static String ip = Utils.getLocalIp();
     private static ServerSocket serverSocket;
@@ -40,10 +40,10 @@ public class Server implements UIListener {
     private Server() {}
 
     public static Server getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new Server();
+        if(instance == null)
+            instance = new Server();
             
-        return INSTANCE;
+        return instance;
     }
 
     @Override

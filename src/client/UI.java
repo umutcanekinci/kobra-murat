@@ -27,7 +27,7 @@ import server.Server;
 
 public class UI implements GameListener, SplashListener, ClientListener {
 
-    private static UI INSTANCE;
+    private static UI instance;
     public static final Menu<Page> MENU = new Menu<>(new HashMap<Page, Page>() {{
             put(Page.PLAY_MODE, Page.MAIN_MENU);
             put(Page.GAME, Page.PAUSE);
@@ -47,10 +47,10 @@ public class UI implements GameListener, SplashListener, ClientListener {
     private UI() {}
 
     public static UI getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new UI();
+        if(instance == null)
+            instance = new UI();
             
-        return INSTANCE;
+        return instance;
     }
 
     public static void addListener(UIListener listener) {

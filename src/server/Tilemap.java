@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 import common.Position;
 import common.ServerListener;
@@ -20,11 +21,12 @@ public class Tilemap implements ServerListener {
      * This class is a singleton because we only need one instance of it.
      */
 
-    private static Tilemap INSTANCE;
+    private static Tilemap instance;
     private static int currentLevel;
     private static Tile[][] tiles;
     private static ArrayList<Position> emptyTiles;
-    private static int cols, rows;
+    private static int cols;
+    private static int rows;
     private static final Position spawnPoint = new Position(0, 0);
     private static ArrayList<TilemapListener> listeners = new ArrayList<>();
 
@@ -38,10 +40,10 @@ public class Tilemap implements ServerListener {
     private Tilemap() {}
 
     public static Tilemap getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new Tilemap();
+        if(instance == null)
+            instance = new Tilemap();
 
-        return INSTANCE;
+        return instance;
     }
 
     @Override
@@ -137,7 +139,7 @@ public class Tilemap implements ServerListener {
         connection.sendData(new SetMapPacket(Tilemap.currentLevel));
     }
 
-    public static ArrayList<Position> getEmptyTiles() {
+    public static List<Position> getEmptyTiles() {
         return emptyTiles;
     }
 

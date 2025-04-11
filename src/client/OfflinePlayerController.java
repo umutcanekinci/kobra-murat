@@ -1,6 +1,6 @@
 package client;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import common.Position;
 import common.Constants;
@@ -18,7 +18,7 @@ public class OfflinePlayerController {
      * It manages the game loop and the game state like collision detection, apple managment.
      */
 
-    private static OfflinePlayerController INSTANCE;
+    private static OfflinePlayerController instance;
     private static NetPlayer player;
     private static double displacement = 0;
     private static boolean canRotate = true;
@@ -26,9 +26,9 @@ public class OfflinePlayerController {
     private OfflinePlayerController() {}
 
     public static OfflinePlayerController getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new OfflinePlayerController();
-        return INSTANCE;
+        if(instance == null)
+            instance = new OfflinePlayerController();
+        return instance;
     }
 
     public static void init() {
@@ -78,22 +78,20 @@ public class OfflinePlayerController {
             throw new NullPointerException("Position cannot be null");
 
         Boolean doesHitSelf = player.doesCollide(position) && !player.isPointOnTail(position);
-        if(doesHitSelf || Tilemap.doesCollide(position))
-            return true;
-        return false;
+        return doesHitSelf || Tilemap.doesCollide(position);
     }
 
     private static void collectApples(Position position) {
         if(position == null)
             throw new NullPointerException("Position cannot be null");
 
-        ArrayList<Position> collectedApples = AppleManager.getCollecteds(position);
+        List<Position> collectedApples = AppleManager.getCollides(position);
 
         if(collectedApples.isEmpty())
             return;
             
         collectedApples.forEach(apple -> PacketHandler.handle(new EatApplePacket(player.getId(), apple)));
-        collectedApples.forEach(apple -> AppleManager.spawnAppleAtRandom());
+        collectedApples.forEach(apple -> AppleManager.spawnAtRandom());
     }
 
     static void rotate(Direction newDirection) {

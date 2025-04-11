@@ -18,7 +18,6 @@ import client.UI;
 
 import common.Direction;
 import common.Object;
-import common.Position;
 import common.Utils;
 import common.graphics.panel.BorderPanel;
 import common.graphics.panel.Panel;

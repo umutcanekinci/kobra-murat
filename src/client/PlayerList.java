@@ -17,7 +17,7 @@ public class PlayerList implements ClientListener {
      * 
      */
 
-    private static PlayerList INSTANCE;
+    private static PlayerList instance;
     
     private static int id;
     private static final HashMap<Integer, NetPlayer> players = new HashMap<>();
@@ -34,10 +34,10 @@ public class PlayerList implements ClientListener {
     private PlayerList() {}
 
     public static PlayerList getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new PlayerList();
+        if(instance == null)
+            instance = new PlayerList();
 
-        return INSTANCE;
+        return instance;
     }
 
     @Override

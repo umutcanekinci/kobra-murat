@@ -1,6 +1,6 @@
 package server;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import common.Constants;
 import common.Position;
@@ -40,7 +40,7 @@ public class NetPlayer extends Player{
 
         Position position = getNextPosition();
         
-        Boolean doesHitSelf = doesCollide(position) && !isPointOnTail(position);
+        boolean doesHitSelf = doesCollide(position) && !isPointOnTail(position);
         if(doesHitSelf || Tilemap.doesCollide(position)) {
             SpawnPacket packet = new SpawnPacket(id, Tilemap.getSpawnPoint(), Constants.DEFAULT_LENGTH);
             PlayerList.spawnPlayer(packet);
@@ -55,7 +55,7 @@ public class NetPlayer extends Player{
     }
 
     private void collectApples() {
-        ArrayList<Position> collectedApples = AppleManager.getCollecteds(this);
+        List<Position> collectedApples = AppleManager.getCollecteds(this);
 
         if(collectedApples.isEmpty())
             return;
@@ -73,13 +73,11 @@ public class NetPlayer extends Player{
         connection.close();
     }
 
+    @Override
     public String toString() {
-        String info = 
-        "Player " + id +
-        (isHost()          ? " (Host)" : "")
-        + "\n" + super.toString();
-        
-        return info;
+        return "Player " + id +
+        (isHost()          ? " (Host)" : "") +
+        "\n" + super.toString();
     }
 
     public boolean isHost() {

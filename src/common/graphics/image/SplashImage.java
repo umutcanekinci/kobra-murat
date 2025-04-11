@@ -16,7 +16,7 @@ public class SplashImage extends BackgroundImage implements MouseListener {
 
     //region ---------------------------------------- Variables ------------------------------------------
 
-    private static SplashImage INSTANCE;
+    private static SplashImage instance;
     private static final String IMAGE_PATH = "images/splash.png";
     private static boolean isFadingIn;
     private static int alpha;
@@ -50,10 +50,10 @@ public class SplashImage extends BackgroundImage implements MouseListener {
     }
 
     public static SplashImage getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new SplashImage();
+        if(instance == null)
+            instance = new SplashImage();
 
-        return INSTANCE;
+        return instance;
     }
 
     public static void addListener(SplashListener splashListener) {

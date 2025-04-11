@@ -61,12 +61,6 @@ public class Object extends JComponent {
         return new Dimension(image.getWidth(), image.getHeight());
     }
     
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        image.draw((Graphics2D) g, position.getScreenPosition(), null);
-    }
-
     public Position getPosition() {
         return position;
     }
@@ -91,6 +85,12 @@ public class Object extends JComponent {
             return false;
 
         return this.position.equals(position);
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        draw((Graphics2D) g, null);
     }
 
     public void draw(Graphics2D g, ImageObserver observer) {

@@ -29,7 +29,7 @@ public class GamePanel extends Panel {
         Graphics2D g2d = (Graphics2D) g.create();
 
         Tilemap.draw(g2d, this);
-        AppleManager.draw(g2d, this);
+        AppleManager.drawAll(g2d, this);
         PlayerList.draw(g2d, this);            
         UI.drawPlayerBoard(g2d);
     }

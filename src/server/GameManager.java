@@ -12,13 +12,13 @@ public class GameManager implements ActionListener, ServerListener {
     /* This class will manage the movements of players with a main update loop. */
     private static Timer timer;
 
-    private static GameManager INSTANCE;
+    private static GameManager instance;
 
     public static GameManager getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new GameManager();
+        if (instance == null) {
+            instance = new GameManager();
         }
-        return INSTANCE;
+        return instance;
     }
 
     @Override

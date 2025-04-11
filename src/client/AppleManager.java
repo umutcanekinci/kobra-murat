@@ -3,6 +3,7 @@ package client;
 import java.awt.Graphics2D;
 import java.awt.image.ImageObserver;
 import java.util.ArrayList;
+import java.util.List;
 
 import common.Utils;
 import common.Position;
@@ -18,7 +19,7 @@ import common.Position;
  */
 public class AppleManager implements ClientListener {
 
-    private static AppleManager INSTANCE;
+    private static AppleManager instance;
     private static final int APPLE_COUNT = 5;
     private static final ArrayList<Apple> apples = new ArrayList<>();
 
@@ -33,10 +34,10 @@ public class AppleManager implements ClientListener {
      * @since 1.0
      */
     public static AppleManager getInstance() {
-        if(INSTANCE == null)
-            INSTANCE = new AppleManager();
+        if(instance == null)
+            instance = new AppleManager();
 
-        return INSTANCE;
+        return instance;
     }
 
     /**
@@ -58,7 +59,7 @@ public class AppleManager implements ClientListener {
      * @throws IllegalArgumentException if the positions are null.
      * @since 1.0
      */
-    public static void addAll(ArrayList<Position> positions) {
+    public static void addAll(List<Position> positions) {
         if(positions == null)
             throw new IllegalArgumentException("Positions cannot be null.");
 
@@ -73,7 +74,7 @@ public class AppleManager implements ClientListener {
     public static void spawnAll() {
         apples.clear();
         while(apples.size() < APPLE_COUNT) {
-            if(!spawnAppleAtRandom())
+            if(!spawnAtRandom())
                 break;
         }
     }
@@ -84,7 +85,7 @@ public class AppleManager implements ClientListener {
      * @return true if the apple was spawned successfully, false otherwise.
      * @since 1.0
      */
-    public static boolean spawnAppleAtRandom() {
+    public static boolean spawnAtRandom() {
         /*
          * Instead of getting a random point and checking if it collides with the snake or an apple,
          * we can get the arraylist of empty points and get a random point from there.
@@ -127,7 +128,7 @@ public class AppleManager implements ClientListener {
      * @param position The position of the player.
      * @return A list of positions of apples that were collected at the given position.
      */
-    public static ArrayList<Position> getCollecteds(Position position) {
+    public static List<Position> getCollides(Position position) {
         if(position == null)
             throw new IllegalArgumentException("Position cannot be null.");
 
@@ -165,7 +166,7 @@ public class AppleManager implements ClientListener {
      * @throws IllegalArgumentException if the graphics object is null.
      * @since 1.0
      */
-    public static void draw(Graphics2D g, ImageObserver observer) {
+    public static void drawAll(Graphics2D g, ImageObserver observer) {
         if(g == null)
             throw new IllegalArgumentException("Graphics cannot be null.");
 
